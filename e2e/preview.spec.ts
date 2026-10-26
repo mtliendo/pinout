@@ -72,7 +72,7 @@ async function pickBoard(page: Page, name = /DevKitC-1|ESP32-S3-DevKitC/) {
 
 async function confirmBoard(page: Page) {
   await expect(page.getByTestId("board-confirm")).toBeVisible();
-  await expect(page.getByText(/US quarter/i)).toBeVisible();
+  await expect(page.getByText("US quarter · 24.26 mm across")).toBeVisible();
   await page.getByRole("button", { name: "Yes, this is mine" }).click();
 }
 

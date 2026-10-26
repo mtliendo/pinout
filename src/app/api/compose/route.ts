@@ -67,10 +67,12 @@ HARD RULES:
     console.error("compose plan failed", error);
   }
 
+  const asked = [answers.board].flat().find((id): id is string => typeof id === "string" && boardIds.includes(id));
   const chosenBoard =
-    plan && boardIds.includes(plan.boardId)
+    asked ??
+    (plan && boardIds.includes(plan.boardId)
       ? plan.boardId
-      : inferBoardFromAnswers(answers, boardIds);
+      : inferBoardFromAnswers(answers, boardIds));
 
   const fromAnswers = partsFromAnswers(answers, partIds);
   const inferred = inferPartsFromIdea(idea).filter((id) =>
