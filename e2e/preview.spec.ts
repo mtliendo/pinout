@@ -81,7 +81,7 @@ async function pickPathIdea(page: Page, idea = /Motion servo|Button, LED/) {
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByTestId("path-picker")).toBeVisible();
   await page.getByRole("button", { name: /tested idea/i }).click();
-  await expect(page.getByTestId("idea-list")).toBeVisible();
+  await expect(page.getByTestId("idea-list").first()).toBeVisible();
   const cards = page.locator("[data-testid=idea-list] .path-card");
   const count = await cards.count();
   let clicked = false;
@@ -371,7 +371,7 @@ test.describe("Pinout preview", () => {
     await expect(page.getByRole("heading", { name: "Sensors" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Displays" })).toBeVisible();
     await page.getByPlaceholder("Search the catalog").fill("HC-SR04");
-    await expect(page.getByRole("button", { name: /HC-SR04/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /HC-SR04 ultrasonic/ })).toHaveCount(2);
     await expect(page.getByRole("button", { name: /SG90|servo/i })).toHaveCount(0);
   });
 
