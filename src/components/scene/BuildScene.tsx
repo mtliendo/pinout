@@ -87,7 +87,11 @@ export function BuildScene({
       <BreadboardModel breadboard={breadboard} faded={false} />
       {placed.map(({ placement, component, world, active, present }) => {
         if (!component || !present) return null;
-        const fade = !active && stepIndex < build.steps.length - 1;
+        const fade =
+          placement.part !== "mcu" &&
+          placement.part !== "bb" &&
+          !active &&
+          stepIndex < build.steps.length - 1;
         const lift = active ? 0 : 0;
         return (
           <group
@@ -146,17 +150,19 @@ export function CameraRig({
 
   useFrame((state, delta) => {
     if (preview) {
-      spin.current += delta * 0.22;
+      spin.current += delta * 0.18;
       const length = dim(payload.breadboard.body?.length_mm, 165);
-      const width = dim(payload.breadboard.body?.width_mm, 55);
       const cx = length / 2;
-      const cz = width / 2;
+      const cz = 14;
+      const cam = state.camera as THREE.PerspectiveCamera;
+      cam.fov += (40 - cam.fov) * 0.08;
+      cam.updateProjectionMatrix();
       state.camera.position.set(
-        cx + Math.sin(spin.current) * 90,
-        70,
-        cz + Math.cos(spin.current) * 90,
+        cx + Math.sin(spin.current) * 155,
+        110,
+        cz + Math.cos(spin.current) * 130,
       );
-      state.camera.lookAt(cx, 0, cz);
+      state.camera.lookAt(cx, 6, cz);
       return;
     }
     pos.current.lerp(new THREE.Vector3(...target.position), 1 - Math.pow(0.001, delta));

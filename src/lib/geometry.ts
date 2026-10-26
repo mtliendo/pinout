@@ -175,17 +175,17 @@ export function cameraFor(
   const target = callout ? holeWorld(callout, breadboard, 4) : center;
   switch (name) {
     case "left-low":
-      return { position: [-20, 40, -10], lookAt: target, fov: 32 };
+      return { position: [-55, 85, -48], lookAt: [Math.max(18, target[0] * 0.4), 4, 12], fov: 38 };
     case "left":
-      return { position: [-10, 70, -20], lookAt: target, fov: 34 };
+      return { position: [-40, 100, -55], lookAt: [Math.max(22, target[0] * 0.45), 6, 14], fov: 38 };
     case "right":
-      return { position: [length + 20, 70, width + 30], lookAt: target, fov: 34 };
+      return { position: [length + 55, 105, width + 60], lookAt: [length * 0.62, 6, 16], fov: 38 };
     case "top-zoom-rows-30-35":
-      return { position: [80, 55, 8], lookAt: [80, 0, 8], fov: 28 };
+      return { position: [86, 95, -42], lookAt: [86, 2, 14], fov: 36 };
     case "hero":
-      return { position: [-40, 110, -50], lookAt: center, fov: 36 };
+      return { position: [-28, 145, -95], lookAt: center, fov: 40 };
     case "top":
     default:
-      return { position: [center[0] - 10, 140, center[2] - 70], lookAt: center, fov: 32 };
+      return { position: [center[0] - 8, 175, center[2] - 110], lookAt: center, fov: 36 };
   }
 }

@@ -82,6 +82,10 @@ export function BreadboardModel({
           </mesh>
         );
       })}
+      <mesh position={[cx, 0.22, 13.97]}>
+        <boxGeometry args={[length - 6, 1.4, 4.4]} />
+        <meshToonMaterial color={toon("#e4ddd0", Boolean(faded))} />
+      </mesh>
       {holes.map((p, i) => (
         <mesh key={i} position={[p[0], 0.28, p[2]]}>
           <cylinderGeometry args={[0.52, 0.52, 0.55, 8]} />
@@ -133,20 +137,40 @@ export function BoardModel({
   const xiao = component.id.startsWith("xiao-");
   const cx = ox + length / 2;
   const cz = oy + width / 2;
+  const headerColor = (component.colors?.headers as string) ?? "#111111";
   return (
     <group>
       <group position={[cx, 0.9, cz]}>
         <ToonMesh color={(component.colors?.pcb as string) ?? "#1a1a1a"} faded={faded}>
           <boxGeometry args={[length, 1.6, width]} />
         </ToonMesh>
-        <group position={[xiao ? -2 : 4, 2.1, 0]}>
+        <group position={[xiao ? -2 : 8, 2.4, 0]}>
           <ToonMesh
             color={(component.colors?.module_shield as string) ?? "#c4c4c4"}
             faded={faded}
           >
-            <boxGeometry args={[xiao ? 12 : 26, 3.2, Math.max(8, width - 8)]} />
+            <boxGeometry args={[xiao ? 12 : 25, 3.4, Math.max(10, width - 10)]} />
           </ToonMesh>
         </group>
+        {!xiao && (
+          <>
+            <group position={[-length / 2 + 6, 1.7, 0]}>
+              <ToonMesh color="#2b2b2b" faded={faded}>
+                <boxGeometry args={[8, 0.6, width - 6]} />
+              </ToonMesh>
+            </group>
+            <group position={[0, 1.4, -width / 2 + 1.1]}>
+              <ToonMesh color={headerColor} faded={faded}>
+                <boxGeometry args={[length - 4, 2.2, 2.2]} />
+              </ToonMesh>
+            </group>
+            <group position={[0, 1.4, width / 2 - 1.1]}>
+              <ToonMesh color={headerColor} faded={faded}>
+                <boxGeometry args={[length - 4, 2.2, 2.2]} />
+              </ToonMesh>
+            </group>
+          </>
+        )}
         {component.features
           ?.filter((f) => f.kind === "usb")
           .map((f) => (
@@ -154,12 +178,28 @@ export function BoardModel({
               key={f.id}
               position={[
                 (f.position_mm?.x ?? length - 2) - cx,
-                1.2,
+                1.4,
                 (f.position_mm?.y ?? 6) - cz,
               ]}
             >
-              <ToonMesh color="#c9ccd1" faded={faded}>
-                <boxGeometry args={[7.2, 3.2, 6.2]} />
+              <ToonMesh color="#d5d8dc" faded={faded}>
+                <boxGeometry args={[8.4, 3.4, 7.2]} />
+              </ToonMesh>
+            </group>
+          ))}
+        {component.features
+          ?.filter((f) => f.kind === "button")
+          .map((f) => (
+            <group
+              key={f.id}
+              position={[
+                (f.position_mm?.x ?? 0) - cx,
+                2.2,
+                (f.position_mm?.y ?? 0) - cz,
+              ]}
+            >
+              <ToonMesh color="#2a2a2a" faded={faded}>
+                <boxGeometry args={[3.2, 1.4, 3.2]} />
               </ToonMesh>
             </group>
           ))}
@@ -193,8 +233,8 @@ export function CatalogPart({
         <ToonMesh color="#1f6b2a" faded={faded}>
           <boxGeometry args={[32, 1.6, 24]} />
         </ToonMesh>
-        <mesh position={[0, 8, 0]}>
-          <sphereGeometry args={[11, 24, 16]} />
+        <mesh position={[0, 7, 0]}>
+          <sphereGeometry args={[9, 24, 16]} />
           <meshToonMaterial color={toon("#f4f4f0", Boolean(faded))} />
           <Outlines thickness={1.4} color={faded ? "#c9c1b3" : INK} />
         </mesh>
@@ -213,11 +253,18 @@ export function CatalogPart({
         <ToonMesh color="#2f5fd0" faded={faded} emissive={active ? "#2f5fd0" : undefined}>
           <boxGeometry args={[23, 22, 12.2]} />
         </ToonMesh>
-        <ToonMesh color="#1b1b1b" faded={faded}>
-          <cylinderGeometry args={[3.2, 3.2, 4, 16]} />
-        </ToonMesh>
-        <mesh position={[0, 14, 0]} rotation={[0, 0, 0]}>
-          <boxGeometry args={[14, 1.4, 4]} />
+        <group position={[0, 2, 8]}>
+          <ToonMesh color="#2f5fd0" faded={faded}>
+            <boxGeometry args={[32, 2.2, 2.4]} />
+          </ToonMesh>
+        </group>
+        <group position={[6, 13, 0]}>
+          <ToonMesh color="#1b1b1b" faded={faded}>
+            <cylinderGeometry args={[4.2, 4.2, 5, 16]} />
+          </ToonMesh>
+        </group>
+        <mesh position={[11, 16.4, 0]}>
+          <boxGeometry args={[18, 1.6, 5]} />
           <meshToonMaterial color={toon("#efefe8", Boolean(faded))} />
           <Outlines thickness={1.2} color={INK} />
         </mesh>
@@ -318,7 +365,7 @@ export function GrowingWire({
   const geometry = useMemo(() => {
     const slice = curve.getPoints(Math.max(6, Math.floor(48 * t)));
     const sub = new THREE.CatmullRomCurve3(slice);
-    return new THREE.TubeGeometry(sub, slice.length, faded ? 0.28 : 0.42, 8, false);
+    return new THREE.TubeGeometry(sub, slice.length, faded ? 0.46 : 0.72, 10, false);
   }, [curve, t, faded]);
   return (
     <mesh geometry={geometry}>

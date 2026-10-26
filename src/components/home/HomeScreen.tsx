@@ -95,7 +95,7 @@ export function HomeScreen() {
             {preview ? (
               <BuildCanvas
                 payload={preview}
-                stepIndex={Math.max(0, preview.build.steps.length - 2)}
+                stepIndex={preview.build.steps.length - 1}
                 progress={1}
                 preview
               />

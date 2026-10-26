@@ -19,7 +19,7 @@ export function BuildCanvas({
 }) {
   return (
     <Canvas
-      camera={{ position: [-30, 120, -60], fov: 34, near: 0.1, far: 600 }}
+      camera={{ position: [-20, 160, -110], fov: 38, near: 0.1, far: 800 }}
       dpr={[1, 1.75]}
       gl={{ antialias: true, alpha: true }}
     >
