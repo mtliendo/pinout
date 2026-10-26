@@ -983,6 +983,20 @@ function requireMatch(label: string, text: string, needle: RegExp) {
 }
 
 {
+  const unoServo = composeBuild(
+    {
+      idea: "motion servo",
+      boardId: "arduino-uno-r3",
+      partIds: ["hc-sr501-pir", "sg90-servo", "led-5mm-red", "resistor-220"],
+    },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const ini = unoServo.steps.find((s) => s.code)?.code?.["platformio.ini"] ?? "";
+  requireMatch("Uno servo lib_deps", ini, /arduino-libraries\/Servo/);
+}
+
+{
   const neo = composeBuild(
     { idea: "neo", boardId: "esp32-c6-devkitc-1", partIds: ["ws2812b-strip"] },
     loaded.components,
