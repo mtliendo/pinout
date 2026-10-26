@@ -97,3 +97,13 @@ Visual system follows Hallmark v2 (`npx skills add nutlope/hallmark`) and [Gloss
 ## Preview deploys
 
 The Vercel project `pinout` on team `focus-otters-projects` is Git-linked to `mtliendo/pinout`. Pushes to this branch build **Preview** deployments only. Do not merge to `main` or promote to production from this MVP.
+
+## End-to-end tests
+
+Playwright hits the Preview URL (or `pnpm dev`) and walks both required ideas: a motion-triggered servo, and a button + LED + OLED. It asserts ≤5 questions, a valid guide, step forward/back through completion, no page errors, and that every used ESP32-S3 GPIO is in `safe_gpio`.
+
+```bash
+PLAYWRIGHT_BASE_URL=https://<preview>.vercel.app \
+PLAYWRIGHT_SHARE=<optional-sso-share-token> \
+pnpm test:e2e
+```

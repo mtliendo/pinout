@@ -17,7 +17,7 @@ const QuestionSchema = z.object({
           z.object({
             id: z.string(),
             label: z.string(),
-            catalogId: z.string().optional(),
+            catalogId: z.string(),
           }),
         ),
       }),
@@ -45,6 +45,7 @@ export async function POST(request: Request) {
 Rules:
 - At most 5 questions, usually 3.
 - Options must be chips the user can tap. Prefer catalog ids.
+- Every option needs catalogId: a catalog board/part id, or "" if it is not a catalog item.
 - Ask which board they have, which catalog parts they already have, and only the clarifications that change the wiring.
 - Never invent pins, voltages, or parts that are not in the catalog.
 - Do not ask for pin numbers. Pin assignment is deterministic and never comes from you.
@@ -94,8 +95,8 @@ function fallbackQuestions(catalog: ReturnType<typeof catalogSummary>) {
       prompt: "How will you power the build?",
       multi: false,
       options: [
-        { id: "usb", label: "USB from the computer" },
-        { id: "usb-plus-cap", label: "USB, and I can add a capacitor" },
+        { id: "usb", label: "USB from the computer", catalogId: "" },
+        { id: "usb-plus-cap", label: "USB, and I can add a capacitor", catalogId: "" },
       ],
     },
   ];

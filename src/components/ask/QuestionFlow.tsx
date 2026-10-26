@@ -133,13 +133,14 @@ export function QuestionFlow() {
             </p>
             <div className="pills">
               {question.options.map((option) => {
-                const on = selected.includes(option.id) || selected.includes(option.catalogId ?? "");
+                const key = option.catalogId || option.id;
+                const on = selected.includes(option.id) || selected.includes(key);
                 return (
                   <button
                     key={option.id}
                     type="button"
                     className={on ? "pill on" : "pill"}
-                    onClick={() => toggle(option.catalogId ?? option.id)}
+                    onClick={() => toggle(key)}
                   >
                     {option.label}
                   </button>
