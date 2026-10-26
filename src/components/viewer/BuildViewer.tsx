@@ -342,11 +342,15 @@ export function BuildViewer() {
 }
 
 function shortBuildTitle(title: string) {
-  return title
-    .replace(/\s*\([^)]*\)/g, "")
-    .replace(/\s*ESP32-S3 DevKitC-1/gi, "")
-    .replace(/\.$/, "")
-    .trim() || "this";
+  const cleaned = title.replace(/\s*\([^)]*\)/g, "").replace(/\.$/, "").trim();
+  if (/button/i.test(cleaned) && /oled|led/i.test(cleaned)) {
+    return "the button, LED and OLED";
+  }
+  if (/motion|servo|pir/i.test(cleaned)) return "the motion servo";
+  return (
+    cleaned.replace(/\s+with\s+ESP32.*$/i, "").replace(/\s*ESP32-S3.*$/i, "").trim() ||
+    "this"
+  );
 }
 
 function shortBoardName(name?: string) {
