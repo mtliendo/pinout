@@ -2291,7 +2291,13 @@ export function pioEnv(board: Component): {
       platform: pio.platform,
       board: pio.board,
       framework: pio.framework ?? "arduino",
-      extra: [],
+      // Compose emits hardware GPIO numbers. Official espressif32 8.x
+      // (Arduino 3.x) remaps Nano ESP32 D-numbers; that turns NeoPixel's
+      // C rmtInit into a C++-only digitalPinToGPIONumber link error.
+      extra:
+        board.id === "arduino-nano-esp32"
+          ? ["build_flags = -DBOARD_USES_HW_GPIO_NUMBERS"]
+          : [],
     };
   }
   if (board.id.startsWith("xiao-esp32c3")) {
@@ -2339,12 +2345,12 @@ function sketchFor(
     roles.oled ? "adafruit/Adafruit SSD1306" : "",
     roles.oled ? "adafruit/Adafruit GFX Library" : "",
     roles.sonar ? "teckel12/NewPing" : "",
-    // Official PlatformIO espressif32 is Arduino-ESP32 2.x and has no
-    // digitalPinToGPIONumber. Adafruit NeoPixel 1.13+ needs that symbol
-    // (Nano ESP32 failed to link 1/113 on GitHub). C6/pioarduino is 3.x.
+    // Registry owner/name@version — spaces around @ break PIO's parser.
+    // 1.12.3 is the last release that does not assume Arduino 3.x helpers
+    // on every ESP32 core. C6/pioarduino stays unpinned.
     roles.neo
       ? pio.platform === "espressif32"
-        ? "adafruit/Adafruit NeoPixel @ 1.12.3"
+        ? "adafruit/Adafruit NeoPixel@1.12.3"
         : "adafruit/Adafruit NeoPixel"
       : "",
     roles.lcd ? "marcoschwartz/LiquidCrystal_I2C" : "",

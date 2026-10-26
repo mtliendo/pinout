@@ -5,11 +5,9 @@ on:
   pull_request:
 
 jobs:
-  specs-and-compile:
+  specs:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-    env:
-      PLATFORMIO_CORE_DIR: ${{ github.workspace }}/.pio-core
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -27,16 +25,68 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Cache PlatformIO
+      - name: check:specs
+        env:
+          SKIP_COMPILE: "1"
+        run: pnpm check:specs
+
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - esp32-s3-devkitc-1-n16r8
+          - xiao-esp32c3
+          - xiao-esp32s3
+          - esp32-devkitc-v4
+          - esp32-c6-devkitc-1
+          - arduino-nano-esp32
+          - arduino-uno-r3
+          - arduino-nano
+          - raspberry-pi-pico
+          - raspberry-pi-pico-w
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache PlatformIO and pip
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/.pio-core
-          key: ${{ runner.os }}-pio-${{ hashFiles('pnpm-lock.yaml', 'scripts/check-compile.ts', 'src/lib/compose.ts') }}
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: ${{ runner.os }}-pio-${{ matrix.board }}-${{ hashFiles('pnpm-lock.yaml', 'scripts/check-compile.ts', 'src/lib/compose.ts') }}
           restore-keys: |
+            ${{ runner.os }}-pio-${{ matrix.board }}-
             ${{ runner.os }}-pio-
 
       - name: PlatformIO
         run: pipx install platformio
 
-      - name: check:specs (includes pio compile)
-        run: pnpm check:specs
+      - name: Compile board sketches
+        env:
+          PIO_BOARD: ${{ matrix.board }}
+        run: pnpm check:compile
+
+  # Single required check: fail if specs or any compile shard failed.
+  specs-and-compile:
+    if: always()
+    needs: [specs, compile]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require specs and every compile shard
+        run: |
+          test "${{ needs.specs.result }}" = "success"
+          test "${{ needs.compile.result }}" = "success"
