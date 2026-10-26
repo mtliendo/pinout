@@ -1,0 +1,235 @@
+{
+  "id": "keypad-4x4-membrane",
+  "name": "4x4 matrix membrane keypad",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 69,
+    "width_mm": 76,
+    "height_mm": {
+      "value": 1,
+      "approx": true,
+      "note": "Ultra-thin membrane"
+    },
+    "cable_mm": "20 x 88",
+    "source": "Parallax #27899: 6.9 x 7.6 cm, cable 2.0 x 8.8 cm"
+  },
+  "colors": {
+    "body": "#111111",
+    "keys": "#f5f5f5"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "8-pin 2.54 mm female ribbon",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 8,
+      "orientation": "+X",
+      "pin1": "pin 1 (left, keys facing you)",
+      "pin_order_approx": true,
+      "note": "Generic: R1-R4 then C1-C4 (Phipps, Wokwi). Parallax #27899 numbers columns as pins 1-4. Verify with a multimeter or a scan sketch. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "R1",
+      "label": "R1",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "R2",
+      "label": "R2",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "R3",
+      "label": "R3",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "R4",
+      "label": "R4",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "C1",
+      "label": "C1",
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "C2",
+      "label": "C2",
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "C3",
+      "label": "C3",
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "C4",
+      "label": "C4",
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "digital (matrix)"
+      ],
+      "voltage": "switch only; level set by the MCU",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "max_rating": "24 VDC, 30 mA (Parallax)",
+    "keys": "1 2 3 A / 4 5 6 B / 7 8 9 C / * 0 # D"
+  },
+  "part": {
+    "category": "input",
+    "supply_v": {
+      "min": 0,
+      "max": 24,
+      "note": "Passive switches (Parallax max rating)"
+    },
+    "logic": {
+      "level": "= MCU"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Uses 8 GPIOs; keep them off strapping pins."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital matrix scan"
+    },
+    "current_ma": {
+      "max": 30
+    },
+    "required_passives": [
+      {
+        "kind": "pull-ups",
+        "value": "MCU internal (Keypad library)",
+        "between": [
+          "rows",
+          "VCC"
+        ]
+      }
+    ],
+    "mounting": "off_board",
+    "lib_deps": [
+      "chris--a/Keypad"
+    ],
+    "approx_fields": [
+      "pin_order",
+      "height"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn.sparkfun.com/assets/f/f/a/5/0/DS-16038.pdf",
+      "https://www.phippselectronics.com/support/4x4-16-key-matrix-membrane-keypad-support-documentation/"
+    ],
+    "revision": "Parallax #27899 v1.2",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

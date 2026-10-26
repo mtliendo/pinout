@@ -1,0 +1,118 @@
+{
+  "id": "cap-electrolytic-100uf",
+  "name": "100 µF 35V electrolytic capacitor (radial)",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "negative lead",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "diameter_mm": 8,
+    "height_mm": 11.5,
+    "lead_spacing_mm": 3.5,
+    "source": "Nichicon UPW UPW1V101MPD",
+    "note": "Kit caps are unbranded; size varies with voltage rating."
+  },
+  "colors": {
+    "body": "#1a1a1a",
+    "stripe": "#d0d0d0"
+  },
+  "headers": [
+    {
+      "id": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 3.5,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "negative (stripe side, short lead)",
+      "note": "Lead spacing isn't a 2.54 multiple: bend into 2 adjacent breadboard rows."
+    }
+  ],
+  "pins": [
+    {
+      "id": "-",
+      "label": "− (stripe, short leg)",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": [
+        "Polarised: reversed it can bulge or vent."
+      ]
+    },
+    {
+      "id": "+",
+      "label": "+ (long leg)",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 3.5,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "≤35V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "capacitance_uf": 100,
+    "rated_v": 35,
+    "tolerance": "±20% (M)"
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 35
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "passive (bulk decoupling)"
+    },
+    "current_ma": {
+      "note": "n/a"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": []
+  },
+  "provenance": {
+    "sources": [
+      "https://www.nichicon.co.jp/english/series_items/catalog_pdf/e-upw.pdf"
+    ],
+    "revision": "Nichicon UPW catalog (UPW1V101MPD)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "safe_gpio": [],
+  "features": []
+}

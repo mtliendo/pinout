@@ -1,0 +1,930 @@
+{
+  "id": "arduino-nano",
+  "name": "Arduino Nano (classic, ATmega328P, 5V logic)",
+  "kind": "board",
+  "chip": "atmega328p",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "L.1 (D13) pin center; mini-USB end is -X",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": {
+      "value": 45,
+      "approx": false,
+      "source": "docs.arduino.cc/hardware/nano: 'length of 45 mm and a width of 18 mm'"
+    },
+    "width_mm": {
+      "value": 18,
+      "approx": false,
+      "source": "docs.arduino.cc/hardware/nano"
+    },
+    "pcb_thickness_mm": {
+      "value": 1.6,
+      "approx": true,
+      "note": "Typical."
+    },
+    "height_mm": {
+      "value": 8,
+      "approx": true,
+      "note": "Estimate incl. Mini-USB."
+    }
+  },
+  "colors": {
+    "pcb": "#1f5fa8",
+    "silkscreen": "#ffffff",
+    "headers": "#111111"
+  },
+  "headers": [
+    {
+      "id": "L",
+      "origin_mm": [
+        0,
+        0.0
+      ],
+      "pitch": 2.54,
+      "count": 15,
+      "orientation": "+X",
+      "pin1": "L.1 (D13), mini-USB end"
+    },
+    {
+      "id": "R",
+      "origin_mm": [
+        0,
+        15.24
+      ],
+      "pitch": 2.54,
+      "count": 15,
+      "orientation": "+X",
+      "pin1": "R.1 (D12), mini-USB end"
+    }
+  ],
+  "header_row_spacing_mm": {
+    "value": 15.24,
+    "approx": true,
+    "note": "Standard 0.6\" DIP spacing; Arduino's mechanical drawing is an image."
+  },
+  "pins": [
+    {
+      "id": "L.1",
+      "label": "D13",
+      "gpio": 13,
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "SPI SCK",
+        "LED_BUILTIN"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: SPI SCK and the onboard LED on Arduino boards"
+      ]
+    },
+    {
+      "id": "L.2",
+      "label": "3V3",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Max 50 mA (Arduino pinout sheet). From the FT232 on original Nanos."
+      ]
+    },
+    {
+      "id": "L.3",
+      "label": "AREF",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "analog ref"
+      ],
+      "voltage": "0-5V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.4",
+      "label": "A0",
+      "gpio": 14,
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC0"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.5",
+      "label": "A1",
+      "gpio": 15,
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC1"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.6",
+      "label": "A2",
+      "gpio": 16,
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC2"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.7",
+      "label": "A3",
+      "gpio": 17,
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC3"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.8",
+      "label": "A4",
+      "gpio": 18,
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC4",
+        "I2C SDA"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.9",
+      "label": "A5",
+      "gpio": 19,
+      "header": 0,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC5",
+        "I2C SCL"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.10",
+      "label": "A6",
+      "gpio": 20,
+      "header": 0,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 0.0
+      },
+      "functions": [
+        "ADC6"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": true,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Analog input only: no digital I/O.",
+        "Caution: A6: analog input only (TQFP/QFN packages)"
+      ]
+    },
+    {
+      "id": "L.11",
+      "label": "A7",
+      "gpio": 21,
+      "header": 0,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 0.0
+      },
+      "functions": [
+        "ADC7"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": true,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Analog input only: no digital I/O.",
+        "Caution: A7: analog input only (TQFP/QFN packages)"
+      ]
+    },
+    {
+      "id": "L.12",
+      "label": "+5V",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.13",
+      "label": "RESET",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 0.0
+      },
+      "functions": [
+        "reset"
+      ],
+      "voltage": "5V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.14",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.15",
+      "label": "VIN",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "7-12V in",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "7-12V in (Arduino pinout sheet)."
+      ]
+    },
+    {
+      "id": "R.1",
+      "label": "D12",
+      "gpio": 12,
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "SPI MISO/CIPO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.2",
+      "label": "D11",
+      "gpio": 11,
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "SPI MOSI/COPI"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.3",
+      "label": "D10",
+      "gpio": 10,
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "SPI SS"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.4",
+      "label": "D9",
+      "gpio": 9,
+      "header": 1,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.5",
+      "label": "D8",
+      "gpio": 8,
+      "header": 1,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.6",
+      "label": "D7",
+      "gpio": 7,
+      "header": 1,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.7",
+      "label": "D6",
+      "gpio": 6,
+      "header": 1,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.8",
+      "label": "D5",
+      "gpio": 5,
+      "header": 1,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.9",
+      "label": "D4",
+      "gpio": 4,
+      "header": 1,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.10",
+      "label": "D3",
+      "gpio": 3,
+      "header": 1,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.11",
+      "label": "D2",
+      "gpio": 2,
+      "header": 1,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.12",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 15.24
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.13",
+      "label": "RESET",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 15.24
+      },
+      "functions": [
+        "reset"
+      ],
+      "voltage": "5V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.14",
+      "label": "D0/RX",
+      "gpio": 0,
+      "header": 1,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "UART RX"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: RX, wired to the USB-serial chip; using it blocks uploads/Serial"
+      ]
+    },
+    {
+      "id": "R.15",
+      "label": "D1/TX",
+      "gpio": 1,
+      "header": 1,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "UART TX"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: TX, wired to the USB-serial chip"
+      ]
+    }
+  ],
+  "safe_gpio": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "caution_gpio": {
+    "0": "RX, wired to the USB-serial chip; using it blocks uploads/Serial",
+    "1": "TX, wired to the USB-serial chip",
+    "13": "SPI SCK and the onboard LED on Arduino boards",
+    "20": "A6: analog input only (TQFP/QFN packages)",
+    "21": "A7: analog input only (TQFP/QFN packages)"
+  },
+  "no_go_gpio": {},
+  "logic": {
+    "logic_voltage_v": 5.0,
+    "five_v_logic": true,
+    "pin_voltage": "5V logic (ATmega328P at VCC=5V)",
+    "warning": "5V LOGIC: outputs swing to 5V. 3.3V-only parts (bare SSD1306 at 1.65-3.3V logic, many sensors) need a level shifter or a module rated for 5V. I2C pull-ups go to 5V."
+  },
+  "power": {
+    "pins": {
+      "+5V": "5V rail (USB or regulator)",
+      "3V3": "3.3V out, max 50 mA",
+      "VIN": "7-12V in",
+      "GND": "0V"
+    }
+  },
+  "defaults": {
+    "i2c": {
+      "sda": 18,
+      "scl": 19,
+      "labels": "A4/A5"
+    },
+    "spi": {
+      "ss": 10,
+      "mosi": 11,
+      "miso": 12,
+      "sck": 13
+    },
+    "uart0": {
+      "tx": 1,
+      "rx": 0
+    },
+    "led_builtin": 13
+  },
+  "breadboard_fit": {
+    "fits_830": true,
+    "straddle": {
+      "L": "d",
+      "R": "h"
+    },
+    "free_holes_per_row": {
+      "left": 3,
+      "right": 2
+    },
+    "rows": "1-15"
+  },
+  "platformio": {
+    "board": "nanoatmega328",
+    "platform": "atmelavr",
+    "framework": "arduino",
+    "alt_boards": {
+      "nanoatmega328new": "new (Optiboot) bootloader; use if uploads fail with the default (old bootloader) setting"
+    },
+    "source": "https://docs.platformio.org/en/latest/boards/atmelavr/nanoatmega328.html",
+    "note": "nanoatmega328new is from PlatformIO's board list (approx: verify page)."
+  },
+  "features": [
+    {
+      "id": "usb_mini",
+      "kind": "usb",
+      "connector": "Mini-USB (FT232RL on D0/D1; clones often CH340)",
+      "approx": true,
+      "position_mm": {
+        "x": -2,
+        "y": 7.62
+      }
+    },
+    {
+      "id": "led_l",
+      "kind": "led",
+      "gpio": 13,
+      "approx": true,
+      "position_mm": {
+        "x": 8,
+        "y": 7.6
+      }
+    },
+    {
+      "id": "btn_reset",
+      "kind": "button",
+      "approx": true,
+      "position_mm": {
+        "x": 20,
+        "y": 7.6
+      }
+    },
+    {
+      "id": "icsp",
+      "kind": "connector",
+      "approx": true,
+      "position_mm": {
+        "x": 40,
+        "y": 7.6
+      }
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://docs.arduino.cc/resources/datasheets/A000005-datasheet.pdf",
+      "https://docs.arduino.cc/resources/pinouts/A000005-full-pinout.pdf",
+      "https://docs.arduino.cc/hardware/nano/"
+    ],
+    "revision": "A000005 datasheet + full pinout PDF (2021-06-30)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Datasheet pin tables have errors (lists +3V3 as '5V USB Power', duplicate 12); header order taken from the full pinout PDF."
+  }
+}

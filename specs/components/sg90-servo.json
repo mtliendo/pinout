@@ -1,0 +1,177 @@
+{
+  "id": "sg90-servo",
+  "name": "TowerPro SG90 micro servo",
+  "kind": "actuator",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "Connector pin 1 (brown/GND)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": 23.0,
+    "width_mm": 12.2,
+    "height_mm": 29.0,
+    "source": "TowerPro product page"
+  },
+  "wire_length_mm": 250,
+  "colors": {
+    "body": "#2f5fd0",
+    "wires": {
+      "gnd": "brown",
+      "vcc": "red",
+      "signal": "orange"
+    }
+  },
+  "headers": [
+    {
+      "id": "plug",
+      "kind": "female JR plug (use male-male jumpers into breadboard)",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "brown (GND)"
+    }
+  ],
+  "pins": [
+    {
+      "id": "GND",
+      "label": "brown",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VCC",
+      "label": "red",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "4.8V nominal (TowerPro); ~5V OK",
+      "flags": {},
+      "warnings": [
+        "Feed from 5V, never from 3V3. Servo current spikes can brown out the board."
+      ]
+    },
+    {
+      "id": "SIG",
+      "label": "orange",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0
+      },
+      "functions": [
+        "PWM in"
+      ],
+      "voltage": "PWM, ~20 ms period, ~0.5-2.4 ms pulse (secondary source); 3.3V drive normally works",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "operating_voltage_v": 4.8,
+    "max_voltage_v": {
+      "value": 6.6,
+      "source": "auselectronicsdirect TA0132 (reseller sheet, not TowerPro)"
+    },
+    "stall_torque_kgcm": 1.8,
+    "speed_s_per_60deg": 0.1,
+    "current": {
+      "published_by_manufacturer": false,
+      "note": "TowerPro publishes no running/stall current. Reseller sheet TA0132 says 'up to 200 mA under load'. Stall current is NOT verified."
+    },
+    "power_supply_note": "TowerPro: 'Power Supply: Through External Adapter'."
+  },
+  "safe_gpio": [],
+  "features": [
+    {
+      "id": "horn",
+      "kind": "output_shaft",
+      "position_mm": {
+        "x": 5.9,
+        "y": 6.1,
+        "z": 29
+      },
+      "approx": true
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://towerpro.com.tw/product/sg90-analog/",
+      "https://www.auselectronicsdirect.com.au/assets/brochures/TA0132.pdf"
+    ],
+    "revision": "SG90 analog, TowerPro page",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Clones vary; 180\u00b0 travel approx."
+  },
+  "part": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 4.8,
+      "max": 6.6,
+      "note": "4.8 nominal (TowerPro); 6.6 per reseller"
+    },
+    "logic": {
+      "level": "PWM in"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Power from 5V, not 3V3; 3.3V signal normally works."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "PWM (50 Hz servo)"
+    },
+    "current_ma": {
+      "note": "TowerPro publishes none; reseller 'up to 200 mA'"
+    },
+    "required_passives": [
+      {
+        "kind": "capacitor",
+        "value": "100-470\u00b5F",
+        "between": [
+          "5V",
+          "GND"
+        ],
+        "note": "Engineering practice (notes.md)"
+      }
+    ],
+    "mounting": "off_board",
+    "lib_deps": [
+      "madhephaestus/ESP32Servo"
+    ],
+    "approx_fields": [
+      "current_ma"
+    ]
+  }
+}

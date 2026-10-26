@@ -1,0 +1,144 @@
+{
+  "id": "soil-moisture-capacitive-v1.2",
+  "name": "Capacitive soil moisture sensor v1.2",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 98,
+    "width_mm": 23,
+    "height_mm": {
+      "value": 6,
+      "approx": true,
+      "note": "Connector height estimate."
+    },
+    "source": "LME: 98 x 23 mm; DFRobot SEN0193 3.86 x 0.905 in"
+  },
+  "colors": {
+    "pcb": "#111111"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "3-pin JST PH2.0 + cable",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "GND",
+      "pin_order_approx": true,
+      "note": "Usual silk GND-VCC-AOUT; cable colors vary. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VCC",
+      "label": "VCC",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3-5.5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "AOUT",
+      "label": "AOUT",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "analog out"
+      ],
+      "voltage": "0-3.0V (DFRobot); ~1.5-3V at 5V (LME)",
+      "flags": {},
+      "warnings": [
+        "Wetter = lower voltage. Calibrate dry/wet in code."
+      ]
+    }
+  ],
+  "electrical": {
+    "operating_current_ma": "5 (DFRobot); <5 (LME)",
+    "output_v": "0-3.0"
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5.5
+    },
+    "logic": {
+      "level": "analog 0-3.0V"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "On ESP32 use an ADC1 pin (ADC2 is unusable with Wi-Fi on)."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "analog"
+    },
+    "current_ma": {
+      "typ": 5
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [],
+    "approx_fields": [
+      "pin_order",
+      "height"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193",
+      "https://lastminuteengineers.com/capacitive-soil-moisture-sensor-arduino/"
+    ],
+    "revision": "v1.2 generic (DFRobot SEN0193 design)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Probe goes in soil, not the breadboard; keep water below the line on the PCB."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

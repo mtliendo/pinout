@@ -1,0 +1,124 @@
+{
+  "id": "resistor-220",
+  "name": "220 \u03a9 resistor, 1/4 W axial",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "lead 1",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": {
+      "value": 6.3,
+      "approx": true,
+      "note": "Typical 1/4 W body; not from a fetched datasheet"
+    },
+    "diameter_mm": {
+      "value": 2.4,
+      "approx": true
+    },
+    "span_holes": 4
+  },
+  "colors": {
+    "body": "#d8c49a",
+    "bands": [
+      "red",
+      "red",
+      "brown",
+      "gold"
+    ]
+  },
+  "headers": [
+    {
+      "id": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "either (non-polar)",
+      "note": "Bent to span 4 holes (10.16 mm) in builds."
+    }
+  ],
+  "pins": [
+    {
+      "id": "1",
+      "label": "lead 1",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0
+      },
+      "functions": [
+        "passive"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "2",
+      "label": "lead 2",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 10.16,
+        "y": 0
+      },
+      "functions": [
+        "passive"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "safe_gpio": [],
+  "features": [],
+  "provenance": {
+    "sources": [
+      "https://www.futurlec.com/LED/LED5R.shtml"
+    ],
+    "revision": "generic",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Color code red-red-brown = 220 \u03a9 is the standard resistor code; dimensions approx."
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": null
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "passive"
+    },
+    "current_ma": {
+      "note": "\u22640.25 W"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "body"
+    ]
+  }
+}

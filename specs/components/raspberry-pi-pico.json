@@ -1,0 +1,1189 @@
+{
+  "id": "raspberry-pi-pico",
+  "name": "Raspberry Pi Pico (RP2040)",
+  "kind": "board",
+  "chip": "rp2040",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "L.1 (physical pin 1, GP0) pin center; USB end is -X",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": {
+      "value": 51,
+      "approx": false,
+      "source": "Pico datasheet: '51\u00d721 mm 1 mm thick PCB'"
+    },
+    "width_mm": {
+      "value": 21,
+      "approx": false,
+      "source": "Pico datasheet"
+    },
+    "pcb_thickness_mm": {
+      "value": 1.0,
+      "approx": false,
+      "source": "Pico datasheet"
+    },
+    "height_mm": {
+      "value": 4,
+      "approx": true,
+      "note": "Micro-USB + RP2040; estimate."
+    },
+    "mounting_holes": "4 \u00d7 2.1 mm (datasheet)"
+  },
+  "colors": {
+    "pcb": "#1e7a36",
+    "silkscreen": "#ffffff",
+    "headers": "#111111"
+  },
+  "headers": [
+    {
+      "id": "L",
+      "origin_mm": [
+        0,
+        0.0
+      ],
+      "pitch": 2.54,
+      "count": 20,
+      "orientation": "+X",
+      "pin1": "L.1 = physical pin 1 (GP0), USB end"
+    },
+    {
+      "id": "R",
+      "origin_mm": [
+        0,
+        17.78
+      ],
+      "pitch": 2.54,
+      "count": 20,
+      "orientation": "+X",
+      "pin1": "R.1 = physical pin 40 (VBUS), USB end; R.n = physical pin 41-n"
+    }
+  ],
+  "header_row_spacing_mm": {
+    "value": 17.78,
+    "approx": true,
+    "note": "0.7\" (7 \u00d7 2.54) row spacing; Raspberry Pi's mechanical drawing is an image."
+  },
+  "pins": [
+    {
+      "id": "L.1",
+      "label": "GP0",
+      "gpio": 0,
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "UART0 TX"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 1
+    },
+    {
+      "id": "L.2",
+      "label": "GP1",
+      "gpio": 1,
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "UART0 RX"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 2
+    },
+    {
+      "id": "L.3",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 3
+    },
+    {
+      "id": "L.4",
+      "label": "GP2",
+      "gpio": 2,
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 4
+    },
+    {
+      "id": "L.5",
+      "label": "GP3",
+      "gpio": 3,
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 5
+    },
+    {
+      "id": "L.6",
+      "label": "GP4",
+      "gpio": 4,
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "I2C0 SDA (SDK default)"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 6
+    },
+    {
+      "id": "L.7",
+      "label": "GP5",
+      "gpio": 5,
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "I2C0 SCL (SDK default)"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 7
+    },
+    {
+      "id": "L.8",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 8
+    },
+    {
+      "id": "L.9",
+      "label": "GP6",
+      "gpio": 6,
+      "header": 0,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 9
+    },
+    {
+      "id": "L.10",
+      "label": "GP7",
+      "gpio": 7,
+      "header": 0,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 10
+    },
+    {
+      "id": "L.11",
+      "label": "GP8",
+      "gpio": 8,
+      "header": 0,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 11
+    },
+    {
+      "id": "L.12",
+      "label": "GP9",
+      "gpio": 9,
+      "header": 0,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 12
+    },
+    {
+      "id": "L.13",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 13
+    },
+    {
+      "id": "L.14",
+      "label": "GP10",
+      "gpio": 10,
+      "header": 0,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 14
+    },
+    {
+      "id": "L.15",
+      "label": "GP11",
+      "gpio": 11,
+      "header": 0,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 15
+    },
+    {
+      "id": "L.16",
+      "label": "GP12",
+      "gpio": 12,
+      "header": 0,
+      "position": {
+        "index": 16,
+        "x": 38.1,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 16
+    },
+    {
+      "id": "L.17",
+      "label": "GP13",
+      "gpio": 13,
+      "header": 0,
+      "position": {
+        "index": 17,
+        "x": 40.64,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 17
+    },
+    {
+      "id": "L.18",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 18,
+        "x": 43.18,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 18
+    },
+    {
+      "id": "L.19",
+      "label": "GP14",
+      "gpio": 14,
+      "header": 0,
+      "position": {
+        "index": 19,
+        "x": 45.72,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 19
+    },
+    {
+      "id": "L.20",
+      "label": "GP15",
+      "gpio": 15,
+      "header": 0,
+      "position": {
+        "index": 20,
+        "x": 48.26,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 20
+    },
+    {
+      "id": "R.1",
+      "label": "VBUS",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 17.78
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Micro-USB 5V (0V if USB not connected)."
+      ],
+      "physical_pin": 40
+    },
+    {
+      "id": "R.2",
+      "label": "VSYS",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 17.78
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "1.8-5.5V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Main input 1.8-5.5V to the SMPS."
+      ],
+      "physical_pin": 39
+    },
+    {
+      "id": "R.3",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 17.78
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 38
+    },
+    {
+      "id": "R.4",
+      "label": "3V3_EN",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 17.78
+      },
+      "functions": [
+        "enable"
+      ],
+      "voltage": "VSYS via 100k",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Pull low to disable 3.3V."
+      ],
+      "physical_pin": 37
+    },
+    {
+      "id": "R.5",
+      "label": "3V3(OUT)",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 17.78
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Keep load under 300 mA (datasheet recommendation)."
+      ],
+      "physical_pin": 36
+    },
+    {
+      "id": "R.6",
+      "label": "ADC_VREF",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 17.78
+      },
+      "functions": [
+        "analog ref"
+      ],
+      "voltage": "3.3V filtered",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 35
+    },
+    {
+      "id": "R.7",
+      "label": "GP28",
+      "gpio": 28,
+      "header": 1,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO",
+        "ADC2"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 34
+    },
+    {
+      "id": "R.8",
+      "label": "AGND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 17.78
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V (analog ground)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 33
+    },
+    {
+      "id": "R.9",
+      "label": "GP27",
+      "gpio": 27,
+      "header": 1,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO",
+        "ADC1"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 32
+    },
+    {
+      "id": "R.10",
+      "label": "GP26",
+      "gpio": 26,
+      "header": 1,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO",
+        "ADC0"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 31
+    },
+    {
+      "id": "R.11",
+      "label": "RUN",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 17.78
+      },
+      "functions": [
+        "reset"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Pull low to reset."
+      ],
+      "physical_pin": 30
+    },
+    {
+      "id": "R.12",
+      "label": "GP22",
+      "gpio": 22,
+      "header": 1,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 29
+    },
+    {
+      "id": "R.13",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 17.78
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 28
+    },
+    {
+      "id": "R.14",
+      "label": "GP21",
+      "gpio": 21,
+      "header": 1,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 27
+    },
+    {
+      "id": "R.15",
+      "label": "GP20",
+      "gpio": 20,
+      "header": 1,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 26
+    },
+    {
+      "id": "R.16",
+      "label": "GP19",
+      "gpio": 19,
+      "header": 1,
+      "position": {
+        "index": 16,
+        "x": 38.1,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO",
+        "SPI0 TX (SDK default)"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 25
+    },
+    {
+      "id": "R.17",
+      "label": "GP18",
+      "gpio": 18,
+      "header": 1,
+      "position": {
+        "index": 17,
+        "x": 40.64,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO",
+        "SPI0 SCK"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 24
+    },
+    {
+      "id": "R.18",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 18,
+        "x": 43.18,
+        "y": 17.78
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 23
+    },
+    {
+      "id": "R.19",
+      "label": "GP17",
+      "gpio": 17,
+      "header": 1,
+      "position": {
+        "index": 19,
+        "x": 45.72,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO",
+        "SPI0 CSn"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 22
+    },
+    {
+      "id": "R.20",
+      "label": "GP16",
+      "gpio": 16,
+      "header": 1,
+      "position": {
+        "index": 20,
+        "x": 48.26,
+        "y": 17.78
+      },
+      "functions": [
+        "GPIO",
+        "SPI0 RX"
+      ],
+      "voltage": "3.3V logic - RP2040 is not 5V tolerant",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [],
+      "physical_pin": 21
+    }
+  ],
+  "safe_gpio": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    26,
+    27,
+    28
+  ],
+  "caution_gpio": {},
+  "no_go_gpio": {
+    "23": "SMPS power-save control (internal, not on header)",
+    "24": "VBUS sense (internal)",
+    "25": "user LED (internal)",
+    "29": "VSYS/3 ADC (internal)"
+  },
+  "logic": {
+    "logic_voltage_v": 3.3,
+    "five_v_logic": false,
+    "pin_voltage": "3.3V logic - RP2040 is not 5V tolerant"
+  },
+  "power": {
+    "pins": {
+      "VBUS": "5V from USB",
+      "VSYS": "1.8-5.5V in",
+      "3V3(OUT)": "3.3V out, <300 mA recommended",
+      "3V3_EN": "SMPS enable",
+      "GND": "0V"
+    }
+  },
+  "defaults": {
+    "i2c": {
+      "sda": 4,
+      "scl": 5,
+      "source": "pico-sdk PICO_DEFAULT_I2C_SDA/SCL_PIN"
+    },
+    "spi": {
+      "rx_miso": 16,
+      "csn": 17,
+      "sck": 18,
+      "tx_mosi": 19
+    },
+    "uart0": {
+      "tx": 0,
+      "rx": 1
+    },
+    "led_builtin": 25,
+    "led_note": "GPIO25 user LED (PICO_DEFAULT_LED_PIN)."
+  },
+  "breadboard_fit": {
+    "fits_830": true,
+    "straddle": {
+      "L": "c",
+      "R": "h"
+    },
+    "free_holes_per_row": {
+      "left": 2,
+      "right": 2
+    },
+    "rows": "1-20"
+  },
+  "platformio": {
+    "board": "pico",
+    "platform": "raspberrypi",
+    "framework": "arduino",
+    "core": "Arduino-Mbed (official platform)",
+    "alt": {
+      "platform": "https://github.com/maxgerhardt/platform-raspberrypi.git",
+      "board_build.core": "earlephilhower",
+      "why": "Earle Philhower's arduino-pico core is what most tutorials and libraries assume; the official platform only ships the Mbed core."
+    },
+    "source": "https://docs.platformio.org/en/latest/boards/raspberrypi/pico.html"
+  },
+  "features": [
+    {
+      "id": "usb",
+      "kind": "usb",
+      "connector": "Micro-USB (native RP2040 USB)",
+      "approx": true,
+      "position_mm": {
+        "x": -2,
+        "y": 8.89
+      }
+    },
+    {
+      "id": "btn_bootsel",
+      "kind": "button",
+      "label": "BOOTSEL",
+      "note": "on QSPI_SS, not a GPIO",
+      "approx": true,
+      "position_mm": {
+        "x": 8,
+        "y": 4
+      }
+    },
+    {
+      "id": "led_user",
+      "kind": "led",
+      "gpio": 25,
+      "approx": true,
+      "position_mm": {
+        "x": 2,
+        "y": 14
+      }
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf",
+      "https://github.com/raspberrypi/pico-sdk/blob/master/src/boards/include/boards/pico.h",
+      "https://docs.platformio.org/en/latest/boards/raspberrypi/pico.html"
+    ],
+    "revision": "Pico datasheets fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Internal GPIO23/24/25/29 quoted from datasheet section 2.1. Header order from datasheet Figure 2 pinout (image) cross-checked with pico.h defaults; approx positions for features."
+  }
+}

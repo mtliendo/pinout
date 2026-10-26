@@ -1,0 +1,157 @@
+{
+  "id": "tm1637-4digit",
+  "name": "TM1637 4-digit 7-segment display module (0.36\")",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 42,
+    "width_mm": 24,
+    "height_mm": 12,
+    "source": "LME: 42 x 24 mm, 12 mm height"
+  },
+  "colors": {
+    "pcb": "#1d4f91",
+    "digits": "#ff2a2a"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "CLK",
+      "pin_order_approx": true,
+      "note": "Common order CLK-DIO-VCC-GND (LME). Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "CLK",
+      "label": "CLK",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "2-wire serial clock (not I2C)"
+      ],
+      "voltage": "VIH ≥ 0.7·VDD (TM1637)",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "DIO",
+      "label": "DIO",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "2-wire serial data (not I2C)"
+      ],
+      "voltage": "VIH ≥ 0.7·VDD",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VCC",
+      "label": "VCC",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3-5V (module, LME); chip characterised 4.5-5.5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "chip_vdd_v": "4.5-5.5 characterised, 5 typ (TM1637)",
+    "max_current_ma": 80
+  },
+  "part": {
+    "category": "display",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5,
+      "note": "Module rating (LME). Chip datasheet only characterises 4.5-5.5V."
+    },
+    "logic": {
+      "level": "= VCC; inputs need 0.7·VDD"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Caution: the TM1637 chip is only characterised at 4.5-5.5V. Common shortcut: power VCC from 3V3 and wire CLK/DIO direct (out of chip spec, usually works, a bit dimmer). In-spec option: VCC from 5V with CLK and DIO through a bidirectional level shifter (BSS138 type), since module pull-ups go to VCC. Never 5V VCC with CLK/DIO wired direct."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "2-wire serial (TM1637 protocol, not I2C)"
+    },
+    "current_ma": {
+      "max": 80,
+      "note": "All segments lit (LME)"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [
+      "smougenot/TM1637"
+    ],
+    "approx_fields": [
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.makerguides.com/wp-content/uploads/2019/08/TM1637-Datasheet.pdf",
+      "https://lastminuteengineers.com/tm1637-arduino-tutorial/"
+    ],
+    "revision": "Titan Micro TM1637 v2.4",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

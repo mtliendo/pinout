@@ -1,0 +1,114 @@
+{
+  "id": "atmega328p",
+  "name": "Microchip ATmega328P (AVR, 5V on Uno/Nano)",
+  "logic_voltage_v": 5.0,
+  "logic_voltage_note": "Logic = VCC (1.8-5.5V). Uno and Nano run it at 5V: outputs swing to 5V. 3.3V-only parts (SSD1306 bare chip, many sensors) need a level shifter or a 3.3V-tolerant module.",
+  "five_v_tolerant": true,
+  "gpio_numbering": "Arduino pin numbers (D0-D13, A0-A5 = 14-19, A6/A7 = 20/21 analog-only on TQFP/QFN). Port aliases in label_aliases.",
+  "gpio_numbers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "strapping_gpio": [],
+  "flash_psram_gpio": {
+    "notes": "Internal flash; no external memory pins. ISP programming uses D11-D13 (MOSI/MISO/SCK) + RESET."
+  },
+  "usb_gpio": null,
+  "usb_note": "No native USB; Uno/Nano use a USB-serial chip on D0/D1.",
+  "uart0": {
+    "tx": 1,
+    "rx": 0
+  },
+  "input_only_gpio": [
+    20,
+    21
+  ],
+  "adc2_wifi_conflict": null,
+  "safe_gpio": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "caution_gpio": {
+    "0": "RX, wired to the USB-serial chip; using it blocks uploads/Serial",
+    "1": "TX, wired to the USB-serial chip",
+    "13": "SPI SCK and the onboard LED on Arduino boards",
+    "20": "A6: analog input only (TQFP/QFN packages)",
+    "21": "A7: analog input only (TQFP/QFN packages)"
+  },
+  "no_go_gpio": {},
+  "platformio": {
+    "platform": "atmelavr",
+    "frameworks": [
+      "arduino"
+    ],
+    "example_boards": [
+      "uno",
+      "nanoatmega328"
+    ]
+  },
+  "label_aliases": {
+    "chip_level": {
+      "PB0-PB5": "D8-D13",
+      "PD0-PD7": "D0-D7",
+      "PC0-PC5": "A0-A5 = 14-19",
+      "ADC6/ADC7": "A6/A7"
+    },
+    "board_level": {
+      "D{n} / ~D{n}": "Arduino digital n (~ = PWM)",
+      "A{n}": "Arduino analog n = 14+n",
+      "SDA/SCL": "A4/A5 (Uno R3 also duplicates them near AREF)",
+      "TX/RX, TX1/RX0": "D1/D0"
+    },
+    "never_map": [
+      "AREF",
+      "IOREF",
+      "RESET",
+      "VIN"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf",
+      "https://docs.arduino.cc/resources/pinouts/A000005-full-pinout.pdf"
+    ],
+    "revision": "datasheets fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Pin voltage limit VCC+0.5V quoted from datasheet absolute max. 'five_v_tolerant' is true only because VCC is 5V on Uno/Nano."
+  }
+}

@@ -1,0 +1,268 @@
+{
+  "sg90-servo": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 4.8,
+      "max": 6.6,
+      "note": "4.8 nominal (TowerPro); 6.6 per reseller"
+    },
+    "logic": {
+      "level": "PWM in"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Power from 5V, not 3V3; 3.3V signal normally works."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "PWM (50 Hz servo)"
+    },
+    "current_ma": {
+      "note": "TowerPro publishes none; reseller 'up to 200 mA'"
+    },
+    "required_passives": [
+      {
+        "kind": "capacitor",
+        "value": "100-470µF",
+        "between": [
+          "5V",
+          "GND"
+        ],
+        "note": "Engineering practice (notes.md)"
+      }
+    ],
+    "mounting": "off_board",
+    "lib_deps": [
+      "madhephaestus/ESP32Servo"
+    ],
+    "approx_fields": [
+      "current_ma"
+    ]
+  },
+  "hc-sr501-pir": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 4.5,
+      "max": 20
+    },
+    "logic": {
+      "level": "3.3V out"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 5V; OUT is 3.3V."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital"
+    },
+    "current_ma": {
+      "note": "<50 µA quiescent"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [],
+    "approx_fields": [
+      "pin_order"
+    ]
+  },
+  "led-5mm-red": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 2.5
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "220Ω from 3.3V ≈ 6 mA."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "330Ω from 5V."
+        ]
+      }
+    },
+    "interface": {
+      "type": "digital / PWM"
+    },
+    "current_ma": {
+      "max": 30
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "220Ω",
+        "between": [
+          "GPIO",
+          "A"
+        ]
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "height"
+    ]
+  },
+  "resistor-220": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": null
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "passive"
+    },
+    "current_ma": {
+      "note": "≤0.25 W"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "body"
+    ]
+  },
+  "tactile-button-6mm": {
+    "category": "input",
+    "supply_v": {
+      "min": 0,
+      "max": 24
+    },
+    "logic": {
+      "level": "= MCU"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "INPUT_PULLUP, other leg to GND."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital"
+    },
+    "current_ma": {
+      "max": 50
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": []
+  },
+  "ssd1306-oled-128x64-i2c": {
+    "category": "display",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5,
+      "note": "5V only on regulated modules"
+    },
+    "logic": {
+      "level": "= VCC (pull-ups to VCC)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 3V3."
+        ]
+      },
+      "mcu_5v": {
+        "status": "with_conditions",
+        "needs": [
+          "Only if the module has a regulator; pull-ups then go to 5V, fine for AVR."
+        ]
+      }
+    },
+    "interface": {
+      "type": "I2C",
+      "i2c_addresses": [
+        "0x3C",
+        "0x3D"
+      ]
+    },
+    "current_ma": {
+      "note": "Not in fetched sources"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [
+      "adafruit/Adafruit SSD1306",
+      "adafruit/Adafruit GFX Library"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "breadboard-830": {
+    "category": "breadboard",
+    "supply_v": {
+      "min": 0,
+      "max": 36
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "n/a"
+    },
+    "current_ma": {
+      "max": 2000,
+      "note": "2 A rating (BusBoard)"
+    },
+    "required_passives": [],
+    "mounting": "base",
+    "lib_deps": [],
+    "approx_fields": []
+  }
+}

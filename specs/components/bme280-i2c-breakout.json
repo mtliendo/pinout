@@ -1,0 +1,192 @@
+{
+  "id": "bme280-i2c-breakout",
+  "name": "BME280 temperature/humidity/pressure breakout (4-pin I2C)",
+  "kind": "sensor",
+  "body": {
+    "length_mm": {
+      "value": 15,
+      "approx": true,
+      "note": "Generic purple 4-pin board; vendors vary, not dimensioned in a fetched source."
+    },
+    "width_mm": {
+      "value": 11.5,
+      "approx": true,
+      "note": "Vendor-dependent."
+    },
+    "height_mm": {
+      "value": 2.5,
+      "approx": true,
+      "note": "PCB + sensor estimate."
+    }
+  },
+  "colors": {
+    "pcb": "#5b2a86"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "VIN (or VCC)",
+      "pin_order_approx": true,
+      "note": "Common 4-pin order VIN-GND-SCL-SDA. Adafruit's board has 7 pins (VIN,3Vo,GND,SCK,SDO,SDI,CS). Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VIN",
+      "label": "VIN / VCC",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3-5V ONLY if the board has a regulator (silk 'VIN'); else 3.6V max",
+      "flags": {},
+      "warnings": [
+        "Bosch chip max VDD is 3.6V. Many cheap 4-pin boards have no regulator: if unsure, use 3V3."
+      ]
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "SCL",
+      "label": "SCL / SCK",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "= board logic level",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "SDA",
+      "label": "SDA / SDI",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "= board logic level",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "chip_vdd_v": "1.71-3.6 (Bosch)",
+    "chip_vddio_v": "1.2-3.6 (Bosch)",
+    "current_ua": "3.6 @1 Hz H+P+T; 0.1 sleep (Bosch)",
+    "i2c_address_7bit": "0x76 (SDO low) / 0x77 (SDO high). Adafruit default 0x77; generic boards often 0x76."
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 1.71,
+      "max": 3.6,
+      "note": "Bosch chip. Regulated breakouts (Adafruit) take 3-5V on VIN."
+    },
+    "logic": {
+      "level": "3.3V on bare boards; Adafruit level-shifts to VIN"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 3V3."
+        ]
+      },
+      "mcu_5v": {
+        "status": "with_conditions",
+        "needs": [
+          "Only a regulated + level-shifted board (e.g. Adafruit) goes on 5V. A bare 3.3V board needs 3V3 power and a level shifter (or 3.3V-only pull-ups) on SDA/SCL."
+        ]
+      }
+    },
+    "interface": {
+      "type": "I2C",
+      "i2c_addresses": [
+        "0x76",
+        "0x77"
+      ],
+      "also": "SPI on 6-pin boards"
+    },
+    "current_ma": {
+      "typ": 0.0036,
+      "note": "Bosch: 3.6 µA at 1 Hz all channels; sleep 0.1 µA"
+    },
+    "required_passives": [
+      {
+        "kind": "pull-ups",
+        "value": "on-board on most breakouts",
+        "between": [
+          "SDA",
+          "SCL"
+        ],
+        "note": "They go to the board's logic rail."
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [
+      "adafruit/Adafruit BME280 Library",
+      "adafruit/Adafruit Unified Sensor"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf",
+      "https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout/pinouts",
+      "https://lastminuteengineers.com/bme280-arduino-tutorial/"
+    ],
+    "revision": "Bosch BST-BME280-DS002",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Variant rule: silkscreen 'VIN' = regulated; '3.3V'/'VCC' only = treat as 3.3V-only."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

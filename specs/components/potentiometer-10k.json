@@ -1,0 +1,145 @@
+{
+  "id": "potentiometer-10k",
+  "name": "10k breadboard trim potentiometer",
+  "kind": "passive",
+  "body": {
+    "length_mm": {
+      "value": 10,
+      "approx": true,
+      "note": "Adafruit #356 not dimensioned in fetched text"
+    },
+    "width_mm": {
+      "value": 10,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 15,
+      "approx": true,
+      "note": "incl. knob"
+    }
+  },
+  "colors": {
+    "body": "#1e5bd8",
+    "knob": "#f5f5f5"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "end 1",
+      "note": "0.1\" spacing; plugs straight into a breadboard (Adafruit). Middle pin is the wiper."
+    }
+  ],
+  "pins": [
+    {
+      "id": "1",
+      "label": "end 1",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "VCC or GND",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "W",
+      "label": "wiper",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "analog out"
+      ],
+      "voltage": "0..VCC",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "3",
+      "label": "end 2",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "GND or VCC",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "resistance_ohm": 10000
+  },
+  "part": {
+    "category": "input",
+    "supply_v": {
+      "min": 0,
+      "max": 5
+    },
+    "logic": {
+      "level": "analog 0..end voltage"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Ends to 3V3 and GND so the wiper can't exceed 3.3V."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "analog"
+    },
+    "current_ma": {
+      "note": "V/10k = 0.33 mA at 3.3V (arithmetic)"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "body"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.adafruit.com/product/356"
+    ],
+    "revision": "Adafruit #356",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

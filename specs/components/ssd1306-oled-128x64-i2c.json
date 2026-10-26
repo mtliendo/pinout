@@ -1,0 +1,183 @@
+{
+  "id": "ssd1306-oled-128x64-i2c",
+  "name": "0.96\" SSD1306 128\u00d764 I2C OLED (4-pin)",
+  "kind": "sensor",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "header pin 1",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": {
+      "value": 27,
+      "approx": true
+    },
+    "width_mm": {
+      "value": 27,
+      "approx": true
+    },
+    "note": "Module size varies by vendor; not from a datasheet."
+  },
+  "colors": {
+    "pcb": "#1b3fa0",
+    "glass": "#111111"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "VCC in the most common order \u2014 CHECK SILKSCREEN",
+      "note": "Pin order varies by vendor: VCC-GND-SCL-SDA and GND-VCC-SCL-SDA both exist. Swapping VCC/GND can kill it."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VCC",
+      "label": "VCC",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V safest; many modules accept 5V via onboard regulator (vendor-dependent)",
+      "flags": {},
+      "warnings": [
+        "Order varies by vendor."
+      ]
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": [
+        "Order varies by vendor."
+      ]
+    },
+    {
+      "id": "SCL",
+      "label": "SCL",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "logic = VCC on most modules (pull-ups to VCC)",
+      "flags": {},
+      "warnings": [
+        "Power from 3V3 on ESP32 so the pull-ups don't pull SCL/SDA to 5V."
+      ]
+    },
+    {
+      "id": "SDA",
+      "label": "SDA",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "logic = VCC",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "i2c_address_7bit": "0x3C (SA0/D-C# low; most modules) or 0x3D (SA0 high)",
+    "ic_vdd": "1.65-3.3V logic (SSD1306 datasheet)"
+  },
+  "safe_gpio": [],
+  "features": [
+    {
+      "id": "display",
+      "kind": "oled_128x64",
+      "approx": true,
+      "position_mm": {
+        "x": 3.8,
+        "y": -14
+      }
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf",
+      "https://wiki.elegoo.com/oshw-parts-&-accessories/iic-oled"
+    ],
+    "revision": "SSD1306 rev 1.1",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "part": {
+    "category": "display",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5,
+      "note": "5V only on regulated modules"
+    },
+    "logic": {
+      "level": "= VCC (pull-ups to VCC)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 3V3."
+        ]
+      },
+      "mcu_5v": {
+        "status": "with_conditions",
+        "needs": [
+          "Only if the module has a regulator; pull-ups then go to 5V, fine for AVR."
+        ]
+      }
+    },
+    "interface": {
+      "type": "I2C",
+      "i2c_addresses": [
+        "0x3C",
+        "0x3D"
+      ]
+    },
+    "current_ma": {
+      "note": "Not in fetched sources"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [
+      "adafruit/Adafruit SSD1306",
+      "adafruit/Adafruit GFX Library"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "id": "ir-receiver-vs1838b",
+  "name": "38 kHz IR receiver (VS1838B / TSOP38238 style, 3-pin)",
+  "kind": "sensor",
+  "body": {
+    "length_mm": {
+      "value": 7,
+      "approx": true,
+      "note": "Not dimensioned in a fetched VS1838B source."
+    },
+    "width_mm": {
+      "value": 5.5,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 10,
+      "approx": true,
+      "note": "approx"
+    }
+  },
+  "colors": {
+    "body": "#1a1a1a"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "OUT (left, dome facing you)",
+      "pin_order_approx": true,
+      "note": "TSOP382xx / VS1838B: OUT-GND-VS. TSOP392xx is OUT-VS-GND; KY-022 modules differ again. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "OUT",
+      "label": "OUT",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "digital out (active LOW)"
+      ],
+      "voltage": "pulled up to VS internally",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VS",
+      "label": "VS",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "2.5-5.5V (TSOP382)",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "carrier_khz": 38,
+    "abs_max_supply_v": "-0.3 to +6 (TSOP382)"
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 2.5,
+      "max": 5.5,
+      "note": "TSOP382 figure; VS1838B clones assumed compatible (unverified)"
+    },
+    "logic": {
+      "level": "= VS"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 3V3 so OUT is 3.3V."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital (demodulated IR)"
+    },
+    "current_ma": {
+      "note": "Vishay: 'very low supply current'; no number in fetched text"
+    },
+    "required_passives": [
+      {
+        "kind": "RC filter",
+        "value": "R1 + C1 per Vishay application circuit",
+        "between": [
+          "VS",
+          "GND"
+        ],
+        "optional": true,
+        "note": "Vishay recommends R1/C1 against EOS; values are in the drawing (image)."
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [
+      "z3t0/IRremote",
+      "crankyoldgit/IRremoteESP8266"
+    ],
+    "approx_fields": [
+      "body",
+      "electrical",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn-shop.adafruit.com/datasheets/tsop382.pdf"
+    ],
+    "revision": "Vishay TSOP382/384",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "No reliable VS1838B datasheet was retrievable; figures are Vishay TSOP38238, which VS1838B is sold as compatible with. Use IRremoteESP8266 on ESP32, IRremote elsewhere."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

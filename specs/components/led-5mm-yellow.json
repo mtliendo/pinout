@@ -1,0 +1,138 @@
+{
+  "id": "led-5mm-yellow",
+  "name": "5 mm yellow LED",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "cathode lead",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "diameter_mm": 5.0,
+    "height_mm": {
+      "value": 8.6,
+      "approx": true,
+      "note": "T-1 3/4 typical"
+    },
+    "lead_spacing_mm": 2.54
+  },
+  "colors": {
+    "body": "#f5d000"
+  },
+  "headers": [
+    {
+      "id": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "cathode (short lead, flat side)"
+    }
+  ],
+  "pins": [
+    {
+      "id": "K",
+      "label": "cathode (−, short leg, flat edge)",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "A",
+      "label": "anode (+, long leg)",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "Vf 1.95V typ / 2.4V max @10mA",
+      "flags": {},
+      "warnings": [
+        "Always use a series resistor."
+      ]
+    }
+  ],
+  "electrical": {
+    "vf_typ_v": 1.95,
+    "vf_max_v": 2.4,
+    "vf_test_ma": 10,
+    "if_max_ma": 30,
+    "pd_mw": 75,
+    "vr_max_v": 5,
+    "model": "WP7113YD"
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 2.4
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "220Ω from 3.3V ≈ 6.1 mA (arithmetic)."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "330Ω from 5V."
+        ]
+      }
+    },
+    "interface": {
+      "type": "digital / PWM"
+    },
+    "current_ma": {
+      "max": 30
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "220Ω (3.3V) / 330Ω (5V)",
+        "between": [
+          "GPIO",
+          "A"
+        ]
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "height"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.kingbrightusa.com/images/catalog/SPEC/WP7113YD.pdf"
+    ],
+    "revision": "Kingbright WP7113YD",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Kit LEDs are usually unbranded; Kingbright figures are representative."
+  },
+  "safe_gpio": [],
+  "features": []
+}

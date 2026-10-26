@@ -1,0 +1,247 @@
+{
+  "id": "mpu6050-gy521",
+  "name": "MPU-6050 6-axis IMU on GY-521 breakout",
+  "kind": "sensor",
+  "body": {
+    "length_mm": {
+      "value": 21,
+      "approx": true,
+      "note": "GY-521; not dimensioned in a fetched source."
+    },
+    "width_mm": {
+      "value": 16,
+      "approx": true,
+      "note": "Vendor-dependent."
+    },
+    "height_mm": {
+      "value": 3,
+      "approx": true,
+      "note": "Estimate."
+    }
+  },
+  "colors": {
+    "pcb": "#1d4f91"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 8,
+      "orientation": "+X",
+      "pin1": "VCC",
+      "pin_order_approx": true,
+      "note": "GY-521 order VCC-GND-SCL-SDA-XDA-XCL-AD0-INT (Arduino playground, LME). Other MPU-6050 boards differ. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VCC",
+      "label": "VCC",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3-5V on GY-521 (onboard 3.3V LDO)",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "SCL",
+      "label": "SCL",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "3.3V (pull-ups to LDO output)",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "SDA",
+      "label": "SDA",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "3.3V (pull-ups to LDO output)",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "XDA",
+      "label": "XDA",
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "aux I2C"
+      ],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": [
+        "Auxiliary I2C master bus. Leave unconnected."
+      ]
+    },
+    {
+      "id": "XCL",
+      "label": "XCL",
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "aux I2C"
+      ],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": [
+        "Auxiliary I2C. Leave unconnected."
+      ]
+    },
+    {
+      "id": "AD0",
+      "label": "AD0",
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "address select"
+      ],
+      "voltage": "LOW=0x68 (default, onboard 4.7k pull-down), HIGH=0x69",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "INT",
+      "label": "INT",
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "interrupt out"
+      ],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "chip_vdd_v": "2.375-3.46 (InvenSense)",
+    "chip_vlogic_v": "1.71V to VDD",
+    "current_ma": "3.9 with 6 axes + DMP (InvenSense)",
+    "i2c_address_7bit": "0x68 / 0x69",
+    "pullups": "on-board, 10k or 2k2 depending on clone (playground)"
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5,
+      "note": "Module VCC via onboard LDO; chip 2.375-3.46V"
+    },
+    "logic": {
+      "level": "3.3V I2C"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Bus is 3.3V: safe. Playground: 3.3V into VCC can leave the LDO output marginal; if I2C is flaky, feed VCC from 5V (bus stays 3.3V)."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "SDA/SCL pulled to 3.3V read as HIGH on the ATmega."
+        ]
+      }
+    },
+    "interface": {
+      "type": "I2C",
+      "i2c_addresses": [
+        "0x68",
+        "0x69"
+      ]
+    },
+    "current_ma": {
+      "typ": 3.9,
+      "note": "Chip, 6 axes + DMP"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [
+      "adafruit/Adafruit MPU6050",
+      "adafruit/Adafruit Unified Sensor"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn.sparkfun.com/datasheets/Components/General%20IC/PS-MPU-6000A.pdf",
+      "https://playground.arduino.cc/Main/MPU-6050/",
+      "https://lastminuteengineers.com/mpu6050-accel-gyro-arduino-tutorial/"
+    ],
+    "revision": "InvenSense PS-MPU-6000A rev 3.4",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

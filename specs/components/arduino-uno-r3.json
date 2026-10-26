@@ -1,0 +1,1000 @@
+{
+  "id": "arduino-uno-r3",
+  "name": "Arduino UNO R3 (ATmega328P, 5V logic)",
+  "kind": "board",
+  "chip": "atmega328p",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "JANALOG.1 pin center (approx; Uno is off-board)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": {
+      "value": 68.6,
+      "approx": true,
+      "note": "Commonly published 68.6 \u00d7 53.4 mm; Arduino's outline is an image and the store page didn't load during verification."
+    },
+    "width_mm": {
+      "value": 53.4,
+      "approx": true,
+      "note": "See length."
+    },
+    "pcb_thickness_mm": {
+      "value": 1.6,
+      "approx": true,
+      "note": "Typical."
+    },
+    "height_mm": {
+      "value": 15,
+      "approx": true,
+      "note": "Female headers + USB-B; estimate."
+    }
+  },
+  "colors": {
+    "pcb": "#00878f",
+    "silkscreen": "#ffffff",
+    "headers": "#111111"
+  },
+  "headers": [
+    {
+      "id": "JANALOG",
+      "origin_mm": [
+        0,
+        0.0
+      ],
+      "pitch": 2.54,
+      "count": 14,
+      "orientation": "+X",
+      "pin1": "JANALOG.1 (NC), end nearest the barrel jack/USB side (approx)"
+    },
+    {
+      "id": "JDIGITAL",
+      "origin_mm": [
+        0,
+        48.26
+      ],
+      "pitch": 2.54,
+      "count": 18,
+      "orientation": "+X",
+      "pin1": "JDIGITAL.1 (D0)",
+      "origin_approx": true
+    }
+  ],
+  "header_row_spacing_mm": {
+    "value": 48.26,
+    "approx": true,
+    "note": "Not a straddling DIP; header rows are ~1.9\" apart on the Uno outline drawing (image only). Approx."
+  },
+  "pins": [
+    {
+      "id": "JANALOG.1",
+      "label": "NC",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "nc"
+      ],
+      "voltage": "n/a",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.2",
+      "label": "IOREF",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Reference for logic level; tied to 5V."
+      ]
+    },
+    {
+      "id": "JANALOG.3",
+      "label": "RESET",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "reset"
+      ],
+      "voltage": "5V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.4",
+      "label": "3V3",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Max 50 mA (Arduino Nano pinout sheet figure; approx for Uno)."
+      ]
+    },
+    {
+      "id": "JANALOG.5",
+      "label": "5V",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.6",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.7",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.8",
+      "label": "VIN",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "6-20V in",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "6-20V in (max per datasheet)"
+      ]
+    },
+    {
+      "id": "JANALOG.9",
+      "label": "A0",
+      "gpio": 14,
+      "header": 0,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC0"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.10",
+      "label": "A1",
+      "gpio": 15,
+      "header": 0,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC1"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.11",
+      "label": "A2",
+      "gpio": 16,
+      "header": 0,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC2"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.12",
+      "label": "A3",
+      "gpio": 17,
+      "header": 0,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC3"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.13",
+      "label": "A4/SDA",
+      "gpio": 18,
+      "header": 0,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC4",
+        "I2C SDA"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JANALOG.14",
+      "label": "A5/SCL",
+      "gpio": 19,
+      "header": 0,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC5",
+        "I2C SCL"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.1",
+      "label": "D0/RX",
+      "gpio": 0,
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "UART RX"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: RX, wired to the USB-serial chip; using it blocks uploads/Serial"
+      ]
+    },
+    {
+      "id": "JDIGITAL.2",
+      "label": "D1/TX",
+      "gpio": 1,
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "UART TX"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: TX, wired to the USB-serial chip"
+      ]
+    },
+    {
+      "id": "JDIGITAL.3",
+      "label": "D2",
+      "gpio": 2,
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.4",
+      "label": "D3",
+      "gpio": 3,
+      "header": 1,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.5",
+      "label": "D4",
+      "gpio": 4,
+      "header": 1,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.6",
+      "label": "D5",
+      "gpio": 5,
+      "header": 1,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.7",
+      "label": "D6",
+      "gpio": 6,
+      "header": 1,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.8",
+      "label": "D7",
+      "gpio": 7,
+      "header": 1,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.9",
+      "label": "D8",
+      "gpio": 8,
+      "header": 1,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.10",
+      "label": "D9",
+      "gpio": 9,
+      "header": 1,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.11",
+      "label": "D10/SS",
+      "gpio": 10,
+      "header": 1,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "SPI SS"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.12",
+      "label": "D11/MOSI",
+      "gpio": 11,
+      "header": 1,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "SPI MOSI"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.13",
+      "label": "D12/MISO",
+      "gpio": 12,
+      "header": 1,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "SPI MISO"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.14",
+      "label": "D13/SCK",
+      "gpio": 13,
+      "header": 1,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "SPI SCK",
+        "LED_BUILTIN"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: SPI SCK and the onboard LED on Arduino boards"
+      ]
+    },
+    {
+      "id": "JDIGITAL.15",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JDIGITAL.16",
+      "label": "AREF",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 16,
+        "x": 38.1,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "analog ref"
+      ],
+      "voltage": "0-5V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Analog reference input. Not a GPIO."
+      ]
+    },
+    {
+      "id": "JDIGITAL.17",
+      "label": "SDA",
+      "gpio": 18,
+      "header": 1,
+      "position": {
+        "index": 17,
+        "x": 40.64,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "I2C SDA (dup of A4)"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Same pin as A4."
+      ]
+    },
+    {
+      "id": "JDIGITAL.18",
+      "label": "SCL",
+      "gpio": 19,
+      "header": 1,
+      "position": {
+        "index": 18,
+        "x": 43.18,
+        "y": 48.26,
+        "approx": true
+      },
+      "functions": [
+        "GPIO",
+        "I2C SCL (dup of A5)"
+      ],
+      "voltage": "5V logic (ATmega328P at VCC=5V)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Same pin as A5."
+      ]
+    }
+  ],
+  "safe_gpio": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "caution_gpio": {
+    "0": "RX, wired to the USB-serial chip; using it blocks uploads/Serial",
+    "1": "TX, wired to the USB-serial chip",
+    "13": "SPI SCK and the onboard LED on Arduino boards"
+  },
+  "no_go_gpio": {},
+  "logic": {
+    "logic_voltage_v": 5.0,
+    "five_v_logic": true,
+    "pin_voltage": "5V logic (ATmega328P at VCC=5V)",
+    "warning": "5V LOGIC: outputs swing to 5V. 3.3V-only parts (bare SSD1306 at 1.65-3.3V logic, many sensors) need a level shifter or a module rated for 5V. I2C pull-ups go to 5V."
+  },
+  "power": {
+    "pins": {
+      "5V": "5V rail",
+      "3V3": "3.3V out (small current)",
+      "VIN": "6-20V in",
+      "IOREF": "tied to 5V",
+      "GND": "0V"
+    },
+    "usb_vmax_v": 5.5
+  },
+  "defaults": {
+    "i2c": {
+      "sda": 18,
+      "scl": 19,
+      "labels": "A4/A5 (duplicated as SDA/SCL near AREF)"
+    },
+    "spi": {
+      "ss": 10,
+      "mosi": 11,
+      "miso": 12,
+      "sck": 13
+    },
+    "uart0": {
+      "tx": 1,
+      "rx": 0
+    },
+    "led_builtin": 13
+  },
+  "breadboard_fit": {
+    "fits_830": false,
+    "off_board": true,
+    "connector": "female headers",
+    "note": "Doesn't fit a breadboard. Place it beside the breadboard (off_board placement) and run male-male jumpers from its female headers to the breadboard."
+  },
+  "platformio": {
+    "board": "uno",
+    "platform": "atmelavr",
+    "framework": "arduino",
+    "source": "https://docs.platformio.org/en/latest/boards/atmelavr/uno.html"
+  },
+  "features": [
+    {
+      "id": "usb_b",
+      "kind": "usb",
+      "connector": "USB-B (ATmega16U2 USB-serial on D0/D1)",
+      "approx": true,
+      "position_mm": {
+        "x": -6,
+        "y": 38
+      }
+    },
+    {
+      "id": "barrel",
+      "kind": "dc_jack",
+      "note": "barrel jack to VIN",
+      "approx": true,
+      "position_mm": {
+        "x": -6,
+        "y": 8
+      }
+    },
+    {
+      "id": "led_l",
+      "kind": "led",
+      "label": "L",
+      "gpio": 13,
+      "approx": true,
+      "position_mm": {
+        "x": 30,
+        "y": 40
+      }
+    },
+    {
+      "id": "btn_reset",
+      "kind": "button",
+      "approx": true,
+      "position_mm": {
+        "x": 2,
+        "y": 45
+      }
+    },
+    {
+      "id": "icsp",
+      "kind": "connector",
+      "note": "ICSP 2\u00d73 (D11-D13 + RESET)",
+      "approx": true,
+      "position_mm": {
+        "x": 62,
+        "y": 26
+      }
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://docs.arduino.cc/resources/datasheets/A000066-datasheet.pdf",
+      "https://docs.arduino.cc/resources/pinouts/A000066-full-pinout.pdf",
+      "https://docs.platformio.org/en/latest/boards/atmelavr/uno.html"
+    ],
+    "revision": "UNO R3 datasheet (JANALOG/JDIGITAL tables)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Pin order from datasheet tables. Header x/y positions are logical (index \u00d7 2.54); the real Uno has a 160 mil offset between D7 and D8 and non-DIP header placement, so physical positions are approx."
+  }
+}

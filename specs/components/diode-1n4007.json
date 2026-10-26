@@ -1,0 +1,119 @@
+{
+  "id": "diode-1n4007",
+  "name": "1N4007 rectifier diode (DO-41)",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "anode lead",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": 5.2,
+    "diameter_mm": 2.7,
+    "note": "Vishay DO-41: body 4.1-5.2 mm long, 2.0-2.7 mm dia, leads 0.71-0.86 mm",
+    "span_holes": 4
+  },
+  "colors": {
+    "body": "#1a1a1a",
+    "band": "#d0d0d0"
+  },
+  "headers": [
+    {
+      "id": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "anode",
+      "note": "Bent to span 4 holes."
+    }
+  ],
+  "pins": [
+    {
+      "id": "A",
+      "label": "anode",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0.0
+      },
+      "functions": [
+        "passive"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "K",
+      "label": "cathode (band)",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "passive"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": [
+        "Band = cathode. As a flyback diode the band goes to +."
+      ]
+    }
+  ],
+  "electrical": {
+    "vrrm_v": 1000,
+    "if_av_a": 1.0,
+    "ifsm_a": 30,
+    "vf_v": 1.1
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 1000
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "passive"
+    },
+    "current_ma": {
+      "max": 1000,
+      "note": "IF(AV) 1 A"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": []
+  },
+  "provenance": {
+    "sources": [
+      "https://www.vishay.com/docs/88503/1n4001.pdf"
+    ],
+    "revision": "Vishay 1N4001-1N4007 (doc 88503)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "safe_gpio": [],
+  "features": []
+}

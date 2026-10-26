@@ -1,0 +1,242 @@
+{
+  "id": "rfid-rc522",
+  "name": "RC522 (NXP MFRC522) 13.56 MHz RFID reader module",
+  "kind": "sensor",
+  "body": {
+    "length_mm": {
+      "value": 60,
+      "approx": true,
+      "note": "Common 60x40 mm board; not in fetched text."
+    },
+    "width_mm": {
+      "value": 40,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 5,
+      "approx": true,
+      "note": "approx"
+    }
+  },
+  "colors": {
+    "pcb": "#1d4f91"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 8,
+      "orientation": "+X",
+      "pin1": "SDA (SS)",
+      "pin_order_approx": true,
+      "note": "Usual order SDA-SCK-MOSI-MISO-IRQ-GND-RST-3.3V (Handsontec). SDA here is SPI chip-select, NOT I2C. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "SDA",
+      "label": "SDA (SS)",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "SPI CS"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "SCK",
+      "label": "SCK",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "SPI"
+      ],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "MOSI",
+      "label": "MOSI",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "SPI"
+      ],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "MISO",
+      "label": "MISO",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "SPI"
+      ],
+      "voltage": "3.3V out",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "IRQ",
+      "label": "IRQ",
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "interrupt out"
+      ],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": [
+        "Optional; usually left unconnected."
+      ]
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "RST",
+      "label": "RST",
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "reset / power-down (LOW)"
+      ],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VCC",
+      "label": "3.3V",
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "2.5-3.6V (NXP), 3.3V typ",
+      "flags": {},
+      "warnings": [
+        "NEVER 5V on this pin."
+      ]
+    }
+  ],
+  "electrical": {
+    "supply_v": "2.5 / 3.3 / 3.6 (NXP min/typ/max)",
+    "current_ma": "13-26 operating, 10-13 standby (Handsontec); TVDD up to 100 max (NXP)",
+    "range_mm": "≤50 (Handsontec)"
+  },
+  "part": {
+    "category": "input",
+    "supply_v": {
+      "min": 2.5,
+      "max": 3.6
+    },
+    "logic": {
+      "level": "3.3V SPI"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "3V3 power, SPI straight to GPIO."
+        ]
+      },
+      "mcu_5v": {
+        "status": "with_conditions",
+        "needs": [
+          "Power from the Arduino's 3.3V pin only.",
+          "MISO is 3.3V (fine for AVR). For SCK/MOSI/SDA/RST from 5V pins: many boards survive it (library README, LME) but NXP doesn't guarantee it, so use a level shifter or 1k/2k dividers."
+        ]
+      }
+    },
+    "interface": {
+      "type": "SPI (chip also has I2C/UART, not wired on most modules)"
+    },
+    "current_ma": {
+      "typ": 26,
+      "max": 100,
+      "note": "Handsontec typ; NXP TVDD max"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [
+      "miguelbalboa/MFRC522"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf",
+      "https://www.handsontec.com/dataspecs/RC522.pdf",
+      "https://github.com/miguelbalboa/rfid",
+      "https://lastminuteengineers.com/how-rfid-works-rc522-arduino-tutorial/"
+    ],
+    "revision": "NXP MFRC522 rev 3.9",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

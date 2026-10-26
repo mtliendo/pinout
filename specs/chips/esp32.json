@@ -1,0 +1,185 @@
+{
+  "id": "esp32",
+  "name": "Espressif ESP32 (classic, Xtensa LX6)",
+  "logic_voltage_v": 3.3,
+  "five_v_tolerant": false,
+  "gpio_numbers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    21,
+    22,
+    23,
+    25,
+    26,
+    27,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+  ],
+  "strapping_gpio": [
+    0,
+    2,
+    5,
+    12,
+    15
+  ],
+  "flash_psram_gpio": {
+    "spi_flash": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "wrover_or_inpackage_psram": [
+      16,
+      17
+    ],
+    "notes": "GPIO6-11 connect to SPI flash on all modules (DevKitC footnote: 'Avoid using these pins'). On ESP32-WROVER modules and chips with in-package PSRAM (e.g. ESP32-D0WDR2-V3) GPIO16/17 are reserved for PSRAM; on WROOM/SOLO they are free. ESP32-U4WDH / in-package flash parts use six GPIOs internally (datasheet 2-5)."
+  },
+  "usb_gpio": null,
+  "usb_note": "No native USB; boards use a USB-UART bridge on UART0.",
+  "uart0": {
+    "tx": 1,
+    "rx": 3
+  },
+  "input_only_gpio": [
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+  ],
+  "adc2_wifi_conflict": {
+    "gpio": [
+      0,
+      2,
+      4,
+      12,
+      13,
+      14,
+      15,
+      25,
+      26,
+      27
+    ],
+    "note": "ADC2 can't be used while Wi-Fi is on (ESP-IDF ADC docs). Digital use is fine.",
+    "approx": true,
+    "approx_note": "Not quoted from the chip datasheet text; from ESP-IDF ADC documentation."
+  },
+  "safe_gpio": [
+    4,
+    13,
+    14,
+    18,
+    19,
+    21,
+    22,
+    23,
+    25,
+    26,
+    27,
+    32,
+    33
+  ],
+  "caution_gpio": {
+    "0": "strapping: boot mode; BOOT button on most boards",
+    "2": "strapping: boot mode (must be low/floating for download)",
+    "5": "strapping: SDIO slave timing (with MTDO)",
+    "12": "strapping MTDI: flash voltage (VDD_SDIO). High at reset on a 3.3V-flash module = boot failure",
+    "15": "strapping MTDO: ROM log + SDIO timing",
+    "1": "UART0 TX (USB-serial console/flashing)",
+    "3": "UART0 RX (USB-serial console/flashing)",
+    "16": "PSRAM on WROVER/in-package-PSRAM parts; free on WROOM (kept caution: photo can't always tell)",
+    "17": "PSRAM on WROVER/in-package-PSRAM parts; free on WROOM (kept caution)",
+    "34": "input-only, no pull-ups",
+    "35": "input-only, no pull-ups",
+    "36": "input-only (SENSOR_VP), no pull-ups",
+    "37": "input-only; usually not broken out",
+    "38": "input-only; usually not broken out",
+    "39": "input-only (SENSOR_VN), no pull-ups"
+  },
+  "no_go_gpio": {
+    "6": "SPI flash (CLK/SD0-3/CMD)",
+    "7": "SPI flash (CLK/SD0-3/CMD)",
+    "8": "SPI flash (CLK/SD0-3/CMD)",
+    "9": "SPI flash (CLK/SD0-3/CMD)",
+    "10": "SPI flash (CLK/SD0-3/CMD)",
+    "11": "SPI flash (CLK/SD0-3/CMD)"
+  },
+  "platformio": {
+    "platform": "espressif32",
+    "frameworks": [
+      "arduino",
+      "espidf"
+    ],
+    "example_boards": [
+      "esp32dev"
+    ]
+  },
+  "label_aliases": {
+    "chip_level": {
+      "IO{n}": "GPIOn (Espressif silkscreen)",
+      "GPIO{n}": "GPIOn",
+      "G{n}": "GPIOn on many clones (but a bare 'G' is GND)",
+      "{n}": "bare number next to a header = GPIOn on Espressif DevKits",
+      "TX / TXD / TX0": "UART0 TX (see uart0)",
+      "RX / RXD / RX0": "UART0 RX (see uart0)",
+      "EN / RST / CHIP_PU": "reset, not a GPIO",
+      "BOOT": "button on the boot strapping GPIO"
+    },
+    "board_level": {
+      "D{n}": "Arduino/XIAO-style digital number. NOT GPIOn on XIAO or Arduino Nano ESP32; look up the board's own map",
+      "A{n}": "analog alias, board-specific",
+      "SDA / SCL": "board/framework default I2C, board-specific (ESP32 can route I2C to almost any GPIO)",
+      "MOSI/MISO/SCK/SS, COPI/CIPO/CS": "board/framework default SPI",
+      "LED / LED_BUILTIN": "board-specific",
+      "VP / VN": "classic ESP32 only: GPIO36 / GPIO39 (SENSOR_VP/VN)"
+    },
+    "never_map": [
+      "CLK",
+      "CMD",
+      "SD0",
+      "SD1",
+      "SD2",
+      "SD3",
+      "D0..D3 printed next to CLK/CMD on classic ESP32 DevKitC = flash pins, NOT Arduino D0-D3"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf",
+      "https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html",
+      "https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/adc_oneshot.html"
+    ],
+    "revision": "datasheets fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Strapping GPIO0/2/MTDI(12)/MTDO(15)/GPIO5 and input-only 34-39 quoted from datasheet section 3 / IO_MUX notes."
+  }
+}

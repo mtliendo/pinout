@@ -1,0 +1,184 @@
+{
+  "id": "rotary-encoder-ky040",
+  "name": "KY-040 rotary encoder with push switch",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 30,
+    "width_mm": 18,
+    "height_mm": 30,
+    "source": "Handsontec: 30 x 18 x 30 mm"
+  },
+  "colors": {
+    "pcb": "#1d4f91",
+    "knob": "#c0c0c0"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 5,
+      "orientation": "+X",
+      "pin1": "CLK",
+      "pin_order_approx": true,
+      "note": "Usual order CLK-DT-SW-+-GND. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "CLK",
+      "label": "CLK",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "digital out (A)"
+      ],
+      "voltage": "pulled up to +",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "DT",
+      "label": "DT",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "digital out (B)"
+      ],
+      "voltage": "pulled up to +",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "SW",
+      "label": "SW",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "digital out (button)"
+      ],
+      "voltage": "to GND when pressed; pull-up often not fitted",
+      "flags": {},
+      "warnings": [
+        "Use INPUT_PULLUP."
+      ]
+    },
+    {
+      "id": "VCC",
+      "label": "+",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "Handsontec rates 5V; use 3V3 on 3.3V MCUs",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "pulses_per_rev": 20,
+    "output": "2-bit gray code",
+    "note": "Mechanical switches + pull-ups only"
+  },
+  "part": {
+    "category": "input",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5,
+      "note": "Rated 5V (Handsontec); it's passive switches + pull-ups, so 3.3V works"
+    },
+    "logic": {
+      "level": "= + (pull-up voltage)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Connect + to 3V3 so the CLK/DT pull-ups are 3.3V."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital quadrature + button"
+    },
+    "current_ma": {
+      "note": "Pull-up current only"
+    },
+    "required_passives": [
+      {
+        "kind": "pull-ups",
+        "value": "on-board for CLK/DT (Handsontec: '5V supply and pull-up resistors')",
+        "between": [
+          "CLK/DT",
+          "+"
+        ]
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [
+      "mathertel/RotaryEncoder"
+    ],
+    "approx_fields": [
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.handsontec.com/dataspecs/module/Rotary%20Encoder.pdf",
+      "https://lastminuteengineers.com/rotary-encoder-arduino-tutorial/"
+    ],
+    "revision": "Handsontec ASS-1058",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}
