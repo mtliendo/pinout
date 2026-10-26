@@ -1194,6 +1194,17 @@ function requireMatch(label: string, text: string, needle: RegExp) {
     process.exit(1);
   }
   requireMatch("NeoPixel begin/show", cpp, /pixels\.begin\(\)[\s\S]*pixels\.show\(\)/);
+  const nanoNeo = composeBuild(
+    { idea: "neo", boardId: "arduino-nano-esp32", partIds: ["ws2812b-strip"] },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const nanoIni = nanoNeo.steps.find((s) => s.code)?.code?.["platformio.ini"] ?? "";
+  requireMatch(
+    "Nano ESP32 NeoPixel pinned for Arduino 2.x",
+    nanoIni,
+    /adafruit\/Adafruit NeoPixel@1\.12\.3/,
+  );
 }
 
 if (loaded.builds["pir-servo-s3"]?.provenance?.verified_by !== "Maker") {

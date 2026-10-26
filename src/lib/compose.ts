@@ -2339,7 +2339,14 @@ function sketchFor(
     roles.oled ? "adafruit/Adafruit SSD1306" : "",
     roles.oled ? "adafruit/Adafruit GFX Library" : "",
     roles.sonar ? "teckel12/NewPing" : "",
-    roles.neo ? "adafruit/Adafruit NeoPixel" : "",
+    // Official PlatformIO espressif32 is Arduino-ESP32 2.x and has no
+    // digitalPinToGPIONumber. Adafruit NeoPixel 1.13+ needs that symbol
+    // (Nano ESP32 failed to link 1/113 on GitHub). C6/pioarduino is 3.x.
+    roles.neo
+      ? pio.platform === "espressif32"
+        ? "adafruit/Adafruit NeoPixel@1.12.3"
+        : "adafruit/Adafruit NeoPixel"
+      : "",
     roles.lcd ? "marcoschwartz/LiquidCrystal_I2C" : "",
     roles.tm1637 ? "smougenot/TM1637" : "",
     roles.rc522 ? "miguelbalboa/MFRC522" : "",
