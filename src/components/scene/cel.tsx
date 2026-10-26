@@ -9,9 +9,9 @@ export const PALE_LINE = "#b7b0a4";
 
 /** Flat, muted fills — IKEA manual, not toy-plastic primaries. */
 export const FILLS = {
-  board: "#efe8dc",
-  pcb: "#5c6358",
-  module: "#c8c4ba",
+  board: "#e9e2d4",
+  pcb: "#6e766c",
+  module: "#d0ccc2",
   header: "#2f2d2a",
   pin: "#c4a15a",
   usb: "#d5d2cb",
@@ -39,7 +39,7 @@ export function mute(hex: string, faded: boolean): string {
 
 function hullPad(dims: number[]) {
   const m = Math.min(...dims.filter((n) => n > 0));
-  return Math.min(1.7, Math.max(0.7, m * 0.1));
+  return Math.min(2.1, Math.max(0.85, m * 0.12));
 }
 
 export function CelBox({
@@ -64,7 +64,7 @@ export function CelBox({
       <mesh>
         <boxGeometry args={args} />
         <meshBasicMaterial color={fill} toneMapped={false} />
-        <Edges threshold={18} color={line} lineWidth={faded ? 1.2 : 1.85} />
+        <Edges threshold={18} color={line} lineWidth={faded ? 1.4 : 2.35} />
       </mesh>
       <mesh>
         <boxGeometry args={[l + pad, h + pad, w + pad]} />

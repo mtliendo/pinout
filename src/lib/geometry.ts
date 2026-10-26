@@ -208,7 +208,7 @@ export function cameraFor(
     target[1] + (ISO_DIR[1] / len) * dist,
     target[2] + (ISO_DIR[2] / len) * dist,
   ];
-  return { position, lookAt: target, frustum: 348 };
+  return { position, lookAt: target, frustum: 300 };
 }
 
 export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {
@@ -226,6 +226,6 @@ export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {
       look[2] + Math.cos(angle) * radius,
     ],
     lookAt: look,
-    frustum: 368,
+    frustum: 236,
   };
 }

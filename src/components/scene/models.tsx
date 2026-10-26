@@ -90,8 +90,8 @@ export function BreadboardModel({
         );
       })}
       <instancedMesh ref={inst} args={[undefined, undefined, holes.length]}>
-        <cylinderGeometry args={[0.38, 0.38, 0.3, 8]} />
-        <meshBasicMaterial color={faded ? "#ddd6ca" : "#7a746a"} toneMapped={false} />
+        <cylinderGeometry args={[0.46, 0.46, 0.32, 8]} />
+        <meshBasicMaterial color={faded ? "#ddd6ca" : "#6a645c"} toneMapped={false} />
       </instancedMesh>
     </group>
   );
@@ -147,10 +147,10 @@ export function BoardModel({
       <group position={[cx, 0.9, cz]}>
         <CelBox args={[length, 1.6, width]} color={FILLS.pcb} faded={faded} />
         <CelBox
-          args={[xiao ? 12.5 : 25.2, 3.1, xiao ? 10.5 : 17.6]}
+          args={[xiao ? 12.5 : 25.2, 3.6, xiao ? 10.5 : 17.6]}
           color={FILLS.module}
           faded={faded}
-          position={[xiao ? -1 : -8.4, 2.35, 0]}
+          position={[xiao ? -1 : -8.4, 2.7, 0]}
         />
         {!xiao && (
           <>
@@ -193,8 +193,8 @@ export function BoardModel({
               key={f.id}
               faded={faded}
               position={[
-                (f.position_mm?.x ?? length - 2) - cx + 2.6,
-                1.4,
+                (f.position_mm?.x ?? length - 2) - cx + 4.2,
+                1.7,
                 (f.position_mm?.y ?? 6) - cz,
               ]}
             />
@@ -223,9 +223,9 @@ export function BoardModel({
       {(component.pins ?? []).map((pin) => (
         <CelPin
           key={pin.id}
-          args={[0.64, 8.6, 0.64]}
+          args={[0.82, 9.2, 0.82]}
           faded={faded}
-          position={[pin.position.x, -2.7, pin.position.y]}
+          position={[pin.position.x, -2.9, pin.position.y]}
         />
       ))}
     </group>
@@ -241,12 +241,12 @@ function UsbC({
 }) {
   return (
     <group position={position}>
-      <CelBox args={[8.4, 3.05, 7.3]} color={FILLS.usb} faded={faded} />
+      <CelBox args={[9.2, 3.4, 8]} color={FILLS.usb} faded={faded} />
       <CelBox
-        args={[2.6, 1.15, 5.1]}
+        args={[3.2, 1.3, 5.6]}
         color={FILLS.usbSlot}
         faded={faded}
-        position={[3.4, 0, 0]}
+        position={[3.8, 0, 0]}
       />
     </group>
   );

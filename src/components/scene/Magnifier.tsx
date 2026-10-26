@@ -2,10 +2,22 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { holeWorld } from "@/lib/geometry";
+import { adjacentFreeHole, holeWorld, parseHole } from "@/lib/geometry";
 import { labelForCallout } from "@/lib/callout";
 import type { GuidePayload } from "@/lib/types";
 import { BuildScene, calloutWorld } from "./BuildScene";
+
+function magnifierWorld(callout: string | undefined, payload: GuidePayload) {
+  if (callout) {
+    const parsed = parseHole(callout);
+    if (parsed?.kind === "hole") {
+      return holeWorld(adjacentFreeHole(callout), payload.breadboard, 1.1);
+    }
+  }
+  return (
+    calloutWorld(callout, payload) ?? holeWorld("a4", payload.breadboard, 1.1)
+  );
+}
 
 export function Magnifier({
   payload,
@@ -17,9 +29,7 @@ export function Magnifier({
   progress: number;
 }) {
   const step = payload.build.steps[stepIndex];
-  const target =
-    calloutWorld(step?.callout, payload) ??
-    holeWorld("a4", payload.breadboard, 2);
+  const target = magnifierWorld(step?.callout, payload);
   const label = labelForCallout(step?.callout, payload);
 
   return (
@@ -48,11 +58,11 @@ export function Magnifier({
 function CloseupRig({ progress }: { progress: number }) {
   useFrame((state) => {
     const cam = state.camera as THREE.OrthographicCamera;
-    const zoomIn = 18 - progress * 2.5;
+    const zoomIn = 16 - progress * 2;
     const half = zoomIn / 2;
     const aspect = state.size.width / Math.max(1, state.size.height);
-    cam.position.set(9, 14, 9);
-    cam.lookAt(0, 1.2, 0);
+    cam.position.set(-2, 22, -14);
+    cam.lookAt(0, 0.4, 0);
     cam.left = -half * aspect;
     cam.right = half * aspect;
     cam.top = half;

@@ -64,9 +64,7 @@ export function BuildScene({
     const world = component
       ? partWorld(placement, component, breadboard)
       : { position: [0, 0, 0] as Vec3, rotation: 0 };
-    const active =
-      highlights.has(placement.part) ||
-      (component?.pins ?? []).some((p) => highlights.has(p.id));
+    const active = highlights.has(placement.part);
     const present = introduced.has(placement.part) || placement.part === "mcu";
     return { placement, component, world, active, present };
   });
@@ -169,7 +167,7 @@ export function CameraRig({
     const cam = state.camera as THREE.OrthographicCamera;
     const k = 1 - Math.exp(-2.2 * delta);
     const want = preview
-      ? { ...target, frustum: target.frustum + 20 }
+      ? { ...target, frustum: 236 }
       : target;
     pos.current.lerp(new THREE.Vector3(...want.position), preview ? 1 : k);
     look.current.lerp(new THREE.Vector3(...want.lookAt), preview ? 1 : k);
