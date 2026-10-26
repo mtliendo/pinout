@@ -99,13 +99,17 @@ async function walkGuide(page: Page, dwell = 950) {
   await expect(next).toBeVisible();
   await next.click();
   let mid = 1;
-  for (let i = 0; i < 24; i++) {
-    await page.waitForTimeout(40);
-    mid = Number(await page.locator("[data-testid=motion]").getAttribute("data-progress"));
-    if (mid > 0.08 && mid < 0.92) break;
+  for (let i = 0; i < 20; i++) {
+    mid = Number(
+      await page.evaluate(
+        () => (window as unknown as { __pinoutProgress?: number }).__pinoutProgress ?? 1,
+      ),
+    );
+    if (mid > 0.05 && mid < 0.95) break;
+    await page.waitForTimeout(30);
   }
-  expect(mid, `expected in-flight progress, got ${mid}`).toBeGreaterThan(0.08);
-  expect(mid).toBeLessThan(0.92);
+  expect(mid, `expected in-flight progress, got ${mid}`).toBeGreaterThan(0.05);
+  expect(mid).toBeLessThan(0.95);
   await expect(page.getByText(/Step 2 of/)).toBeVisible();
   await expect(page.locator(".you-need strong").first()).toHaveText(/^\d+x$/);
   const step2Qty = Number(

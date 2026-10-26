@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useLayoutEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { PartGlyph } from "@/components/icons/PartGlyph";
 import { Magnifier } from "@/components/scene/Magnifier";
 import { readGuide } from "@/lib/guide-store";
@@ -28,6 +28,7 @@ export function BuildViewer() {
   const [fetchError, setFetchError] = useState("");
   const [stepIndex, setStepIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const motionRef = useRef<HTMLElement | null>(null);
   const [voice, setVoice] = useState(false);
   const [copied, setCopied] = useState("");
   const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
@@ -52,13 +53,19 @@ export function BuildViewer() {
   const last = payload?.build.steps[total - 1];
 
   useLayoutEffect(() => {
-    setProgress(0);
+    const write = (value: number) => {
+      setProgress(value);
+      const node = motionRef.current;
+      if (node) node.dataset.progress = value.toFixed(3);
+      (window as Window & { __pinoutProgress?: number }).__pinoutProgress = value;
+    };
+    write(0);
     let frame = 0;
     const start = performance.now();
     const duration = 850;
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / duration);
-      setProgress(1 - Math.pow(1 - t, 3));
+      write(1 - Math.pow(1 - t, 3));
       if (t < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -133,7 +140,15 @@ export function BuildViewer() {
   };
 
   return (
-    <main className="bench">
+    <main
+      className="bench"
+      ref={(el) => {
+        motionRef.current = el;
+      }}
+      data-testid="motion"
+      data-progress={progress.toFixed(3)}
+      data-step={stepIndex}
+    >
       <header className="topbar bench-top">
         <Link className="wordmark" href="/">
           Pinout
@@ -179,12 +194,6 @@ export function BuildViewer() {
           if (w !== stageBox.w || h !== stageBox.h) setStageBox({ w, h });
         }}
       >
-        <span
-          className="sr-only"
-          data-testid="motion"
-          data-progress={progress.toFixed(3)}
-          data-step={stepIndex}
-        />
         <BuildCanvas
           payload={payload}
           stepIndex={Math.min(stepIndex, total - 1)}
