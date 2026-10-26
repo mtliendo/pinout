@@ -56,6 +56,7 @@ HARD RULES:
 - Always imply a breadboard; do not list it. Size is chosen separately.
 - No photo-of-parts. No free-text parts.`,
       prompt: `Idea: ${idea}\nAnswers: ${JSON.stringify(answers)}`,
+      abortSignal: AbortSignal.timeout(8000),
       output: Output.object({
         name: "BuildPlan",
         schema: PlanSchema,

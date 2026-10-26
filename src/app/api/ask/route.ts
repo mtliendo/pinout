@@ -1,5 +1,6 @@
 import { generateText, Output } from "ai";
 import { z } from "zod";
+import { fallbackQuestions } from "@/lib/ask-fallback";
 import { gatewayModel } from "@/lib/ai/model";
 import { catalogSummary } from "@/lib/specs/load";
 
@@ -54,6 +55,7 @@ Rules:
 Catalog boards: ${boards}
 Catalog parts: ${parts}`,
       prompt: `Idea: ${idea}`,
+      abortSignal: AbortSignal.timeout(8000),
       output: Output.object({
         name: "IntakeQuestions",
         schema: QuestionSchema,
@@ -68,38 +70,4 @@ Catalog parts: ${parts}`,
       questions: fallbackQuestions(catalog),
     });
   }
-}
-
-function fallbackQuestions(catalog: ReturnType<typeof catalogSummary>) {
-  return [
-    {
-      id: "board",
-      prompt: "Which board are you building on?",
-      multi: false,
-      options: catalog.boards.map((b) => ({
-        id: b.id,
-        label: b.name.split("(")[0].trim(),
-        catalogId: b.id,
-      })),
-    },
-    {
-      id: "parts",
-      prompt: "Which of these do you already have?",
-      multi: true,
-      options: catalog.parts.map((p) => ({
-        id: p.id,
-        label: p.name,
-        catalogId: p.id,
-      })),
-    },
-    {
-      id: "power",
-      prompt: "How will you power the build?",
-      multi: false,
-      options: [
-        { id: "usb", label: "USB from the computer", catalogId: "" },
-        { id: "usb-plus-cap", label: "USB, and I can add a capacitor", catalogId: "" },
-      ],
-    },
-  ];
 }

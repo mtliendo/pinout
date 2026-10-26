@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { BreadboardPicker } from "@/components/ask/BreadboardPicker";
 import { ComposeError } from "@/components/ask/ComposeError";
+import { fallbackQuestions } from "@/lib/ask-fallback";
 import { BREADBOARD_PRESETS, type BreadboardSize } from "@/lib/breadboards";
 import { stripValidatorText } from "@/lib/compose-error";
 import { saveGuide } from "@/lib/guide-store";
@@ -36,21 +37,30 @@ export function QuestionFlow() {
       router.replace("/");
       return;
     }
-    fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idea }),
-    })
+    const ac = new AbortController();
+    fetch("/api/catalog")
       .then((r) => r.json())
-      .then((data: { questions?: Question[]; error?: string }) => {
-        if (!data.questions?.length) throw new Error(data.error ?? "No questions");
-        setQuestions(data.questions.slice(0, 5));
+      .then((catalog) => {
+        if (!catalog?.boards) throw new Error("Catalog unavailable");
+        setQuestions(fallbackQuestions(catalog));
         setStatus("ask");
       })
       .catch((err: Error) => {
         setError(stripValidatorText(err.message));
         setStatus("error");
       });
+    fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idea }),
+      signal: ac.signal,
+    })
+      .then((r) => r.json())
+      .then((data: { questions?: Question[] }) => {
+        if (data.questions?.length) setQuestions(data.questions.slice(0, 5));
+      })
+      .catch(() => undefined);
+    return () => ac.abort();
   }, [idea, router]);
 
   const question = questions[index];

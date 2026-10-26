@@ -404,8 +404,11 @@ test.describe("Pinout preview", () => {
     expect(JSON.stringify(guide)).toMatch(/SDA_PIN = 6/);
     expect(JSON.stringify(guide)).toMatch(/SCL_PIN = 7/);
 
-    await unlock(page);
-    await page.getByRole("button", { name: "Button, LED and OLED" }).click();
+    await page.goto(
+      shareUrl(
+        `/ask?idea=${encodeURIComponent("button that toggles an LED and shows status on an OLED")}`,
+      ),
+    );
     await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
     for (let i = 0; i < 8; i++) {
       if (await page.getByTestId("breadboard-picker").isVisible()) break;
@@ -416,8 +419,7 @@ test.describe("Pinout preview", () => {
     await expect(page.getByTestId("breadboard-picker")).toBeVisible();
     await expect(page.getByText("Mini 170")).toBeVisible();
 
-    await unlock(page);
-    await page.locator(".preview-meta").getByRole("button", { name: "Build this" }).click();
+    await page.goto(shareUrl("/guide?id=pir-servo-s3"));
     await expect(page.locator(".bench")).toBeVisible({ timeout: 90_000 });
     await expect(page.getByTestId("reset-view")).toBeVisible();
     await page.getByTestId("reset-view").click();
