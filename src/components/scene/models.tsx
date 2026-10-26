@@ -422,6 +422,51 @@ export function CatalogPart({
       </group>
     );
   }
+  if (component.id === "relay-module-5v-1ch") {
+    return (
+      <group>
+        <CelBox args={[50, 1.6, 26]} color="#1d4f91" faded={faded} />
+        <CelBox args={[19, 16, 15]} color="#1e5bd8" faded={faded} position={[-8, 9, 0]} />
+        <CelBox args={[12, 8, 18]} color="#d8d0c4" faded={faded} position={[16, 5, 0]} />
+        {[-2.54, 0, 2.54].map((x) => (
+          <CelPin key={x} args={[0.58, 8.2, 0.58]} faded={faded} position={[x - 16, -4.2, 11]} />
+        ))}
+      </group>
+    );
+  }
+  if (component.id === "hc-sr04" || component.id === "hc-sr04p") {
+    return (
+      <group>
+        <CelBox args={[45, 1.6, 20]} color="#1b4f9c" faded={faded} />
+        <CelCyl args={[8, 8, 10, 18]} color="#cfc8ba" faded={faded} position={[-10, 6, 0]} />
+        <CelCyl args={[8, 8, 10, 18]} color="#cfc8ba" faded={faded} position={[10, 6, 0]} />
+      </group>
+    );
+  }
+  if (component.id === "rfid-rc522") {
+    return (
+      <group>
+        <CelBox args={[40, 1.6, 60]} color="#1e7a36" faded={faded} />
+        <CelBox args={[28, 0.6, 28]} color="#c5c1b4" faded={faded} position={[0, 1.2, -6]} />
+      </group>
+    );
+  }
+  if (component.id === "level-shifter-bss138") {
+    return (
+      <group>
+        <CelBox args={[25, 1.6, 16]} color="#1d1d1d" faded={faded} />
+        <CelBox args={[8, 2, 6]} color="#2c2b28" faded={faded} position={[0, 2, 0]} />
+      </group>
+    );
+  }
+  if (component.id === "ext-5v-supply") {
+    return (
+      <group>
+        <CelBox args={[28, 14, 18]} color="#2c2b28" faded={faded} />
+        <CelBox args={[8, 4, 6]} color="#c47a3a" faded={faded} position={[0, 9, 0]} />
+      </group>
+    );
+  }
   return <CelBox args={[8, 4, 8]} color="#c4b8a4" faded={faded} />;
 }
 

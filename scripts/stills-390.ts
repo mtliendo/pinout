@@ -15,18 +15,11 @@ function shareUrl(path = "/") {
 
 const cases = [
   {
-    file: "still-390-ws2812b.png",
-    idea: "A short WS2812B strip on one safe GPIO.",
-    board: "esp32-c6-devkitc-1",
-    parts: ["ws2812b-strip"],
-    heading: /74AHCT125|external 5V|1000/,
-  },
-  {
-    file: "still-390-relay.png",
-    idea: "A button clicks a 5V relay. Low-voltage DC only — never mains.",
-    board: "esp32-s3-devkitc-1-n16r8",
-    parts: ["tactile-button-6mm", "relay-module-5v-1ch"],
-    heading: /JD-VCC jumper|Wire the relay/,
+    file: "still-390-pico-w-hcsr04.png",
+    idea: "An HC-SR04 measures distance and lights an LED when something is close.",
+    board: "raspberry-pi-pico-w",
+    parts: ["hc-sr04", "led-5mm-red", "resistor-220"],
+    heading: /Echo divider|Wire the ultrasonic/,
   },
   {
     file: "still-390-rc522-uno.png",
@@ -34,6 +27,13 @@ const cases = [
     board: "arduino-uno-r3",
     parts: ["rfid-rc522"],
     heading: /BSS138 shifter|Wire the RC522/,
+  },
+  {
+    file: "still-390-relay.png",
+    idea: "A button clicks a 5V relay. Low-voltage DC only — never mains.",
+    board: "esp32-s3-devkitc-1-n16r8",
+    parts: ["tactile-button-6mm", "relay-module-5v-1ch"],
+    heading: /Wire the relay/,
   },
 ];
 

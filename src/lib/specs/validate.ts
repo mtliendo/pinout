@@ -515,22 +515,23 @@ export function validateBuild(
   findRoot(parent, "rail:R+");
 
   const usedRails = new Set<string>();
-  const railHoles: Record<string, string> = {};
+  const holeOccupancy: Record<string, string> = { ...used };
+  const socketOccupancy: Record<string, string> = {};
   for (const wire of build.connections) {
     for (const end of [wire.from, wire.to]) {
-      const match = RAIL.exec(end);
-      if (match) {
-        usedRails.add(match[1]);
-        if (railHoles[end] && railHoles[end] !== wire.id) {
-          err.push(`hole ${end} used twice (${railHoles[end]})`);
+      const rail = RAIL.exec(end);
+      if (rail) usedRails.add(rail[1]);
+      if (end.includes(":")) {
+        if (socketOccupancy[end] && socketOccupancy[end] !== wire.id) {
+          err.push(`socket ${end} used twice (${socketOccupancy[end]})`);
         }
-        railHoles[end] = wire.id;
+        socketOccupancy[end] = wire.id;
+        continue;
       }
-    }
-  }
-  for (const [hole, who] of Object.entries(used)) {
-    if (RAIL.test(hole) && railHoles[hole] && railHoles[hole] !== who) {
-      err.push(`hole ${hole} used twice (${who})`);
+      if (holeOccupancy[end] && holeOccupancy[end] !== wire.id) {
+        err.push(`hole ${end} used twice (${holeOccupancy[end]})`);
+      }
+      holeOccupancy[end] = wire.id;
     }
   }
   const powerName = (pin: Pin) => {

@@ -309,7 +309,7 @@ export function assemblyFrame(breadboard: Breadboard) {
   const length = dim(breadboard.body?.length_mm, 165);
   const width = dim(breadboard.body?.width_mm, 55);
   const min: Vec3 = [-52, -9, -22];
-  const max: Vec3 = [length + 50, 34, width + 16];
+  const max: Vec3 = [length + 80, 34, width + 16];
   const lookAt: Vec3 = [
     (min[0] + max[0]) / 2,
     8,
@@ -332,11 +332,13 @@ export function cameraFor(
   const bias: Vec3 =
     name === "left" || name === "left-low"
       ? [-10, 0, -2]
-      : name === "right"
-        ? [12, 0, 3]
-        : name === "top-zoom-rows-30-35"
-          ? [8, 0, 0]
-          : [0, 0, 0];
+      : name === "right-close"
+        ? [88, 0, 10]
+        : name === "right"
+          ? [12, 0, 3]
+          : name === "top-zoom-rows-30-35"
+            ? [8, 0, 0]
+            : [0, 0, 0];
   const target: Vec3 = [lookAt[0] + bias[0], lookAt[1], lookAt[2] + bias[2]];
   const len = Math.hypot(ISO_DIR[0], ISO_DIR[1], ISO_DIR[2]) || 1;
   const dist = 420;
@@ -345,7 +347,7 @@ export function cameraFor(
     target[1] + (ISO_DIR[1] / len) * dist,
     target[2] + (ISO_DIR[2] / len) * dist,
   ];
-  return { position, lookAt: target, frustum: 300 };
+  return { position, lookAt: target, frustum: name === "right-close" ? 168 : 300 };
 }
 
 export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {

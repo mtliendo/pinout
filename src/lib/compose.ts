@@ -90,6 +90,84 @@ function railOf(
   return `${rail}@${want}`;
 }
 
+function neighborHole(hole: string): string | null {
+  const match = /^([a-j])(\d+)$/i.exec(hole);
+  if (!match) return null;
+  const col = match[1].toLowerCase();
+  const row = match[2];
+  const half = "abcde".includes(col) ? "abcde" : "fghij";
+  const next = half[(half.indexOf(col) + 1) % half.length];
+  return next === col ? null : `${next}${row}`;
+}
+
+function firstFreeNeighbor(hole: string, taken: Set<string>): string | null {
+  const match = /^([a-j])(\d+)$/i.exec(hole);
+  if (!match) return null;
+  const col = match[1].toLowerCase();
+  const row = match[2];
+  const half = "abcde".includes(col) ? "abcde" : "fghij";
+  for (const next of half) {
+    const id = `${next}${row}`;
+    if (!taken.has(id)) return id;
+  }
+  return null;
+}
+
+function uniquifyEndpoints(
+  connections: Build["connections"],
+  placements: Build["placements"],
+  seat: BoardSeat,
+  breadboard: Breadboard,
+  reserved: Set<number>,
+): void {
+  const taken = new Set<string>();
+  for (const placement of placements) {
+    for (const hole of Object.values(placement.pin_holes ?? {})) taken.add(hole);
+  }
+  type End = { wire: Build["connections"][number]; key: "from" | "to" };
+  const groups = new Map<string, End[]>();
+  const remember = (value: string, end: End) => {
+    const list = groups.get(value) ?? [];
+    list.push(end);
+    groups.set(value, list);
+  };
+  for (const wire of connections) {
+    remember(wire.from, { wire, key: "from" });
+    remember(wire.to, { wire, key: "to" });
+  }
+  for (const [value, group] of groups) {
+    if (!value.includes(":")) taken.add(value);
+    if (group.length < 2) continue;
+    if (value.includes(":")) {
+      const row = takeFreeRow(seat, breadboard, reserved, 1);
+      const cols = ["a", "b", "c", "d", "e"];
+      const feed = `${cols[0]}${row}`;
+      connections.push({
+        id: `w_fan_${value.replace(/[^a-z0-9]+/gi, "_")}`,
+        from: value,
+        to: feed,
+        color: "orange",
+        length_mm: 40,
+        net: group[0].wire.net,
+      });
+      taken.add(feed);
+      group.forEach((end, i) => {
+        const hole = `${cols[Math.min(i + 1, cols.length - 1)]}${row}`;
+        end.wire[end.key] = hole;
+        taken.add(hole);
+      });
+      continue;
+    }
+    for (const extra of group.slice(1)) {
+      const next = firstFreeNeighbor(value, taken);
+      if (next) {
+        extra.wire[extra.key] = next;
+        taken.add(next);
+      }
+    }
+  }
+}
+
 function takeFreeRow(
   seat: BoardSeat,
   breadboard: Breadboard,
@@ -329,6 +407,7 @@ export function composeBuild(
   }
   const echoRows = echoDivider ? takeFreeRow(seat, breadboard, reservedRows, 15) : 0;
   const neoR330Row = neoBuffer ? takeFreeRow(seat, breadboard, reservedRows, 5) : 0;
+  const threeFanRow = rc522Shift ? takeFreeRow(seat, breadboard, reservedRows, 1) : 0;
 
   const parts: Build["parts"] = [
     { id: "bb", component: "breadboard-830", qty: 1 },
@@ -733,9 +812,16 @@ export function composeBuild(
         length_mm: 40,
         net: "ECHO_DIV",
       });
+      const echoTaken = new Set<string>([byRole.echo.freeHole]);
+      for (const placement of placements) {
+        for (const hole of Object.values(placement.pin_holes ?? {})) echoTaken.add(hole);
+      }
       add({
         id: "w_div_tap",
-        from: byRole.echo.freeHole,
+        from:
+          firstFreeNeighbor(byRole.echo.freeHole, echoTaken) ??
+          neighborHole(byRole.echo.freeHole) ??
+          `d${byRole.echo.freeHole.replace(/\D/g, "")}`,
         to: `i${echoRows}`,
         color: "green",
         length_mm: 30,
@@ -968,14 +1054,6 @@ export function composeBuild(
   if (roles.relay && byRole.relay) {
     if (relaySplit) {
       add({
-        id: "w_rel_jdvcc",
-        from: "relay:JD-VCC",
-        to: railOf("L+", 14, breadboard),
-        color: "red",
-        length_mm: 80,
-        net: "5V",
-      });
-      add({
         id: "w_rel_vcc",
         from: "relay:VCC",
         to: power.three,
@@ -1090,14 +1168,33 @@ export function composeBuild(
   }
 
   if (roles.rc522 && byRole.spi_sck && byRole.spi_mosi && byRole.spi_miso && byRole.spi_cs) {
-    add({
-      id: "w_rfid_vcc",
-      from: "rfid:VCC",
-      to: power.three,
-      color: "orange",
-      length_mm: 80,
-      net: "3V3",
-    });
+    if (rc522Shift && threeFanRow) {
+      add({
+        id: "w_3v3",
+        from: power.three,
+        to: `a${threeFanRow}`,
+        color: "orange",
+        length_mm: 80,
+        net: "3V3",
+      });
+      add({
+        id: "w_rfid_vcc",
+        from: "rfid:VCC",
+        to: `b${threeFanRow}`,
+        color: "orange",
+        length_mm: 80,
+        net: "3V3",
+      });
+    } else {
+      add({
+        id: "w_rfid_vcc",
+        from: "rfid:VCC",
+        to: power.three,
+        color: "orange",
+        length_mm: 80,
+        net: "3V3",
+      });
+    }
     add({
       id: "w_rfid_gnd",
       from: "rfid:GND",
@@ -1118,7 +1215,7 @@ export function composeBuild(
       add({
         id: "w_sh_lv",
         from: "sh:LV",
-        to: power.three,
+        to: threeFanRow ? `c${threeFanRow}` : power.three,
         color: "orange",
         length_mm: 60,
         net: "3V3",
@@ -1286,6 +1383,8 @@ export function composeBuild(
     });
   }
 
+  uniquifyEndpoints(connections, placements, seat, breadboard, reservedRows);
+
   const fixes = compatFixes(board, partIds, components);
   for (const extra of fixes.extras) {
     if (!parts.some((p) => p.component === extra.component || p.id === extra.id)) {
@@ -1306,6 +1405,7 @@ export function composeBuild(
     layout,
     seat,
     idea: request.idea,
+    threeFanRow,
   });
   if (fixes.steps.length) {
     const flash = steps.pop();
@@ -1602,8 +1702,9 @@ function buildSteps(args: {
   layout: PackedLayout;
   seat: ReturnType<typeof boardSeat>;
   idea: string;
+  threeFanRow: number;
 }): Build["steps"] {
-  const { board, roles, byRole, power, layout, seat } = args;
+  const { board, roles, byRole, power, layout, seat, threeFanRow } = args;
   const steps: Build["steps"] = [];
   let n = 1;
   const endRow = seat.startRow + seat.pinCount - 1;
@@ -1671,14 +1772,17 @@ function buildSteps(args: {
 
   const fiveLabel = power.fivePin?.label ?? "5V";
   const gndLabel = power.gndPin?.label ?? "G";
+  const railFeedNote = neoBuffer
+    ? "The − rail is common ground. The + rail is fed later from the external 5V supply — not from this board's 5V pin."
+    : "Rails are fed only from this board's own power pins.";
   steps.push({
     n: n++,
     heading: needsFiveRail
       ? "Run 5V and ground to the rails"
       : "Run ground to the rail",
     body: needsFiveRail
-      ? `Red jumper from ${power.five} (${fiveLabel}) to the red + rail. Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. Rails are fed only from this board's own power pins.${roles.relay && !fiveLogic ? " Dev-board 5V pins are only live on USB power." : ""}`
-      : `Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. Rails are fed only from this board's own power pins.`,
+      ? `Red jumper from ${power.five} (${fiveLabel}) to the red + rail. Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. ${railFeedNote}${roles.relay && !fiveLogic ? " Dev-board 5V pins are only live on USB power." : ""}`
+      : `Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. ${railFeedNote}`,
     parts_needed: ["jumpers_mm"],
     highlight: [power.fivePin?.id, power.gndPin?.id].filter(Boolean) as string[],
     connections_added: powerConns,
@@ -1847,7 +1951,7 @@ function buildSteps(args: {
       steps.push({
         n: n++,
         heading: "Buffer DIN through a 74AHCT125",
-        body: `Power the 74AHCT125 from 5V and tie OE to GND. GPIO${byRole.neo.gpio} (${byRole.neo.freeHole}) goes to A. Y goes through a 330 Ω resistor, then to DIN.`,
+        body: `Power the 74AHCT125 from 5V and tie OE to GND. Tie the OE pins of the 3 unused gates to 5V. GPIO${byRole.neo.gpio} (${byRole.neo.freeHole}) goes to A. Y goes through a 330 Ω resistor, then to DIN.`,
         parts_needed: ["buf", "r330", "jumpers_fm"],
         highlight: ["buf", "r330", byRole.neo.pin.id],
         connections_added: [
@@ -1933,8 +2037,8 @@ function buildSteps(args: {
         parts_needed: ["relay"],
         highlight: ["relay"],
         connections_added: [],
-        camera: "right",
-        callout: byRole.relay.freeHole,
+        camera: "right-close",
+        callout: "relay:IN",
         safety: [
           "Pinout guides only switch low-voltage DC loads. Never wire wall power on a breadboard.",
         ],
@@ -1945,15 +2049,13 @@ function buildSteps(args: {
       n: n++,
       heading: "Wire the relay module",
       body: relaySplit
-        ? `JD-VCC to the 5V-fed + rail, VCC to 3V3 (${power.three}), IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}), GND to the − rail. Active LOW. Only switch low-voltage DC. Dev-board 5V pins are only live on USB power.`
-        : `VCC to the + rail, GND to the − rail, IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}). The coil is active LOW. Only switch low-voltage DC.`,
+        ? `Read the silkscreen on YOUR relay board before wiring — pin order and the JD-VCC header vary by clone. After the jumper is off, JD-VCC to the 5V-fed + rail, VCC to 3V3 (${power.three}), IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}), GND to the − rail. Active LOW. Only switch low-voltage DC. Dev-board 5V pins are only live on USB power.`
+        : `Read the silkscreen on YOUR relay board before wiring — pin order varies by clone. VCC to the + rail, GND to the − rail, IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}). The coil is active LOW. Only switch low-voltage DC.`,
       parts_needed: ["relay", "jumpers_fm"],
       highlight: ["relay", byRole.relay.pin.id],
-      connections_added: relaySplit
-        ? ["w_rel_jdvcc", "w_rel_vcc", "w_rel_gnd", "w_rel_in"]
-        : ["w_rel_vcc", "w_rel_gnd", "w_rel_in"],
-      camera: "right",
-      callout: byRole.relay.freeHole,
+      connections_added: ["w_rel_vcc", "w_rel_gnd", "w_rel_in"],
+      camera: "right-close",
+      callout: "relay:IN",
       safety: [
         "Pinout guides only switch low-voltage DC loads. Never wire wall power on a breadboard.",
         "Wall power can kill.",
@@ -2000,10 +2102,14 @@ function buildSteps(args: {
       steps.push({
         n: n++,
         heading: "Power the BSS138 shifter",
-        body: "Seat the shifter first. HV to the 5V rail, LV to 3V3, GND to the − rail. The RC522 stays on 3V3.",
+        body: threeFanRow
+          ? `Seat the shifter first. HV to the 5V rail, GND to the − rail. One jumper from 3V3 (${power.three}) to a${threeFanRow}, then shifter LV and RC522 VCC from that row. The RC522 stays on 3V3.`
+          : "Seat the shifter first. HV to the 5V rail, LV to 3V3, GND to the − rail. The RC522 stays on 3V3.",
         parts_needed: ["sh", "jumpers_fm"],
         highlight: ["sh"],
-        connections_added: ["w_sh_hv", "w_sh_lv", "w_sh_gnd"],
+        connections_added: threeFanRow
+          ? ["w_3v3", "w_sh_hv", "w_sh_lv", "w_sh_gnd"]
+          : ["w_sh_hv", "w_sh_lv", "w_sh_gnd"],
         camera: "left",
         callout: byRole.spi_sck.freeHole,
         safety: ["The RC522 is 3.3V only. Shift SCK, MOSI, SS and RST. MISO can go direct."],
@@ -2014,7 +2120,7 @@ function buildSteps(args: {
       n: n++,
       heading: "Wire the RC522",
       body: rc522Shift
-        ? `VCC to 3V3 only. GND to the − rail. Uno (or the MCU) to shifter HV, then shifter LV to the RC522, for SCK (${byRole.spi_sck.freeHole} / GPIO${byRole.spi_sck.gpio}), MOSI (${byRole.spi_mosi?.freeHole} / GPIO${byRole.spi_mosi?.gpio}), SDA/SS (${byRole.spi_cs?.freeHole} / GPIO${byRole.spi_cs?.gpio}) and RST (${byRole.spi_rst?.freeHole} / GPIO${byRole.spi_rst?.gpio}). MISO goes direct from the RC522 to ${byRole.spi_miso?.freeHole} (GPIO${byRole.spi_miso?.gpio}).`
+        ? `VCC from the 3V3 row (not a second plug in the MCU 3V3 socket). GND to the − rail. Uno (or the MCU) to shifter HV, then shifter LV to the RC522, for SCK (${byRole.spi_sck.freeHole} / GPIO${byRole.spi_sck.gpio}), MOSI (${byRole.spi_mosi?.freeHole} / GPIO${byRole.spi_mosi?.gpio}), SDA/SS (${byRole.spi_cs?.freeHole} / GPIO${byRole.spi_cs?.gpio}) and RST (${byRole.spi_rst?.freeHole} / GPIO${byRole.spi_rst?.gpio}). MISO goes direct from the RC522 to ${byRole.spi_miso?.freeHole} (GPIO${byRole.spi_miso?.gpio}).`
         : `VCC to 3V3 only. GND to the − rail. Hardware SPI: SCK ${byRole.spi_sck.freeHole} (GPIO${byRole.spi_sck.gpio}), MOSI ${byRole.spi_mosi?.freeHole} (GPIO${byRole.spi_mosi?.gpio}), MISO ${byRole.spi_miso?.freeHole} (GPIO${byRole.spi_miso?.gpio}), SDA/SS ${byRole.spi_cs?.freeHole} (GPIO${byRole.spi_cs?.gpio}), RST ${byRole.spi_rst?.freeHole} (GPIO${byRole.spi_rst?.gpio}).`,
       parts_needed: rc522Shift ? ["rfid", "sh", "jumpers_fm"] : ["rfid", "jumpers_fm"],
       highlight: ["rfid"],

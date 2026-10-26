@@ -3,6 +3,7 @@ import { EXPECTED_BOARDS } from "../src/lib/boards/expected";
 import { composeBuild, inferPartsFromIdea, pioEnv } from "../src/lib/compose";
 import { hardwareSpiGpios } from "../src/lib/geometry";
 import { CURATED_IDEAS, ideasFor } from "../src/lib/ideas/catalog";
+import { catalogPartIds } from "../src/lib/parts/catalog";
 import { compileCatalog, shouldCompile } from "./check-compile";
 import { TM1637_CAUTION } from "../src/lib/compat";
 import {
@@ -111,6 +112,48 @@ expectRejects(
     });
   },
   /hole L-@22 used twice/,
+);
+
+expectRejects(
+  "duplicate breadboard hole",
+  (build) => {
+    build.connections.push({
+      id: "w_dup_hole_a",
+      from: "j50",
+      to: "a50",
+      color: "green",
+      net: "SIG",
+    });
+    build.connections.push({
+      id: "w_dup_hole_b",
+      from: "j51",
+      to: "a50",
+      color: "green",
+      net: "SIG",
+    });
+  },
+  /hole a50 used twice/,
+);
+
+expectRejects(
+  "duplicate MCU header socket",
+  (build) => {
+    build.connections.push({
+      id: "w_dup_sock_a",
+      from: "mcu:J1.1",
+      to: "a50",
+      color: "orange",
+      net: "3V3",
+    });
+    build.connections.push({
+      id: "w_dup_sock_b",
+      from: "mcu:J1.1",
+      to: "a51",
+      color: "orange",
+      net: "3V3",
+    });
+  },
+  /socket mcu:J1.1 used twice/,
 );
 
 expectRejects(
@@ -842,6 +885,46 @@ for (const board of boards) {
   }
 }
 
+{
+  const covered = new Set(CURATED_IDEAS.flatMap((idea) => idea.partIds));
+  const host =
+    loaded.components["esp32-s3-devkitc-1-n16r8"] ??
+    Object.values(loaded.components).find((c) => c.kind === "board");
+  if (!host) {
+    console.error("FAIL: no host board for catalog occupancy sweep");
+    process.exit(1);
+  }
+  for (const partId of catalogPartIds()) {
+    if (
+      covered.has(partId) ||
+      ["breadboard-830", "jumper-male-male", "jumper-male-female", "jumper-female-female"].includes(
+        partId,
+      )
+    ) {
+      continue;
+    }
+    if (!loaded.components[partId]) continue;
+    try {
+      const built = composeBuild(
+        { idea: `catalog ${partId}`, boardId: host.id, partIds: [partId] },
+        loaded.components,
+        loaded.breadboard,
+      );
+      const errors = validateBuild(built, loaded.components, loaded.breadboard);
+      if (errors.length) {
+        console.error(`FAIL: occupancy ${host.id} × ${partId}`);
+        for (const line of errors) console.error(`  ${line}`);
+        process.exit(1);
+      }
+      console.log(`PASS: occupancy ${host.id} × ${partId}`);
+    } catch (error) {
+      console.error(`FAIL: occupancy ${host.id} × ${partId}`);
+      console.error(`  ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+  }
+}
+
 function requireMatch(label: string, text: string, needle: RegExp) {
   if (!needle.test(text)) {
     console.error(`FAIL: ${label}`);
@@ -865,6 +948,14 @@ function requireMatch(label: string, text: string, needle: RegExp) {
   requireMatch("Uno RC522 SS D10", conn, /JDIGITAL\.11/);
   requireMatch("Uno RC522 RST D9", conn, /JDIGITAL\.10/);
   requireMatch("Uno RC522 shifter HV first", unoRfid.steps.map((s) => s.heading).join("\n"), /Power the BSS138 shifter/);
+  requireMatch("Uno RC522 3V3 fanout", conn, /w_3v3 mcu:JANALOG\.4 a\d+/);
+  const threeEnds = unoRfid.connections.filter(
+    (c) => c.from === "mcu:JANALOG.4" || c.to === "mcu:JANALOG.4",
+  );
+  if (threeEnds.length !== 1) {
+    console.error(`FAIL: Uno 3V3 socket used ${threeEnds.length} times`);
+    process.exit(1);
+  }
   const cpp = unoRfid.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
   requireMatch("Uno RC522 sketch inits", cpp, /SPI\.begin[\s\S]*PCD_Init[\s\S]*PICC_ReadCardSerial/);
   if (unoRfid.connections.some((c) => c.from === "rfid:SCK" && c.to.startsWith("mcu:"))) {
@@ -925,6 +1016,13 @@ function requireMatch(label: string, text: string, needle: RegExp) {
     process.exit(1);
   }
   requireMatch("Pico W divider parts", sonar.parts.map((p) => p.id).join(" "), /r_echo|r_div1|r_div2/);
+  const tap = sonar.connections.find((c) => c.id === "w_div_tap");
+  const node = sonar.connections.find((c) => c.id === "w_echo_node");
+  if (!tap || !node || tap.from === node.to) {
+    console.error(`FAIL: Pico W divider tap shares the GPIO hole (${tap?.from} / ${node?.to})`);
+    process.exit(1);
+  }
+  requireMatch("Pico W divider tap on b-column", `${tap.from} ${tap.to}`, /^b\d+ /);
 }
 
 {
@@ -968,15 +1066,19 @@ function requireMatch(label: string, text: string, needle: RegExp) {
     loaded.components,
     loaded.breadboard,
   );
-  requireMatch(
-    "relay JD-VCC wired",
-    relay.connections.map((c) => `${c.id} ${c.from} ${c.to}`).join("\n"),
-    /w_rel_jdvcc relay:JD-VCC/,
-  );
+  if (relay.connections.some((c) => c.from === "relay:JD-VCC" || c.to === "relay:JD-VCC")) {
+    console.error("FAIL: relay must not invent a JD-VCC pin");
+    process.exit(1);
+  }
   requireMatch(
     "relay remove jumper first",
     relay.steps.map((s) => s.heading).join("\n"),
     /Remove the JD-VCC jumper/,
+  );
+  requireMatch(
+    "relay silkscreen before wiring",
+    relay.steps.map((s) => s.body).join("\n"),
+    /silkscreen/,
   );
   const cpp = relay.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
   requireMatch("relay writes RELAY_PIN", cpp, /digitalWrite\(RELAY_PIN/);
@@ -1022,6 +1124,16 @@ function requireMatch(label: string, text: string, needle: RegExp) {
     process.exit(1);
   }
   requireMatch("C6 neo ext 5V", neo.connections.map((c) => c.id).join(" "), /w_ext_5v/);
+  const railStep = neo.steps.find((s) => /rail/i.test(s.heading));
+  if (/Rails are fed only from this board/.test(railStep?.body ?? "")) {
+    console.error("FAIL: C6 neo rail text still says only the board feeds the rails");
+    process.exit(1);
+  }
+  requireMatch(
+    "C6 unused 74AHCT125 OE",
+    neo.steps.map((s) => s.body).join("\n"),
+    /unused gates to 5V/,
+  );
   const cpp = neo.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
   if (/pinMode\(NEO_PIN/.test(cpp)) {
     console.error("FAIL: NeoPixel sketch must not pinMode the data pin");
