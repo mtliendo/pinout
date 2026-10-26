@@ -1,0 +1,123 @@
+{
+  "id": "breadboard-830",
+  "name": "830 tie-point solderless breadboard (BB830 / MB102 style)",
+  "kind": "breadboard",
+  "body": {
+    "length_mm": 165.1,
+    "width_mm": 54.6,
+    "height_mm": 8.5
+  },
+  "colors": {
+    "body": "#f5f3ee",
+    "rail_pos": "#d62828",
+    "rail_neg": "#1d4ed8"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "hole a1",
+    "x": "+X along rows 1\u219263",
+    "y": "+Y from column a toward j",
+    "z": "+Z up, out of the top face"
+  },
+  "grid": {
+    "rows": 63,
+    "columns": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j"
+    ],
+    "pitch": 2.54,
+    "hole_id_format": "<col><row>, e.g. e10",
+    "column_y_mm": {
+      "a": 0,
+      "b": 2.54,
+      "c": 5.08,
+      "d": 7.62,
+      "e": 10.16,
+      "f": 17.78,
+      "g": 20.32,
+      "h": 22.86,
+      "i": 25.4,
+      "j": 27.94
+    },
+    "connected_strips": "a-e of a row are connected; f-j of a row are connected; the two halves are NOT connected.",
+    "center_gap": {
+      "between": [
+        "e",
+        "f"
+      ],
+      "width_pitches": 3,
+      "approx": true,
+      "note": "Standard 0.3\" DIP gap (e\u2192f = 7.62 mm). Not dimensioned in BB830 datasheet."
+    }
+  },
+  "rails": [
+    {
+      "id": "L-",
+      "side": "near a",
+      "polarity": "negative",
+      "color": "blue",
+      "y_mm": {
+        "value": -7.62,
+        "approx": true
+      }
+    },
+    {
+      "id": "L+",
+      "side": "near a",
+      "polarity": "positive",
+      "color": "red",
+      "y_mm": {
+        "value": -5.08,
+        "approx": true
+      }
+    },
+    {
+      "id": "R+",
+      "side": "near j",
+      "polarity": "positive",
+      "color": "red",
+      "y_mm": {
+        "value": 33.02,
+        "approx": true
+      }
+    },
+    {
+      "id": "R-",
+      "side": "near j",
+      "polarity": "negative",
+      "color": "blue",
+      "y_mm": {
+        "value": 35.56,
+        "approx": true
+      }
+    }
+  ],
+  "rail_hole_id_format": "<rail>@<row>, e.g. L+@20 \u2014 the hole in that rail nearest breadboard row <row>. Rails have 50 holes in groups of 5, so renderers snap to the nearest real hole.",
+  "rail_notes": [
+    "4 rails \u00d7 50 tie points (BusBoard).",
+    "Some boards split each rail in the middle (look for a gap in the red/blue line); bridge with a jumper if so.",
+    "Rail order (+ outer vs inner) varies; trust the printed red/blue lines."
+  ],
+  "electrical": {
+    "rating": "36V, 2A",
+    "wire_awg": "21-26"
+  },
+  "provenance": {
+    "sources": [
+      "https://www.busboard.com/BB830T",
+      "https://www.jameco.com/Jameco/Products/ProdDS/2125026.pdf",
+      "https://www.taydaelectronics.com/830-point-solder-less-plug-in-breadboard.html"
+    ],
+    "revision": "BB830",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  }
+}

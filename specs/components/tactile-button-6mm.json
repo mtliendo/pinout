@@ -1,0 +1,123 @@
+{
+  "id": "tactile-button-6mm",
+  "name": "6\u00d76 mm 4-pin tactile push button",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": 6.0,
+    "width_mm": 6.0,
+    "height_mm": 4.3,
+    "lead_pitch_mm": {
+      "x": 6.5,
+      "y": 4.5,
+      "approx": true,
+      "note": "Typical THT footprint; doesn't land on a 2.54 grid exactly. Straddle the breadboard center gap."
+    }
+  },
+  "colors": {
+    "body": "#1a1a1a",
+    "cap": "#222222"
+  },
+  "headers": [
+    {
+      "id": "legs",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "any corner",
+      "note": "Legs: 1-2 internally connected, 3-4 internally connected; pressing joins 1/2 to 3/4. Verify with a multimeter."
+    }
+  ],
+  "pins": [
+    {
+      "id": "1",
+      "label": "leg 1",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0
+      },
+      "functions": [
+        "switch"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "2",
+      "label": "leg 2",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 0,
+        "y": 4.5
+      },
+      "functions": [
+        "switch"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "3",
+      "label": "leg 3",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 6.5,
+        "y": 0
+      },
+      "functions": [
+        "switch"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "4",
+      "label": "leg 4",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 6.5,
+        "y": 4.5
+      },
+      "functions": [
+        "switch"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "rating": "12-24V DC, 50 mA max",
+    "bounce_ms": "\u22645-10 ms"
+  },
+  "safe_gpio": [],
+  "features": [],
+  "provenance": {
+    "sources": [
+      "https://www.sunrom.com/download/685.pdf",
+      "https://www.swiclick.com/product/6x6mm-4-pin-micro-tact-switch/"
+    ],
+    "revision": "generic SPST-NO",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Wire to a GPIO with INPUT_PULLUP and the other side to GND; use diagonal legs to be safe."
+  }
+}

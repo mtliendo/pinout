@@ -1,0 +1,495 @@
+{
+  "id": "xiao-esp32c3",
+  "name": "Seeed Studio XIAO ESP32C3",
+  "kind": "board",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "L.1 (D0) pin center; USB-C end is -X",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": 21.0,
+    "width_mm": 17.8,
+    "height_mm": {
+      "value": 3.5,
+      "approx": true,
+      "note": "Not given in wiki text; shield + USB-C estimate."
+    }
+  },
+  "colors": {
+    "pcb": "#1d1d1d",
+    "shield": "#c0c0c0",
+    "silkscreen": "#ffffff"
+  },
+  "headers": [
+    {
+      "id": "L",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 7,
+      "orientation": "+X",
+      "pin1": "D0, next to USB-C"
+    },
+    {
+      "id": "R",
+      "origin_mm": [
+        0,
+        15.24
+      ],
+      "pitch": 2.54,
+      "count": 7,
+      "orientation": "+X",
+      "pin1": "5V, next to USB-C"
+    }
+  ],
+  "header_row_spacing_mm": {
+    "value": 15.24,
+    "approx": true,
+    "note": "Row spacing (6 \u00d7 2.54) and pin order are read from the Seeed pinout diagram image, not text. Headers ship unsoldered."
+  },
+  "pins": [
+    {
+      "id": "L.1",
+      "label": "D0",
+      "gpio": 2,
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Strapping pin (GPIO2). Wrong level at reset can block boot/upload."
+      ]
+    },
+    {
+      "id": "L.2",
+      "label": "D1",
+      "gpio": 3,
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.3",
+      "label": "D2",
+      "gpio": 4,
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Also JTAG MTMS."
+      ]
+    },
+    {
+      "id": "L.4",
+      "label": "D3",
+      "gpio": 5,
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "ADC2: Seeed says unreliable for analog; use A0-A2. Also JTAG MTDI."
+      ]
+    },
+    {
+      "id": "L.5",
+      "label": "D4",
+      "gpio": 6,
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "I2C",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Default I2C SDA. Also JTAG MTCK."
+      ]
+    },
+    {
+      "id": "L.6",
+      "label": "D5",
+      "gpio": 7,
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "I2C",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Default I2C SCL. Also JTAG MTDO."
+      ]
+    },
+    {
+      "id": "L.7",
+      "label": "D6",
+      "gpio": 21,
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "UART0 TX (U0TXD)."
+      ]
+    },
+    {
+      "id": "R.1",
+      "label": "5V",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 15.24
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V (USB VBUS)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "USB VBUS out. Feeding it from outside needs a diode (Seeed)."
+      ]
+    },
+    {
+      "id": "R.2",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 15.24
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.3",
+      "label": "3V3",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 15.24
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out (regulator, up to 700 mA per Seeed)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.4",
+      "label": "D10",
+      "gpio": 10,
+      "header": 1,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "SPI MOSI."
+      ]
+    },
+    {
+      "id": "R.5",
+      "label": "D9",
+      "gpio": 9,
+      "header": 1,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Strapping pin (GPIO9) and the BOOT button. Avoid pulling low at reset."
+      ]
+    },
+    {
+      "id": "R.6",
+      "label": "D8",
+      "gpio": 8,
+      "header": 1,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Strapping pin (GPIO8). Avoid external pull-down at reset."
+      ]
+    },
+    {
+      "id": "R.7",
+      "label": "D7",
+      "gpio": 20,
+      "header": 1,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "UART0 RX (U0RXD)."
+      ]
+    }
+  ],
+  "safe_gpio": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+  ],
+  "caution_gpio": {
+    "2": "strapping",
+    "8": "strapping",
+    "9": "strapping + BOOT button",
+    "20": "UART0 RX",
+    "21": "UART0 TX",
+    "5": "ADC2 unreliable analog"
+  },
+  "features": [
+    {
+      "id": "usb_c",
+      "kind": "usb",
+      "connector": "USB-C",
+      "position_mm": {
+        "x": -2.5,
+        "y": 7.62
+      },
+      "approx": true
+    },
+    {
+      "id": "btn_boot",
+      "kind": "button",
+      "gpio": 9,
+      "approx": true,
+      "position_mm": {
+        "x": 3,
+        "y": 3
+      }
+    },
+    {
+      "id": "btn_reset",
+      "kind": "button",
+      "net": "CHIP_EN",
+      "approx": true,
+      "position_mm": {
+        "x": 3,
+        "y": 12
+      }
+    },
+    {
+      "id": "ufl",
+      "kind": "antenna_connector",
+      "note": "U.FL, external antenna included",
+      "approx": true,
+      "position_mm": {
+        "x": 14,
+        "y": 3
+      }
+    },
+    {
+      "id": "led_charge",
+      "kind": "led",
+      "note": "Charge LED only; no user LED (no LED_BUILTIN)",
+      "approx": true,
+      "position_mm": {
+        "x": 1,
+        "y": 10
+      }
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/"
+    ],
+    "revision": "Seeed wiki, fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "No user LED. Strapping GPIO2/8/9 per Seeed wiki."
+  }
+}

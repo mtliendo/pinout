@@ -1,0 +1,1492 @@
+{
+  "id": "esp32-s3-devkitc-1-n16r8",
+  "name": "ESP32-S3-DevKitC-1 (N16R8: WROOM-1, 16 MB flash, 8 MB octal PSRAM)",
+  "kind": "board",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "J1 pin 1 center is at (1.40, 1.27) from the board corner nearest it; all pin positions below are relative to the J1 pin 1 center",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face",
+    "note": "Board outline spans x=-1.40..61.34, y=-1.27..24.13 relative to J1 pin 1."
+  },
+  "body": {
+    "length_mm": 62.74,
+    "width_mm": 25.4,
+    "pcb_thickness_mm": {
+      "value": 1.6,
+      "approx": true,
+      "note": "Not dimensioned in the Espressif DXF; typical PCB thickness."
+    },
+    "height_mm": {
+      "value": 10,
+      "approx": true,
+      "note": "Module + headers height not dimensioned in sources; visual estimate."
+    },
+    "outline_offset_from_pin1": {
+      "x": -1.4,
+      "y": -1.27
+    },
+    "pin1_from_top_edge": {
+      "value": 1.4,
+      "approx": true,
+      "note": "Derived: 62.74 total \u2212 8.00 (last pin to USB edge, DXF) \u2212 21\u00d72.54."
+    }
+  },
+  "colors": {
+    "pcb": "#1a1a1a",
+    "module_shield": "#c0c0c0",
+    "silkscreen": "#ffffff",
+    "headers": "#111111"
+  },
+  "headers": [
+    {
+      "id": "J1",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 22,
+      "orientation": "+X",
+      "pin1": "J1.1 (3V3), at the antenna end",
+      "side": "left (front view, antenna up)"
+    },
+    {
+      "id": "J3",
+      "origin_mm": [
+        0,
+        22.86
+      ],
+      "pitch": 2.54,
+      "count": 22,
+      "orientation": "+X",
+      "pin1": "J3.1 (G), at the antenna end",
+      "side": "right"
+    }
+  ],
+  "header_row_spacing_mm": 22.86,
+  "pins": [
+    {
+      "id": "J1.1",
+      "label": "3V3",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.2",
+      "label": "3V3",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.3",
+      "label": "RST",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "reset"
+      ],
+      "voltage": "3.3V logic, EN/CHIP_PU",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Pulling low resets the chip."
+      ]
+    },
+    {
+      "id": "J1.4",
+      "label": "4",
+      "gpio": 4,
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH3",
+        "TOUCH4"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.5",
+      "label": "5",
+      "gpio": 5,
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH4",
+        "TOUCH5"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.6",
+      "label": "6",
+      "gpio": 6,
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH5",
+        "TOUCH6"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.7",
+      "label": "7",
+      "gpio": 7,
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH6",
+        "TOUCH7"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.8",
+      "label": "15",
+      "gpio": 15,
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH4",
+        "U0RTS",
+        "XTAL_32K_P"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Optional 32 kHz crystal pins; free on this board."
+      ]
+    },
+    {
+      "id": "J1.9",
+      "label": "16",
+      "gpio": 16,
+      "header": 0,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH5",
+        "U0CTS",
+        "XTAL_32K_N"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Optional 32 kHz crystal pins; free on this board."
+      ]
+    },
+    {
+      "id": "J1.10",
+      "label": "17",
+      "gpio": 17,
+      "header": 0,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH6",
+        "U1TXD"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.11",
+      "label": "18",
+      "gpio": 18,
+      "header": 0,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH7",
+        "U1RXD",
+        "CLK_OUT3"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.12",
+      "label": "8",
+      "gpio": 8,
+      "header": 0,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH7",
+        "TOUCH8",
+        "SUBSPICS1"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.13",
+      "label": "3",
+      "gpio": 3,
+      "header": 0,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH2",
+        "TOUCH3"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Strapping: JTAG signal source. Avoid external pull-ups/downs at reset."
+      ]
+    },
+    {
+      "id": "J1.14",
+      "label": "46",
+      "gpio": 46,
+      "header": 0,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Strapping: boot mode + ROM message printing. Do not drive at reset."
+      ]
+    },
+    {
+      "id": "J1.15",
+      "label": "9",
+      "gpio": 9,
+      "header": 0,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH8",
+        "TOUCH9",
+        "FSPIHD"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.16",
+      "label": "10",
+      "gpio": 10,
+      "header": 0,
+      "position": {
+        "index": 16,
+        "x": 38.1,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH9",
+        "TOUCH10",
+        "FSPICS0"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.17",
+      "label": "11",
+      "gpio": 11,
+      "header": 0,
+      "position": {
+        "index": 17,
+        "x": 40.64,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH0",
+        "TOUCH11",
+        "FSPID"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.18",
+      "label": "12",
+      "gpio": 12,
+      "header": 0,
+      "position": {
+        "index": 18,
+        "x": 43.18,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH1",
+        "TOUCH12",
+        "FSPICLK"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.19",
+      "label": "13",
+      "gpio": 13,
+      "header": 0,
+      "position": {
+        "index": 19,
+        "x": 45.72,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH2",
+        "TOUCH13",
+        "FSPIQ"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.20",
+      "label": "14",
+      "gpio": 14,
+      "header": 0,
+      "position": {
+        "index": 20,
+        "x": 48.26,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC2_CH3",
+        "TOUCH14",
+        "FSPIWP"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J1.21",
+      "label": "5V",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 21,
+        "x": 50.8,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V (USB VBUS after 1N5819 Schottky diode D1/D7)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Do not connect an external 5V supply while USB is also plugged in unless you understand the diode path (see notes)."
+      ]
+    },
+    {
+      "id": "J1.22",
+      "label": "G",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 22,
+        "x": 53.34,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J3.1",
+      "label": "G",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 22.86
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J3.2",
+      "label": "43",
+      "gpio": 43,
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "U0TXD",
+        "CLK_OUT1"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "UART0 TX/RX to the USB-to-UART bridge (serial console/flashing on the UART port)."
+      ]
+    },
+    {
+      "id": "J3.3",
+      "label": "44",
+      "gpio": 44,
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "U0RXD",
+        "CLK_OUT2"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "UART0 TX/RX to the USB-to-UART bridge (serial console/flashing on the UART port)."
+      ]
+    },
+    {
+      "id": "J3.4",
+      "label": "1",
+      "gpio": 1,
+      "header": 1,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH0",
+        "TOUCH1"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J3.5",
+      "label": "2",
+      "gpio": 2,
+      "header": 1,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "ADC1_CH1",
+        "TOUCH2"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J3.6",
+      "label": "42",
+      "gpio": 42,
+      "header": 1,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "MTMS"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "JTAG pins (MTCK/MTDO/MTDI/MTMS). Fine as GPIO unless you use external JTAG."
+      ]
+    },
+    {
+      "id": "J3.7",
+      "label": "41",
+      "gpio": 41,
+      "header": 1,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "MTDI",
+        "CLK_OUT1"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "JTAG pins (MTCK/MTDO/MTDI/MTMS). Fine as GPIO unless you use external JTAG."
+      ]
+    },
+    {
+      "id": "J3.8",
+      "label": "40",
+      "gpio": 40,
+      "header": 1,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "MTDO",
+        "CLK_OUT2"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "JTAG pins (MTCK/MTDO/MTDI/MTMS). Fine as GPIO unless you use external JTAG."
+      ]
+    },
+    {
+      "id": "J3.9",
+      "label": "39",
+      "gpio": 39,
+      "header": 1,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "MTCK",
+        "CLK_OUT3"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "JTAG pins (MTCK/MTDO/MTDI/MTMS). Fine as GPIO unless you use external JTAG."
+      ]
+    },
+    {
+      "id": "J3.10",
+      "label": "38",
+      "gpio": 38,
+      "header": 1,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "FSPIWP",
+        "RGB_LED"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Drives the onboard addressable RGB LED on v1.1 boards."
+      ]
+    },
+    {
+      "id": "J3.11",
+      "label": "37",
+      "gpio": 37,
+      "header": 1,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "alt_functions": [
+        "SPIDQS",
+        "FSPIQ"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": true,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "NO-GO on N16R8/N8R8 (octal flash/PSRAM): used internally by the module, not available for external use (Espressif user guide note)."
+      ]
+    },
+    {
+      "id": "J3.12",
+      "label": "36",
+      "gpio": 36,
+      "header": 1,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "alt_functions": [
+        "SPIIO7",
+        "FSPICLK"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": true,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "NO-GO on N16R8/N8R8 (octal flash/PSRAM): used internally by the module, not available for external use (Espressif user guide note)."
+      ]
+    },
+    {
+      "id": "J3.13",
+      "label": "35",
+      "gpio": 35,
+      "header": 1,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO"
+      ],
+      "alt_functions": [
+        "SPIIO6",
+        "FSPID"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": true,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "NO-GO on N16R8/N8R8 (octal flash/PSRAM): used internally by the module, not available for external use (Espressif user guide note)."
+      ]
+    },
+    {
+      "id": "J3.14",
+      "label": "0",
+      "gpio": 0,
+      "header": 1,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Strapping: boot mode. Pulled low at reset = download mode. BOOT button is wired here."
+      ]
+    },
+    {
+      "id": "J3.15",
+      "label": "45",
+      "gpio": 45,
+      "header": 1,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Strapping: VDD_SPI voltage select. Wrong level at reset can stop flash from working."
+      ]
+    },
+    {
+      "id": "J3.16",
+      "label": "48",
+      "gpio": 48,
+      "header": 1,
+      "position": {
+        "index": 16,
+        "x": 38.1,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "SPICLK_N"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Drives the RGB LED on the initial (pre-v1.1) DevKitC-1; clones vary. Avoid unless you've checked your board."
+      ]
+    },
+    {
+      "id": "J3.17",
+      "label": "47",
+      "gpio": 47,
+      "header": 1,
+      "position": {
+        "index": 17,
+        "x": 40.64,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [
+        "SPICLK_P"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J3.18",
+      "label": "21",
+      "gpio": 21,
+      "header": 1,
+      "position": {
+        "index": 18,
+        "x": 43.18,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "PWM",
+        "I2C"
+      ],
+      "alt_functions": [],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J3.19",
+      "label": "20",
+      "gpio": 20,
+      "header": 1,
+      "position": {
+        "index": 19,
+        "x": 45.72,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "alt_functions": [
+        "ADC2_CH9",
+        "U1CTS",
+        "USB_D+"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": true,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Native USB D-/D+ (USB port J4). Using it as GPIO breaks native USB flashing/serial."
+      ]
+    },
+    {
+      "id": "J3.20",
+      "label": "19",
+      "gpio": 19,
+      "header": 1,
+      "position": {
+        "index": 20,
+        "x": 48.26,
+        "y": 22.86
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "alt_functions": [
+        "ADC2_CH8",
+        "U1RTS",
+        "USB_D-"
+      ],
+      "voltage": "3.3V logic - never apply 5V (see notes)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": true,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Native USB D-/D+ (USB port J4). Using it as GPIO breaks native USB flashing/serial."
+      ]
+    },
+    {
+      "id": "J3.21",
+      "label": "G",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 21,
+        "x": 50.8,
+        "y": 22.86
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "J3.22",
+      "label": "G",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 22,
+        "x": 53.34,
+        "y": 22.86
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    }
+  ],
+  "safe_gpio": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    21,
+    39,
+    40,
+    41,
+    42,
+    47
+  ],
+  "caution_gpio": {
+    "0": "strapping/BOOT",
+    "3": "strapping (JTAG source)",
+    "45": "strapping (VDD_SPI)",
+    "46": "strapping (boot/ROM log)",
+    "19": "USB D-",
+    "20": "USB D+",
+    "38": "RGB LED (v1.1)",
+    "48": "RGB LED on initial version",
+    "43": "UART0 TX console",
+    "44": "UART0 RX console"
+  },
+  "no_go_gpio": {
+    "35": "octal PSRAM/flash",
+    "36": "octal PSRAM/flash",
+    "37": "octal PSRAM/flash"
+  },
+  "features": [
+    {
+      "id": "antenna",
+      "kind": "pcb_antenna",
+      "position_mm": {
+        "x": -1.4,
+        "y": 11.43
+      },
+      "approx": true,
+      "note": "Module PCB antenna at the J1.1/J3.1 end; keep-out area beyond board edge per DXF."
+    },
+    {
+      "id": "usb_uart",
+      "kind": "usb",
+      "connector": "Micro-USB on the official board; many N16R8 clones use USB-C",
+      "label": "UART",
+      "position_mm": {
+        "x": 61.3,
+        "y": 4.5
+      },
+      "approx": true,
+      "note": "Left connector (J2) at the far end, next to J1 side."
+    },
+    {
+      "id": "usb_native",
+      "kind": "usb",
+      "connector": "Micro-USB on official board; USB-C on many clones",
+      "label": "USB",
+      "position_mm": {
+        "x": 61.3,
+        "y": 18.4
+      },
+      "approx": true,
+      "note": "Right connector (J4), native USB on GPIO19/20."
+    },
+    {
+      "id": "btn_boot",
+      "kind": "button",
+      "label": "BOOT",
+      "gpio": 0,
+      "position_mm": {
+        "x": 49.5,
+        "y": 6.5
+      },
+      "approx": true
+    },
+    {
+      "id": "btn_reset",
+      "kind": "button",
+      "label": "RESET",
+      "net": "EN",
+      "position_mm": {
+        "x": 49.5,
+        "y": 16.5
+      },
+      "approx": true
+    },
+    {
+      "id": "led_rgb",
+      "kind": "led_rgb_addressable",
+      "gpio": 38,
+      "silk": "RGB@IO38",
+      "position_mm": {
+        "x": 31,
+        "y": 7
+      },
+      "approx": true
+    },
+    {
+      "id": "led_power",
+      "kind": "led",
+      "label": "3.3V power on",
+      "position_mm": {
+        "x": 27,
+        "y": 19.5
+      },
+      "approx": true
+    }
+  ],
+  "power": {
+    "regulator": "SGM2212-3.3 LDO (from schematic)",
+    "5v_pin": "Connected to USB VBUS through 1N5819HW Schottky diodes (D1 for UART port, D7 for USB port) per schematic",
+    "supply_options": [
+      "USB-to-UART port and/or native USB port (default, recommended)",
+      "5V and G pins",
+      "3V3 and G pins"
+    ],
+    "supply_note": "Espressif: the three options are mutually exclusive."
+  },
+  "provenance": {
+    "sources": [
+      "https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/user_guide_v1.1.html",
+      "https://dl.espressif.com/dl/schematics/esp_idf/DXF_ESP32-S3-DevKitC-1_V1.1_20220429.pdf",
+      "https://dl.espressif.com/dl/schematics/SCH_ESP32-S3-DevKitC-1_V1.1_20221130.pdf"
+    ],
+    "revision": "DevKitC-1 v1.1 (user guide v1.1; DXF 2022-04-29; schematic 2022-11-30)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "N16R8 is not in Espressif's own DevKitC-1 ordering table (it lists N8R8 and N32R16V); it is a common retail variant with an ESP32-S3-WROOM-1-N16R8 module. Pinout and the octal-PSRAM 35-37 note are identical for WROOM-1 octal modules. Feature positions are read off the DXF image and marked approx."
+  }
+}

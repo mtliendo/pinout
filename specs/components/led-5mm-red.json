@@ -1,0 +1,88 @@
+{
+  "id": "led-5mm-red",
+  "name": "5 mm red LED",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "cathode lead",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "diameter_mm": 5.0,
+    "height_mm": {
+      "value": 8.6,
+      "approx": true
+    },
+    "lead_spacing_mm": 2.54
+  },
+  "colors": {
+    "body": "#e02020"
+  },
+  "headers": [
+    {
+      "id": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "cathode (short lead, flat side)"
+    }
+  ],
+  "pins": [
+    {
+      "id": "K",
+      "label": "cathode (\u2212, short leg, flat edge)",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "A",
+      "label": "anode (+, long leg)",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "Vf ~2.0V typ @20mA",
+      "flags": {},
+      "warnings": [
+        "Always use a series resistor."
+      ]
+    }
+  ],
+  "electrical": {
+    "vf_typ_v": 2.0,
+    "if_max_ma": 30,
+    "note": "Kingbright L-53ID max 30 mA; Futurlec 35 mA. With 3.3V GPIO and 220\u03a9: (3.3\u22122.0)/220 \u2248 6 mA."
+  },
+  "safe_gpio": [],
+  "features": [],
+  "provenance": {
+    "sources": [
+      "https://www.futurlec.com/LED/LED5R.shtml",
+      "https://store.comet.bg/en/Catalogue/Product/24536/"
+    ],
+    "revision": "generic T-1 3/4",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  }
+}

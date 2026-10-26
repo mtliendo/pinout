@@ -1,0 +1,520 @@
+{
+  "id": "xiao-esp32s3",
+  "name": "Seeed Studio XIAO ESP32S3 (also Sense)",
+  "kind": "board",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "L.1 (D0) pin center; USB-C end is -X",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": 21.0,
+    "width_mm": 17.8,
+    "height_mm": {
+      "value": 3.5,
+      "approx": true,
+      "note": "Not given in wiki text; shield + USB-C estimate."
+    }
+  },
+  "colors": {
+    "pcb": "#1d1d1d",
+    "shield": "#c0c0c0",
+    "silkscreen": "#ffffff"
+  },
+  "headers": [
+    {
+      "id": "L",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 7,
+      "orientation": "+X",
+      "pin1": "D0, next to USB-C"
+    },
+    {
+      "id": "R",
+      "origin_mm": [
+        0,
+        15.24
+      ],
+      "pitch": 2.54,
+      "count": 7,
+      "orientation": "+X",
+      "pin1": "5V, next to USB-C"
+    }
+  ],
+  "header_row_spacing_mm": {
+    "value": 15.24,
+    "approx": true,
+    "note": "Row spacing (6 \u00d7 2.54) and pin order are read from the Seeed pinout diagram image, not text. Headers ship unsoldered."
+  },
+  "pins": [
+    {
+      "id": "L.1",
+      "label": "D0",
+      "gpio": 1,
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.2",
+      "label": "D1",
+      "gpio": 2,
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.3",
+      "label": "D2",
+      "gpio": 3,
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "GPIO3 is a strapping pin (JTAG signal source) per Seeed/Espressif."
+      ]
+    },
+    {
+      "id": "L.4",
+      "label": "D3",
+      "gpio": 4,
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "L.5",
+      "label": "D4",
+      "gpio": 5,
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "I2C",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Default I2C SDA."
+      ]
+    },
+    {
+      "id": "L.6",
+      "label": "D5",
+      "gpio": 6,
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "I2C",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Default I2C SCL."
+      ]
+    },
+    {
+      "id": "L.7",
+      "label": "D6",
+      "gpio": 43,
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "UART0 TX."
+      ]
+    },
+    {
+      "id": "R.1",
+      "label": "5V",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 15.24
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V (USB VBUS)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "USB VBUS out; no voltage here on battery power. External feed needs a diode (Seeed)."
+      ]
+    },
+    {
+      "id": "R.2",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 15.24
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.3",
+      "label": "3V3",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 15.24
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out (regulator, up to 700 mA per Seeed)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "R.4",
+      "label": "D10",
+      "gpio": 9,
+      "header": 1,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "SPI MOSI. On Sense: SD card MOSI."
+      ]
+    },
+    {
+      "id": "R.5",
+      "label": "D9",
+      "gpio": 8,
+      "header": 1,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "SPI MISO. On Sense: SD card MISO."
+      ]
+    },
+    {
+      "id": "R.6",
+      "label": "D8",
+      "gpio": 7,
+      "header": 1,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "SPI SCK. On Sense: SD card SCK."
+      ]
+    },
+    {
+      "id": "R.7",
+      "label": "D7",
+      "gpio": 44,
+      "header": 1,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "PWM"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "UART0 RX."
+      ]
+    }
+  ],
+  "safe_gpio": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "caution_gpio": {
+    "3": "strapping",
+    "43": "UART0 TX",
+    "44": "UART0 RX",
+    "0": "BOOT button (not broken out)",
+    "21": "user LED, active LOW (Sense: also SD CS)",
+    "41": "D12 via back pads; JTAG MTDI; Sense mic DATA; no ADC",
+    "42": "D11 via back pads; JTAG MTMS; Sense mic CLK; no ADC"
+  },
+  "features": [
+    {
+      "id": "usb_c",
+      "kind": "usb",
+      "connector": "USB-C",
+      "position_mm": {
+        "x": -2.5,
+        "y": 7.62
+      },
+      "approx": true
+    },
+    {
+      "id": "led_user",
+      "kind": "led",
+      "gpio": 21,
+      "active": "LOW",
+      "color": "orange",
+      "approx": true,
+      "position_mm": {
+        "x": 1,
+        "y": 13
+      }
+    },
+    {
+      "id": "led_charge",
+      "kind": "led",
+      "color": "red",
+      "approx": true,
+      "position_mm": {
+        "x": 1,
+        "y": 11
+      }
+    },
+    {
+      "id": "btn_boot",
+      "kind": "button",
+      "gpio": 0,
+      "approx": true,
+      "position_mm": {
+        "x": 3,
+        "y": 3
+      }
+    },
+    {
+      "id": "btn_reset",
+      "kind": "button",
+      "net": "CHIP_PU",
+      "approx": true,
+      "position_mm": {
+        "x": 3,
+        "y": 12
+      }
+    },
+    {
+      "id": "ufl",
+      "kind": "antenna_connector",
+      "approx": true,
+      "position_mm": {
+        "x": 14,
+        "y": 3
+      }
+    },
+    {
+      "id": "b2b",
+      "kind": "connector",
+      "note": "B2B connector for Sense camera board",
+      "approx": true,
+      "position_mm": {
+        "x": 10,
+        "y": 7.6
+      }
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/"
+    ],
+    "revision": "Seeed wiki, fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "On the Sense, D8-D10 (GPIO7-9) are shared with the SD card and GPIO41/42 with the mic; camera uses GPIO10-18,38-40,47,48 (not broken out). D11/D12 are back pads, not edge pins, so they are omitted from pins[]."
+  }
+}
