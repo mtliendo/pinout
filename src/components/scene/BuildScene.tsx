@@ -4,10 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import {
+  assemblyFrame,
   bezierWire,
   cameraFor,
   holeWorld,
-  previewOrbit,
   wireColorHex,
   type Vec3,
 } from "@/lib/geometry";
@@ -78,7 +78,7 @@ export function BuildScene({
       const to = endpointWorld(c.to, payload);
       return {
         id: c.id,
-        points: bezierWire(from, to, c.length_mm && c.length_mm > 80 ? 18 : 11),
+        points: bezierWire(from, to, c.length_mm && c.length_mm > 80 ? 22 : 15),
         color: wireColorHex(
           c.color,
           wireColors.signal_palette,
@@ -90,50 +90,60 @@ export function BuildScene({
 
   const callout = step?.callout;
   const calloutPos = calloutWorld(callout, payload);
+  const pivot = assemblyFrame(breadboard).lookAt;
+  const spin = useRef<THREE.Group>(null);
+
+  useFrame((_, delta) => {
+    if (preview && spin.current) {
+      spin.current.rotation.y += delta * 0.2;
+    }
+  });
 
   return (
-    <group>
-      <BreadboardModel breadboard={breadboard} faded={false} />
-      {placed.map(({ placement, component, world, active, present }) => {
-        if (!component || !present) return null;
-        const fade = !preview && !active && stepIndex < build.steps.length - 1;
-        const born = firstSeen.get(placement.part) ?? 0;
-        const seating = !preview && born === stepIndex;
-        const lift = seating ? (1 - easeOutCubic(progress)) * 22 : 0;
-        return (
-          <group
-            key={placement.part}
-            position={[world.position[0], world.position[1] + lift, world.position[2]]}
-            rotation={[0, world.rotation, 0]}
-          >
-            {component.kind === "board" ? (
-              <BoardModel component={component} faded={fade} />
-            ) : (
-              <CatalogPart
-                component={component}
-                faded={fade}
-                active={active}
-              />
-            )}
-          </group>
-        );
-      })}
-      {wires.map((wire) => (
-        <GrowingWire
-          key={wire.id}
-          points={wire.points}
-          color={wire.color}
-          progress={wire.current ? progress : 1}
-          faded={!preview && !wire.current && stepIndex < build.steps.length - 1}
-        />
-      ))}
-      {calloutPos && !preview && (
-        <GuideArrow
-          from={[calloutPos[0], calloutPos[1] + 20, calloutPos[2]]}
-          to={[calloutPos[0], calloutPos[1] + 3, calloutPos[2]]}
-          active
-        />
-      )}
+    <group ref={spin} position={preview ? [pivot[0], 0, pivot[2]] : [0, 0, 0]}>
+      <group position={preview ? [-pivot[0], 0, -pivot[2]] : [0, 0, 0]}>
+        <BreadboardModel breadboard={breadboard} faded={false} />
+        {placed.map(({ placement, component, world, active, present }) => {
+          if (!component || !present) return null;
+          const fade = !preview && !active && stepIndex < build.steps.length - 1;
+          const born = firstSeen.get(placement.part) ?? 0;
+          const seating = !preview && born === stepIndex;
+          const lift = seating ? (1 - easeOutCubic(progress)) * 28 : 0;
+          return (
+            <group
+              key={placement.part}
+              position={[world.position[0], world.position[1] + lift, world.position[2]]}
+              rotation={[0, world.rotation, 0]}
+            >
+              {component.kind === "board" ? (
+                <BoardModel component={component} faded={fade} />
+              ) : (
+                <CatalogPart
+                  component={component}
+                  faded={fade}
+                  active={active}
+                />
+              )}
+            </group>
+          );
+        })}
+        {wires.map((wire) => (
+          <GrowingWire
+            key={wire.id}
+            points={wire.points}
+            color={wire.color}
+            progress={wire.current ? progress : 1}
+            faded={!preview && !wire.current && stepIndex < build.steps.length - 1}
+          />
+        ))}
+        {calloutPos && !preview && (
+          <GuideArrow
+            from={[calloutPos[0], calloutPos[1] + 22, calloutPos[2]]}
+            to={[calloutPos[0], calloutPos[1] + 3, calloutPos[2]]}
+            active
+          />
+        )}
+      </group>
     </group>
   );
 }
@@ -153,29 +163,29 @@ export function CameraRig({
   }, [payload, stepIndex]);
   const pos = useRef(new THREE.Vector3(...target.position));
   const look = useRef(new THREE.Vector3(...target.lookAt));
-  const spin = useRef(0);
+  const frustum = useRef(target.frustum);
 
   useFrame((state, delta) => {
-    if (preview) {
-      spin.current += delta;
-      const orbit = previewOrbit(spin.current, payload.breadboard);
-      const cam = state.camera as THREE.PerspectiveCamera;
-      cam.fov += ((orbit.fov ?? 30) - cam.fov) * 0.08;
-      cam.updateProjectionMatrix();
-      state.camera.position.set(...orbit.position);
-      state.camera.lookAt(...orbit.lookAt);
-      return;
-    }
+    const cam = state.camera as THREE.OrthographicCamera;
     const k = 1 - Math.exp(-2.2 * delta);
-    pos.current.lerp(new THREE.Vector3(...target.position), k);
-    look.current.lerp(new THREE.Vector3(...target.lookAt), k);
-    state.camera.position.copy(pos.current);
-    state.camera.lookAt(look.current);
-    if (target.fov) {
-      const cam = state.camera as THREE.PerspectiveCamera;
-      cam.fov += (target.fov - cam.fov) * k;
-      cam.updateProjectionMatrix();
-    }
+    const want = preview
+      ? { ...target, frustum: target.frustum + 20 }
+      : target;
+    pos.current.lerp(new THREE.Vector3(...want.position), preview ? 1 : k);
+    look.current.lerp(new THREE.Vector3(...want.lookAt), preview ? 1 : k);
+    frustum.current += (want.frustum - frustum.current) * (preview ? 1 : k);
+    const aspect = state.size.width / Math.max(1, state.size.height);
+    const half = frustum.current / 2;
+    cam.left = -half * aspect;
+    cam.right = half * aspect;
+    cam.top = half;
+    cam.bottom = -half;
+    cam.near = -900;
+    cam.far = 900;
+    cam.zoom = 1;
+    cam.position.copy(pos.current);
+    cam.lookAt(look.current);
+    cam.updateProjectionMatrix();
   });
   return null;
 }

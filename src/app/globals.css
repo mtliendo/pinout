@@ -409,16 +409,41 @@ input {
 
 .magnifier {
   position: absolute;
-  top: 14%;
-  right: 6%;
-  width: 176px;
-  height: 176px;
+  top: 12%;
+  right: 5%;
+  width: 188px;
+  height: 188px;
   border-radius: 50%;
   overflow: hidden;
-  border: 6px solid #161410;
+  border: 7px solid #161410;
   box-shadow: 0 12px 28px oklch(20% 0.02 55 / 0.14);
   background: var(--color-paper-3);
   z-index: 10;
+}
+
+.magnifier-arrow {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 12px solid #161410;
+  transform: translateX(-50%);
+  animation: mag-bob 0.7s ease-in-out infinite;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@keyframes mag-bob {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(7px);
+  }
 }
 
 .magnifier-label {

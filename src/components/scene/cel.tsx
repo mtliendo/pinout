@@ -1,87 +1,47 @@
 "use client";
 
-import { Outlines } from "@react-three/drei";
-import { useMemo } from "react";
+import { Edges } from "@react-three/drei";
 import * as THREE from "three";
 
 export const INK = "#161410";
-export const PALE = "#f4efe6";
-export const PALE_LINE = "#c8c0b4";
+export const PALE = "#f6f1e8";
+export const PALE_LINE = "#b7b0a4";
 
 /** Flat, muted fills — IKEA manual, not toy-plastic primaries. */
 export const FILLS = {
-  board: "#e8e2d6",
-  pcb: "#3f403c",
-  module: "#b7b3aa",
-  header: "#2a2926",
+  board: "#efe8dc",
+  pcb: "#5c6358",
+  module: "#c8c4ba",
+  header: "#2f2d2a",
   pin: "#c4a15a",
-  usb: "#c8cbc8",
-  button: "#2f2e2b",
-  antenna: "#2c2c2a",
-  pirPcb: "#5b6d55",
-  dome: "#f6f4ee",
-  servo: "#4d6a9a",
-  horn: "#efe8dc",
-  led: "#c45c56",
+  usb: "#d5d2cb",
+  usbSlot: "#2a2926",
+  button: "#3a3834",
+  antenna: "#6e7468",
+  pirPcb: "#6d7d64",
+  dome: "#f4f1ea",
+  servo: "#5a7396",
+  horn: "#efe6d6",
+  led: "#b85a56",
   ledLeg: "#b0aaa0",
   resistor: "#d2c2a4",
-  oledPcb: "#3d4d7a",
-  oledGlass: "#1c1c1c",
-  jumper: "#d8c37a",
+  oledPcb: "#5a6480",
+  oledGlass: "#2a2a28",
+  jumper: "#d4c07a",
 };
 
-let ramp: THREE.DataTexture | null = null;
-
-export function toonRamp(): THREE.DataTexture {
-  if (ramp) return ramp;
-  const data = new Uint8Array([
-    96, 96, 92, 255, 168, 166, 158, 255, 228, 224, 214, 255,
-  ]);
-  const tex = new THREE.DataTexture(data, 3, 1, THREE.RGBAFormat);
-  tex.magFilter = THREE.NearestFilter;
-  tex.minFilter = THREE.NearestFilter;
-  tex.needsUpdate = true;
-  ramp = tex;
-  return tex;
-}
-
 export function mute(hex: string, faded: boolean): string {
-  if (faded) return PALE;
-  return hex;
+  if (!faded) return hex;
+  const c = new THREE.Color(hex);
+  c.lerp(new THREE.Color(PALE), 0.88);
+  return `#${c.getHexString()}`;
 }
 
-export function CelMesh({
-  color,
-  faded,
-  children,
-  screenspace = 2.2,
-}: {
-  color: string;
-  faded?: boolean;
-  children: React.ReactNode;
-  screenspace?: number;
-}) {
-  const fill = faded ? PALE : color;
-  const line = faded ? PALE_LINE : INK;
-  const gradientMap = useMemo(() => toonRamp(), []);
-  return (
-    <mesh>
-      {children}
-      <meshToonMaterial color={fill} gradientMap={gradientMap} />
-      <Outlines
-        screenspace
-        thickness={faded ? 1.5 : screenspace}
-        color={line}
-        angle={Math.PI}
-        opacity={1}
-        transparent={false}
-        toneMapped={false}
-      />
-    </mesh>
-  );
+function hullPad(dims: number[]) {
+  const m = Math.min(...dims.filter((n) => n > 0));
+  return Math.min(1.7, Math.max(0.7, m * 0.1));
 }
 
-/** Inverted-hull box — crisp silhouette at any distance. */
 export function CelBox({
   args,
   color,
@@ -96,19 +56,19 @@ export function CelBox({
   rotation?: [number, number, number];
 }) {
   const [l, h, w] = args;
-  const pad = 0.7;
-  const fill = faded ? PALE : color;
+  const pad = hullPad(args);
+  const fill = mute(color, Boolean(faded));
   const line = faded ? PALE_LINE : INK;
-  const gradientMap = useMemo(() => toonRamp(), []);
   return (
     <group position={position} rotation={rotation}>
       <mesh>
         <boxGeometry args={args} />
-        <meshToonMaterial color={fill} gradientMap={gradientMap} />
+        <meshBasicMaterial color={fill} toneMapped={false} />
+        <Edges threshold={18} color={line} lineWidth={faded ? 1.2 : 1.85} />
       </mesh>
       <mesh>
         <boxGeometry args={[l + pad, h + pad, w + pad]} />
-        <meshBasicMaterial color={line} side={THREE.BackSide} />
+        <meshBasicMaterial color={line} side={THREE.BackSide} toneMapped={false} />
       </mesh>
     </group>
   );
@@ -127,19 +87,20 @@ export function CelCyl({
   position?: [number, number, number];
   rotation?: [number, number, number];
 }) {
-  const [rTop, rBot, h, seg = 16] = args;
-  const fill = faded ? PALE : color;
+  const [rTop, rBot, h, seg = 20] = args;
+  const pad = hullPad([rTop * 2, rBot * 2, h]);
+  const fill = mute(color, Boolean(faded));
   const line = faded ? PALE_LINE : INK;
-  const gradientMap = useMemo(() => toonRamp(), []);
   return (
     <group position={position} rotation={rotation}>
       <mesh>
         <cylinderGeometry args={[rTop, rBot, h, seg]} />
-        <meshToonMaterial color={fill} gradientMap={gradientMap} />
+        <meshBasicMaterial color={fill} toneMapped={false} />
+        <Edges threshold={22} color={line} lineWidth={faded ? 1.2 : 1.7} />
       </mesh>
       <mesh>
-        <cylinderGeometry args={[rTop + 0.35, rBot + 0.35, h + 0.5, seg]} />
-        <meshBasicMaterial color={line} side={THREE.BackSide} />
+        <cylinderGeometry args={[rTop + pad * 0.45, rBot + pad * 0.45, h + pad, seg]} />
+        <meshBasicMaterial color={line} side={THREE.BackSide} toneMapped={false} />
       </mesh>
     </group>
   );
@@ -156,19 +117,39 @@ export function CelSphere({
   faded?: boolean;
   position?: [number, number, number];
 }) {
-  const fill = faded ? PALE : color;
+  const fill = mute(color, Boolean(faded));
   const line = faded ? PALE_LINE : INK;
-  const gradientMap = useMemo(() => toonRamp(), []);
+  const pad = Math.max(0.55, radius * 0.06);
   return (
     <group position={position}>
       <mesh>
-        <sphereGeometry args={[radius, 20, 14]} />
-        <meshToonMaterial color={fill} gradientMap={gradientMap} />
+        <sphereGeometry args={[radius, 22, 16]} />
+        <meshBasicMaterial color={fill} toneMapped={false} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[radius + 0.4, 20, 14]} />
-        <meshBasicMaterial color={line} side={THREE.BackSide} />
+        <sphereGeometry args={[radius + pad, 22, 16]} />
+        <meshBasicMaterial color={line} side={THREE.BackSide} toneMapped={false} />
       </mesh>
     </group>
+  );
+}
+
+export function CelPin({
+  args,
+  faded,
+  position,
+}: {
+  args: [number, number, number];
+  faded?: boolean;
+  position?: [number, number, number];
+}) {
+  const fill = mute(FILLS.pin, Boolean(faded));
+  const line = faded ? PALE_LINE : INK;
+  return (
+    <mesh position={position}>
+      <boxGeometry args={args} />
+      <meshBasicMaterial color={fill} toneMapped={false} />
+      <Edges threshold={15} color={line} lineWidth={1.4} />
+    </mesh>
   );
 }

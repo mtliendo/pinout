@@ -141,7 +141,7 @@ export function wireColorHex(
   if (lower === "red") return power["5V"] ?? "#e53935";
   if (lower === "orange") return power["3V3"] ?? "#fb8c00";
   if (lower === "black") return power.GND ?? "#212121";
-  const found = palette.find((p) => p.name === lower);
+  const found = palette.find((p) => p.name.toLowerCase() === lower);
   return found?.hex ?? "#9e9e9e";
 }
 
@@ -162,11 +162,28 @@ export type CameraPreset = {
   position: Vec3;
   lookAt: Vec3;
   fov?: number;
+  frustum: number;
 };
 
+const ISO_DIR: Vec3 = [-1, 1.08, -1];
+
+/** Whole-assembly AABB including off-board PIR (left) and servo (right). */
+export function assemblyFrame(breadboard: Breadboard) {
+  const length = dim(breadboard.body?.length_mm, 165);
+  const width = dim(breadboard.body?.width_mm, 55);
+  const min: Vec3 = [-52, -9, -22];
+  const max: Vec3 = [length + 50, 34, width + 16];
+  const lookAt: Vec3 = [
+    (min[0] + max[0]) / 2,
+    8,
+    (min[2] + max[2]) / 2,
+  ];
+  return { min, max, lookAt, length, width };
+}
+
 /**
- * 3/4 isometric of the whole assembly (breadboard + MCU + off-board parts)
- * with a slight look-at bias toward the step. Never a tight crop.
+ * Orthographic 3/4 isometric of the whole assembly with paper margin.
+ * Never a tight crop — every step shows board + breadboard + the part being wired.
  */
 export function cameraFor(
   name: string,
@@ -174,35 +191,24 @@ export function cameraFor(
   callout?: string,
 ): CameraPreset {
   void callout;
-  const length = dim(breadboard.body?.length_mm, 165);
-  const width = dim(breadboard.body?.width_mm, 55);
-  const min: Vec3 = [-36, 0, -18];
-  const max: Vec3 = [length + 36, 26, width + 32];
-  const mid: Vec3 = [
-    (min[0] + max[0]) / 2,
-    9,
-    (min[2] + max[2]) / 2,
-  ];
+  const { lookAt } = assemblyFrame(breadboard);
   const bias: Vec3 =
     name === "left" || name === "left-low"
-      ? [-16, 0, -4]
+      ? [-10, 0, -2]
       : name === "right"
-        ? [20, 0, 6]
+        ? [12, 0, 3]
         : name === "top-zoom-rows-30-35"
-          ? [16, 0, 0]
+          ? [8, 0, 0]
           : [0, 0, 0];
-  const lookAt: Vec3 = [mid[0] + bias[0], mid[1], mid[2] + bias[2]];
-  const radius =
-    Math.hypot(max[0] - min[0], max[2] - min[2]) / 2;
-  const dist = radius * 2.15;
-  const dir: Vec3 = [-0.62, 0.58, -0.53];
-  const len = Math.hypot(dir[0], dir[1], dir[2]) || 1;
+  const target: Vec3 = [lookAt[0] + bias[0], lookAt[1], lookAt[2] + bias[2]];
+  const len = Math.hypot(ISO_DIR[0], ISO_DIR[1], ISO_DIR[2]) || 1;
+  const dist = 420;
   const position: Vec3 = [
-    lookAt[0] + (dir[0] / len) * dist,
-    lookAt[1] + (dir[1] / len) * dist,
-    lookAt[2] + (dir[2] / len) * dist,
+    target[0] + (ISO_DIR[0] / len) * dist,
+    target[1] + (ISO_DIR[1] / len) * dist,
+    target[2] + (ISO_DIR[2] / len) * dist,
   ];
-  return { position, lookAt, fov: 30 };
+  return { position, lookAt: target, frustum: 348 };
 }
 
 export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {
@@ -212,7 +218,7 @@ export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {
     base.position[0] - look[0],
     base.position[2] - look[2],
   );
-  const angle = t * 0.22;
+  const angle = t * 0.18;
   return {
     position: [
       look[0] + Math.sin(angle) * radius,
@@ -220,6 +226,6 @@ export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {
       look[2] + Math.cos(angle) * radius,
     ],
     lookAt: look,
-    fov: 30,
+    frustum: 368,
   };
 }
