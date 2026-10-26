@@ -3,7 +3,7 @@ import { composeBuild } from "../src/lib/compose";
 
 const cat = loadCatalog();
 const comps = cat.components;
-const bb = comps["breadboard-830"];
+const bb = cat.breadboard;
 const cases: [string, string[]][] = [
   ["esp32-s3-devkitc-1-n16r8", ["tactile-button-6mm", "relay-module-5v-1ch"]],
   ["arduino-uno-r3", ["rfid-rc522"]],
