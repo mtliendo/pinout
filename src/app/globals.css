@@ -419,6 +419,7 @@ input {
   box-shadow: 0 12px 28px oklch(20% 0.02 55 / 0.14);
   background: var(--color-paper-3);
   z-index: 10;
+  transform-origin: 50% 50%;
 }
 
 .magnifier-arrow {
@@ -563,7 +564,8 @@ input {
 }
 
 .complete h2 {
-  font-size: 2.2rem;
+  font-size: 1.7rem;
+  line-height: 1.15;
 }
 
 .check {
@@ -581,9 +583,13 @@ input {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-sm);
   margin: 0;
+}
+
+.stats div:last-child {
+  grid-column: 1 / -1;
 }
 
 .stats div {

@@ -3,7 +3,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { holeWorld, parseHole } from "@/lib/geometry";
-import { labelForCallout } from "@/lib/callout";
+import { labelForCallout, stepFocus } from "@/lib/callout";
 import type { GuidePayload } from "@/lib/types";
 import { BuildScene, calloutWorld } from "./BuildScene";
 
@@ -29,12 +29,20 @@ export function Magnifier({
   progress: number;
 }) {
   const step = payload.build.steps[stepIndex];
-  const callout = step?.callout;
+  const callout = stepFocus(step, payload);
   const target = magnifierWorld(callout, payload);
   const label = labelForCallout(callout, payload);
+  const intro = Math.min(1, Math.max(0, (progress - 0.04) / 0.42));
 
   return (
-    <div className="magnifier" aria-hidden>
+    <div
+      className="magnifier"
+      aria-hidden
+      style={{
+        opacity: intro,
+        transform: `scale(${0.78 + 0.22 * intro})`,
+      }}
+    >
       <Canvas
         orthographic
         camera={{ position: [8, 14, 8], zoom: 1, near: -200, far: 200 }}
@@ -51,7 +59,7 @@ export function Magnifier({
         <CloseupRig callout={callout} />
       </Canvas>
       <span className="magnifier-arrow" />
-      {label && progress > 0.18 ? (
+      {label && intro > 0.35 ? (
         <p className="magnifier-label">{label}</p>
       ) : null}
     </div>

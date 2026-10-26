@@ -11,8 +11,13 @@ type Guide = {
     id: string;
     title: string;
     board: string;
-    steps: Array<{ n: number; heading: string }>;
-    connections: Array<{ from: string; to: string; net?: string }>;
+    steps: Array<{
+      n: number;
+      heading: string;
+      callout?: string;
+      connections_added?: string[];
+    }>;
+    connections: Array<{ id?: string; from: string; to: string; net?: string }>;
     parts: Array<{ component: string }>;
   };
   components: Record<string, { pins?: Array<{ id: string; gpio?: number | null }> }>;
@@ -89,7 +94,22 @@ async function answerQuestions(page: Page) {
   throw new Error("Did not reach compose after 5 questions");
 }
 
-async function walkGuide(page: Page, dwell = 950) {
+function targetHoleForStep(guide: Guide, n: number) {
+  const step = guide.build.steps.find((row) => row.n === n);
+  if (!step) return null;
+  const wires = (step.connections_added ?? [])
+    .map((id) => guide.build.connections.find((row) => row.id === id))
+    .filter((row): row is NonNullable<typeof row> => Boolean(row));
+  const holes = (wire: { from: string; to: string }) =>
+    [wire.from, wire.to].filter((end) => /^[a-j]\d+$/i.test(end));
+  if (wires.length === 1) return holes(wires[0])[0] ?? null;
+  if (step.callout && wires.some((wire) => wire.from === step.callout || wire.to === step.callout)) {
+    return /^[a-j]\d+$/i.test(step.callout) ? step.callout : null;
+  }
+  return holes(wires[0] ?? { from: "", to: "" })[0] ?? null;
+}
+
+async function walkGuide(page: Page, dwell = 950, guide?: Guide) {
   await expect(page.locator(".bench")).toBeVisible({ timeout: 90_000 });
   await expect(page.locator(".progress-nav")).toContainText(/Build 1\/\d/);
   await expect(page.getByRole("button", { name: "Back" })).toBeDisabled();
@@ -126,6 +146,12 @@ async function walkGuide(page: Page, dwell = 950) {
   );
   expect(step2Qty).toBeLessThanOrEqual(3);
   await page.waitForTimeout(dwell);
+  if (guide) {
+    const hole = targetHoleForStep(guide, 2);
+    if (hole) {
+      await expect(page.locator(".magnifier-label")).toContainText(hole);
+    }
+  }
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByText(/Step 1 of/)).toBeVisible();
   await page.waitForTimeout(dwell);
@@ -238,6 +264,13 @@ test.describe("Pinout preview", () => {
     const oledVcc = guide.build.connections.find((w) => w.from === "oled:VCC" || w.to === "oled:VCC");
     expect(oledVcc?.net === "3V3" || oledVcc?.to === "a1" || oledVcc?.from === "a1").toBeTruthy();
     expect(JSON.stringify(oledVcc)).not.toMatch(/L\+|R\+|5V/);
+    const groundStep = guide.build.steps.find((step) => /ground to the rail/i.test(step.heading));
+    const groundWire = guide.build.connections.find((wire) => wire.id === "w_gnd");
+    const hole = groundWire?.from.match(/^[a-j]\d+$/i)?.[0] ?? groundWire?.to;
+    expect(groundStep?.callout).toBe(hole);
+    const btnGnd = guide.build.connections.find((wire) => wire.id === "w_btn_gnd");
+    expect(btnGnd?.to).toMatch(/^L-/);
+    expect(JSON.stringify(guide.build.connections)).not.toMatch(/R[+-]@/);
     assertSafePins(guide);
   });
 
@@ -252,7 +285,7 @@ test.describe("Pinout preview", () => {
     expect(asked).toBeLessThanOrEqual(5);
     const payload = (await (await composed).json()) as Guide;
     expect(payload.build.id).toBe("pir-servo-s3");
-    await walkGuide(page);
+    await walkGuide(page, 950, payload);
     expect(flush()).toEqual([]);
   });
 
@@ -267,7 +300,7 @@ test.describe("Pinout preview", () => {
     expect(asked).toBeLessThanOrEqual(5);
     const payload = (await (await composed).json()) as Guide;
     assertSafePins(payload);
-    await walkGuide(page);
+    await walkGuide(page, 950, payload);
     expect(flush()).toEqual([]);
   });
 

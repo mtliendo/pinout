@@ -127,6 +127,14 @@ export function BuildViewer() {
     );
   }
 
+  const showLoupe = Boolean(
+    !done &&
+      step &&
+      (step.connections_added?.length || step.n <= 2) &&
+      step.callout &&
+      step.callout !== "usb_uart",
+  );
+
   const next = () => {
     setProgress(0);
     if (stepIndex + 1 < total) setStepIndex((i) => i + 1);
@@ -205,15 +213,14 @@ export function BuildViewer() {
           progress={done ? 1 : progress}
           onCalloutScreen={setSpot}
         />
-        {!done && step && (step.connections_added?.length || step.n <= 2) && (
+        {showLoupe && (
           <Magnifier
-            key={step.callout ?? step.n}
             payload={payload}
             stepIndex={stepIndex}
             progress={progress}
           />
         )}
-        {spot && !done && step && (
+        {showLoupe && spot && (
           <svg
             className="leader"
             viewBox={`0 0 ${stageBox.w} ${stageBox.h}`}
@@ -245,7 +252,7 @@ export function BuildViewer() {
                 <path d="M14 24l7 7 13-14" />
               </svg>
             </div>
-            <h2>You built {payload.build.title}.</h2>
+            <h2>You built {shortBuildTitle(payload.build.title)}.</h2>
             <p>Every step done. Flash the sketch and see it move.</p>
             <dl className="stats">
               <div>
@@ -258,7 +265,7 @@ export function BuildViewer() {
               </div>
               <div>
                 <dt>Board</dt>
-                <dd>{payload.components[payload.build.board]?.name.split("(")[0]}</dd>
+                <dd>{shortBoardName(payload.components[payload.build.board]?.name)}</dd>
               </div>
             </dl>
             {last?.code && (
@@ -332,4 +339,19 @@ export function BuildViewer() {
       </aside>
     </main>
   );
+}
+
+function shortBuildTitle(title: string) {
+  return title
+    .replace(/\s*\([^)]*\)/g, "")
+    .replace(/\s*ESP32-S3 DevKitC-1/gi, "")
+    .replace(/\.$/, "")
+    .trim() || "this";
+}
+
+function shortBoardName(name?: string) {
+  if (!name) return "ESP32";
+  if (/devkit|esp32-s3/i.test(name)) return "ESP32-S3";
+  if (/xiao/i.test(name)) return "XIAO";
+  return name.split("(")[0].trim();
 }

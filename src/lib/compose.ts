@@ -270,7 +270,7 @@ export function composeBuild(
       part: "oled",
       anchor_hole: null,
       off_board: true,
-      position_hint: "above the breadboard, screen facing up",
+      position_hint: "left of the breadboard, screen facing up",
     });
   }
 
@@ -727,7 +727,7 @@ function buildSteps(args: {
     highlight: [power.fivePin?.id, power.gndPin?.id].filter(Boolean) as string[],
     connections_added: powerConns,
     camera: "left-low",
-    callout: power.five,
+    callout: powerConns.includes("w_5v") ? power.five : power.gnd,
     safety: ["5V must never touch a GPIO row."],
     check: "Power wires match the printed + and − markings.",
   });
@@ -769,7 +769,7 @@ function buildSteps(args: {
     steps.push({
       n: n++,
       heading: "Seat the tactile button",
-      body: `Straddle the center gap at rows 40 and 42. Jumper from a40 to ${byRole.button.freeHole} (GPIO${byRole.button.gpio}). Jumper from j42 to the − rail. The sketch uses INPUT_PULLUP.`,
+      body: `Straddle the center gap at rows 40 and 42. Jumper from a40 to ${byRole.button.freeHole} (GPIO${byRole.button.gpio}). Jumper from j42 across to the left − rail. The sketch uses INPUT_PULLUP.`,
       parts_needed: ["btn", "jumpers_mm"],
       highlight: ["btn", byRole.button.pin.id],
       connections_added: ["w_btn", "w_btn_gnd"],

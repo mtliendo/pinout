@@ -78,6 +78,16 @@ for bp in glob.glob("builds/*.json"):
     # net checks
     nets={}
     for node,(c,p) in pinmeta.items(): nets.setdefault(f(node),[]).append((node,c,p))
+    used_rails=set()
+    for w in b["connections"]:
+        for e in (w["from"], w["to"]):
+            m=RAIL.match(e)
+            if m: used_rails.add(m[1])
+    POWER={"G","GND","5V","3V3","3.3V"}
+    for rid in used_rails:
+        root=f(f"rail:{rid}")
+        fed=any(f(node)==root and c.get("kind")=="board" and ((p.get("label") or "").upper() in POWER or p.get("id","").upper() in POWER) for node,(c,p) in pinmeta.items())
+        if not fed: err.append(f"{bp}: rail {rid} is used but never fed from a board power pin")
     nets_rails={f("rail:L+"):"5V"}
     for root,mem in nets.items():
         if not any(f(t)==root for t in touched): continue

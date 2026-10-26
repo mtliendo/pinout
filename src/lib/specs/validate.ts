@@ -305,6 +305,42 @@ export function validateBuild(
   const railFive = findRoot(parent, "rail:L+");
   findRoot(parent, "rail:R+");
 
+  const usedRails = new Set<string>();
+  for (const wire of build.connections) {
+    for (const end of [wire.from, wire.to]) {
+      const match = RAIL.exec(end);
+      if (match) usedRails.add(match[1]);
+    }
+  }
+  const powerName = (pin: Pin) => {
+    const label = (pin.label ?? "").toUpperCase();
+    const id = pin.id.toUpperCase();
+    return (
+      label === "G" ||
+      label === "GND" ||
+      label === "5V" ||
+      label === "3V3" ||
+      label === "3.3V" ||
+      id === "GND" ||
+      id === "5V" ||
+      id === "3V3" ||
+      id === "G"
+    );
+  };
+  for (const rail of usedRails) {
+    const root = findRoot(parent, `rail:${rail}`);
+    const fed = Object.entries(pinmeta).some(([node, { component, pin }]) => {
+      return (
+        findRoot(parent, node) === root &&
+        component.kind === "board" &&
+        powerName(pin)
+      );
+    });
+    if (!fed) {
+      err.push(`rail ${rail} is used but never fed from a board power pin`);
+    }
+  }
+
   for (const [root, members] of Object.entries(nets)) {
     if (![...touched].some((t) => findRoot(parent, t) === root)) continue;
     const five =

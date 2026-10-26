@@ -3,6 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import type { GuidePayload } from "@/lib/types";
+import { stepFocus } from "@/lib/callout";
 import { calloutWorld, BuildScene, CameraRig, CalloutProjector } from "./BuildScene";
 
 export function BuildCanvas({
@@ -19,7 +20,7 @@ export function BuildCanvas({
   onCalloutScreen?: (xy: { x: number; y: number } | null) => void;
 }) {
   const step = payload.build.steps[Math.min(stepIndex, payload.build.steps.length - 1)];
-  const world = calloutWorld(step?.callout, payload);
+  const world = calloutWorld(stepFocus(step, payload), payload);
 
   return (
     <Canvas

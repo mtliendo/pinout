@@ -75,6 +75,20 @@ expectRejects(
 );
 
 expectRejects(
+  "unfed right ground rail",
+  (build) => {
+    build.connections.push({
+      id: "w_unfed_rail",
+      from: "j40",
+      to: "R-@40",
+      color: "black",
+      net: "GND",
+    });
+  },
+  /rail R- is used but never fed/,
+);
+
+expectRejects(
   "non-safe PSRAM GPIO35",
   (build) => {
     build.connections.push({

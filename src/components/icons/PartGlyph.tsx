@@ -76,9 +76,9 @@ function glyphKind(id: string): string {
   if (id.includes("devkit") || id.includes("xiao") || id === "mcu") return "board";
   if (id.includes("pir")) return "pir";
   if (id.includes("servo")) return "servo";
+  if (id.includes("oled")) return "oled";
   if (id.includes("led")) return "led";
   if (id.includes("resistor") || id === "r1") return "resistor";
   if (id.includes("button") || id === "btn") return "button";
-  if (id.includes("oled")) return "oled";
   return "jumper";
 }
