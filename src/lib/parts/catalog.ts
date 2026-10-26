@@ -1,4 +1,7 @@
 import { RAW_PARTS_CATALOG } from "@/lib/specs/files";
+import { PICKABLE_CATEGORIES } from "./categories";
+
+export { PICKABLE_CATEGORIES };
 
 /**
  * Users pick only from the preloaded starter-kit catalog.
@@ -29,11 +32,3 @@ export function isCatalogPart(
   return catalogPartIds().includes(id);
 }
 
-export const PICKABLE_CATEGORIES = [
-  "sensor",
-  "display",
-  "actuator",
-  "input",
-  "passive",
-  "power",
-] as const;

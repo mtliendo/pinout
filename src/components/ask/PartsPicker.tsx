@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PICKABLE_CATEGORIES } from "@/lib/parts/catalog";
+import { PICKABLE_CATEGORIES } from "@/lib/parts/categories";
 
 export type CatalogPart = {
   id: string;
