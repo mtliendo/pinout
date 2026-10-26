@@ -51,10 +51,8 @@ export function Magnifier({
         <CloseupRig callout={callout} />
       </Canvas>
       <span className="magnifier-arrow" />
-      {label ? (
-        <p className="magnifier-label" key={label}>
-          {label}
-        </p>
+      {label && progress > 0.18 ? (
+        <p className="magnifier-label">{label}</p>
       ) : null}
     </div>
   );
@@ -65,13 +63,13 @@ function CloseupRig({ callout }: { callout?: string }) {
     const cam = state.camera as THREE.OrthographicCamera;
     const pinSeat = callout === "b1" || callout === "usb_uart";
     if (pinSeat) {
-      cam.position.set(-8, 9.5, -1.2);
-      cam.lookAt(0, 1.1, 0);
+      cam.position.set(-4.2, 6.2, 1.4);
+      cam.lookAt(0, 1.35, 0);
     } else {
       cam.position.set(-5, 15, -11);
       cam.lookAt(0, 0.5, 0);
     }
-    const zoomIn = pinSeat ? 11 : 14;
+    const zoomIn = pinSeat ? 7.6 : 14;
     const half = zoomIn / 2;
     const aspect = state.size.width / Math.max(1, state.size.height);
     cam.left = -half * aspect;

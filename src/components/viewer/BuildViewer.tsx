@@ -207,6 +207,7 @@ export function BuildViewer() {
         />
         {!done && step && (step.connections_added?.length || step.n <= 2) && (
           <Magnifier
+            key={step.callout ?? step.n}
             payload={payload}
             stepIndex={stepIndex}
             progress={progress}
