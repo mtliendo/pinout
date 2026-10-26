@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { ContactShadows, OrbitControls } from "@react-three/drei";
+import { ContactShadows } from "@react-three/drei";
 import { Suspense } from "react";
 import type { GuidePayload } from "@/lib/types";
 import { calloutWorld, BuildScene, CameraRig, CalloutProjector } from "./BuildScene";
@@ -50,15 +50,6 @@ export function BuildCanvas({
       <CameraRig payload={payload} stepIndex={stepIndex} preview={preview} />
       {!preview && (
         <CalloutProjector world={world} onScreen={onCalloutScreen} />
-      )}
-      {preview ? null : (
-        <OrbitControls
-          enablePan={false}
-          enableZoom={false}
-          minDistance={160}
-          maxDistance={280}
-          maxPolarAngle={Math.PI / 2.15}
-        />
       )}
     </Canvas>
   );

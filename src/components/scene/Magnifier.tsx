@@ -45,9 +45,9 @@ export function Magnifier({
 function CloseupRig() {
   useFrame((state) => {
     const cam = state.camera as THREE.PerspectiveCamera;
-    cam.position.set(9, 11, 8);
-    cam.lookAt(0, 1.2, 0);
-    cam.fov = 24;
+    cam.position.set(7, 16, 7);
+    cam.lookAt(0, 1.6, 0);
+    cam.fov = 28;
     cam.updateProjectionMatrix();
   });
   return null;
