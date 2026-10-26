@@ -7,6 +7,7 @@ import {
   bezierWire,
   cameraFor,
   holeWorld,
+  previewOrbit,
   wireColorHex,
   type Vec3,
 } from "@/lib/geometry";
@@ -19,6 +20,10 @@ import {
   GuideArrow,
   partWorld,
 } from "./models";
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
 
 export function BuildScene({
   payload,
@@ -42,11 +47,16 @@ export function BuildScene({
   const currentConnections = new Set(step?.connections_added ?? []);
   const highlights = new Set(step?.highlight ?? []);
   const introduced = new Set<string>();
+  const firstSeen = new Map<string, number>();
   build.steps.forEach((s, i) => {
     if (i <= stepIndex) {
-      for (const id of s.parts_needed ?? []) introduced.add(id);
+      for (const id of s.parts_needed ?? []) {
+        introduced.add(id);
+        if (!firstSeen.has(id)) firstSeen.set(id, i);
+      }
     }
   });
+  if (!firstSeen.has("mcu")) firstSeen.set("mcu", 0);
 
   const placed = build.placements.map((placement) => {
     const part = build.parts.find((p) => p.id === placement.part);
@@ -68,7 +78,7 @@ export function BuildScene({
       const to = endpointWorld(c.to, payload);
       return {
         id: c.id,
-        points: bezierWire(from, to, c.length_mm && c.length_mm > 80 ? 16 : 9),
+        points: bezierWire(from, to, c.length_mm && c.length_mm > 80 ? 18 : 11),
         color: wireColorHex(
           c.color,
           wireColors.signal_palette,
@@ -86,24 +96,22 @@ export function BuildScene({
       <BreadboardModel breadboard={breadboard} faded={false} />
       {placed.map(({ placement, component, world, active, present }) => {
         if (!component || !present) return null;
-        const fade =
-          placement.part !== "mcu" &&
-          placement.part !== "bb" &&
-          !active &&
-          stepIndex < build.steps.length - 1;
-        const lift = active ? 0 : 0;
+        const fade = !preview && !active && stepIndex < build.steps.length - 1;
+        const born = firstSeen.get(placement.part) ?? 0;
+        const seating = !preview && born === stepIndex;
+        const lift = seating ? (1 - easeOutCubic(progress)) * 22 : 0;
         return (
           <group
             key={placement.part}
-            position={[world.position[0], world.position[1] + lift + (preview ? 0 : 0), world.position[2]]}
+            position={[world.position[0], world.position[1] + lift, world.position[2]]}
             rotation={[0, world.rotation, 0]}
           >
             {component.kind === "board" ? (
-              <BoardModel component={component} faded={fade && !active} />
+              <BoardModel component={component} faded={fade} />
             ) : (
               <CatalogPart
                 component={component}
-                faded={fade && !active}
+                faded={fade}
                 active={active}
               />
             )}
@@ -116,12 +124,12 @@ export function BuildScene({
           points={wire.points}
           color={wire.color}
           progress={wire.current ? progress : 1}
-          faded={!wire.current && stepIndex < build.steps.length - 1}
+          faded={!preview && !wire.current && stepIndex < build.steps.length - 1}
         />
       ))}
       {calloutPos && !preview && (
         <GuideArrow
-          from={[calloutPos[0], calloutPos[1] + 18, calloutPos[2]]}
+          from={[calloutPos[0], calloutPos[1] + 20, calloutPos[2]]}
           to={[calloutPos[0], calloutPos[1] + 3, calloutPos[2]]}
           active
         />
@@ -149,27 +157,51 @@ export function CameraRig({
 
   useFrame((state, delta) => {
     if (preview) {
-      spin.current += delta * 0.18;
+      spin.current += delta;
+      const orbit = previewOrbit(spin.current, payload.breadboard);
       const cam = state.camera as THREE.PerspectiveCamera;
-      cam.fov += (40 - cam.fov) * 0.08;
+      cam.fov += ((orbit.fov ?? 30) - cam.fov) * 0.08;
       cam.updateProjectionMatrix();
-      state.camera.position.set(
-        36 + Math.sin(spin.current) * 170,
-        125,
-        14 + Math.cos(spin.current) * 145,
-      );
-      state.camera.lookAt(36, 8, 14);
+      state.camera.position.set(...orbit.position);
+      state.camera.lookAt(...orbit.lookAt);
       return;
     }
-    pos.current.lerp(new THREE.Vector3(...target.position), 1 - Math.pow(0.001, delta));
-    look.current.lerp(new THREE.Vector3(...target.lookAt), 1 - Math.pow(0.001, delta));
+    const k = 1 - Math.exp(-2.2 * delta);
+    pos.current.lerp(new THREE.Vector3(...target.position), k);
+    look.current.lerp(new THREE.Vector3(...target.lookAt), k);
     state.camera.position.copy(pos.current);
     state.camera.lookAt(look.current);
     if (target.fov) {
       const cam = state.camera as THREE.PerspectiveCamera;
-      cam.fov += (target.fov - cam.fov) * 0.08;
+      cam.fov += (target.fov - cam.fov) * k;
       cam.updateProjectionMatrix();
     }
+  });
+  return null;
+}
+
+export function CalloutProjector({
+  world,
+  onScreen,
+}: {
+  world: Vec3 | null;
+  onScreen?: (xy: { x: number; y: number } | null) => void;
+}) {
+  useFrame(({ camera, size }) => {
+    if (!onScreen) return;
+    if (!world) {
+      onScreen(null);
+      return;
+    }
+    const v = new THREE.Vector3(world[0], world[1], world[2]).project(camera);
+    if (v.z > 1) {
+      onScreen(null);
+      return;
+    }
+    onScreen({
+      x: (v.x * 0.5 + 0.5) * size.width,
+      y: (-v.y * 0.5 + 0.5) * size.height,
+    });
   });
   return null;
 }

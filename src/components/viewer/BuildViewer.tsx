@@ -30,6 +30,8 @@ export function BuildViewer() {
   const [progress, setProgress] = useState(1);
   const [voice, setVoice] = useState(false);
   const [copied, setCopied] = useState("");
+  const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
+  const [stageBox, setStageBox] = useState({ w: 1, h: 1 });
   const payload = fetched ?? stored;
   const error = fetchError || (!id && !stored ? "No guide in this session." : "");
 
@@ -156,11 +158,20 @@ export function BuildViewer() {
         </aside>
       )}
 
-      <section className="stage">
+      <section
+        className="stage"
+        ref={(el) => {
+          if (!el) return;
+          const w = el.clientWidth;
+          const h = el.clientHeight;
+          if (w !== stageBox.w || h !== stageBox.h) setStageBox({ w, h });
+        }}
+      >
         <BuildCanvas
           payload={payload}
           stepIndex={Math.min(stepIndex, total - 1)}
           progress={done ? 1 : progress}
+          onCalloutScreen={setSpot}
         />
         {!done && step && (step.connections_added?.length || step.n <= 2) && (
           <Magnifier
@@ -168,6 +179,22 @@ export function BuildViewer() {
             stepIndex={stepIndex}
             progress={progress}
           />
+        )}
+        {spot && !done && step && (
+          <svg
+            className="leader"
+            viewBox={`0 0 ${stageBox.w} ${stageBox.h}`}
+            aria-hidden
+          >
+            <line
+              x1={stageBox.w * 0.94 - 88}
+              y1={stageBox.h * 0.14 + 88}
+              x2={spot.x}
+              y2={spot.y}
+              stroke="#161410"
+              strokeWidth="1.25"
+            />
+          </svg>
         )}
         {voice && step && !done && (
           <p className="voice-pill">

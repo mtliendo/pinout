@@ -240,6 +240,17 @@ test.describe("Pinout preview", () => {
     expect(flush()).toEqual([]);
   });
 
+  test.describe("guide film", () => {
+    test.use({ video: { mode: "on", size: { width: 1280, height: 800 } } });
+    test("reference guide film", async ({ page }) => {
+      const flush = trackConsole(page);
+      await unlock(page);
+      await page.locator(".preview-meta").getByRole("button", { name: "Build this" }).click();
+      await walkGuide(page);
+      expect(flush()).toEqual([]);
+    });
+  });
+
   test("tablet width stacks the bench and still finishes the reference", async ({
     page,
   }) => {

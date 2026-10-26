@@ -164,32 +164,62 @@ export type CameraPreset = {
   fov?: number;
 };
 
+/**
+ * 3/4 isometric of the whole assembly (breadboard + MCU + off-board parts)
+ * with a slight look-at bias toward the step. Never a tight crop.
+ */
 export function cameraFor(
   name: string,
   breadboard: Breadboard,
   callout?: string,
 ): CameraPreset {
+  void callout;
   const length = dim(breadboard.body?.length_mm, 165);
   const width = dim(breadboard.body?.width_mm, 55);
-  const center: Vec3 = [length / 2, 0, width / 2];
-  const target = callout ? holeWorld(callout, breadboard, 4) : center;
-  switch (name) {
-    case "left-low":
-      return { position: [-55, 85, -48], lookAt: [Math.max(18, target[0] * 0.4), 4, 12], fov: 38 };
-    case "left":
-      return { position: [-40, 100, -55], lookAt: [Math.max(22, target[0] * 0.45), 6, 14], fov: 38 };
-    case "right":
-      return { position: [length + 55, 105, width + 60], lookAt: [length * 0.62, 6, 16], fov: 38 };
-    case "top-zoom-rows-30-35":
-      return { position: [86, 95, -42], lookAt: [86, 2, 14], fov: 36 };
-    case "hero":
-      return { position: [-28, 145, -95], lookAt: center, fov: 40 };
-    case "top":
-    default:
-      return {
-        position: [center[0] - 75, 125, center[2] - 125],
-        lookAt: [center[0] * 0.38, 5, 12],
-        fov: 40,
-      };
-  }
+  const min: Vec3 = [-36, 0, -18];
+  const max: Vec3 = [length + 36, 26, width + 32];
+  const mid: Vec3 = [
+    (min[0] + max[0]) / 2,
+    9,
+    (min[2] + max[2]) / 2,
+  ];
+  const bias: Vec3 =
+    name === "left" || name === "left-low"
+      ? [-16, 0, -4]
+      : name === "right"
+        ? [20, 0, 6]
+        : name === "top-zoom-rows-30-35"
+          ? [16, 0, 0]
+          : [0, 0, 0];
+  const lookAt: Vec3 = [mid[0] + bias[0], mid[1], mid[2] + bias[2]];
+  const radius =
+    Math.hypot(max[0] - min[0], max[2] - min[2]) / 2;
+  const dist = radius * 2.15;
+  const dir: Vec3 = [-0.62, 0.58, -0.53];
+  const len = Math.hypot(dir[0], dir[1], dir[2]) || 1;
+  const position: Vec3 = [
+    lookAt[0] + (dir[0] / len) * dist,
+    lookAt[1] + (dir[1] / len) * dist,
+    lookAt[2] + (dir[2] / len) * dist,
+  ];
+  return { position, lookAt, fov: 30 };
+}
+
+export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {
+  const base = cameraFor("hero", breadboard);
+  const look = base.lookAt;
+  const radius = Math.hypot(
+    base.position[0] - look[0],
+    base.position[2] - look[2],
+  );
+  const angle = t * 0.22;
+  return {
+    position: [
+      look[0] + Math.sin(angle) * radius,
+      base.position[1],
+      look[2] + Math.cos(angle) * radius,
+    ],
+    lookAt: look,
+    fov: 30,
+  };
 }
