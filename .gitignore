@@ -41,6 +41,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# PlatformIO core (CI caches this under the workspace)
+.pio-core/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

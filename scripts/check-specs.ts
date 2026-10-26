@@ -1194,6 +1194,22 @@ function requireMatch(label: string, text: string, needle: RegExp) {
     process.exit(1);
   }
   requireMatch("NeoPixel begin/show", cpp, /pixels\.begin\(\)[\s\S]*pixels\.show\(\)/);
+  const nanoNeo = composeBuild(
+    { idea: "neo", boardId: "arduino-nano-esp32", partIds: ["ws2812b-strip"] },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const nanoIni = nanoNeo.steps.find((s) => s.code)?.code?.["platformio.ini"] ?? "";
+  requireMatch(
+    "Nano ESP32 NeoPixel pinned for official espressif32",
+    nanoIni,
+    /adafruit\/Adafruit NeoPixel@1\.12\.3/,
+  );
+  requireMatch(
+    "Nano ESP32 sketches use hardware GPIO numbers",
+    nanoIni,
+    /BOARD_USES_HW_GPIO_NUMBERS/,
+  );
 }
 
 if (loaded.builds["pir-servo-s3"]?.provenance?.verified_by !== "Maker") {
@@ -1211,5 +1227,5 @@ if (shouldCompile()) {
   }
   console.log(`PASS: compiled ${ran} sketches`);
 } else {
-  console.log("SKIP: compile (no pio or VERCEL=1)");
+  console.log("SKIP: compile (no pio, VERCEL=1, or SKIP_COMPILE=1)");
 }
