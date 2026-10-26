@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "check:specs": "tsx scripts/check-specs.ts",
+    "check:compile": "tsx scripts/check-compile.ts",
     "prebuild": "tsx scripts/check-specs.ts",
     "build": "next build",
     "start": "next start",

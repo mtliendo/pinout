@@ -1,0 +1,156 @@
+{
+  "id": "hc-sr04p",
+  "name": "HC-SR04P ultrasonic distance sensor (3.0-5.5V variant)",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 45,
+    "width_mm": 20,
+    "height_mm": 15,
+    "source": "HC-SR04 sheet: 45*20*15 mm (HC-SR04P is the same size per RCW sheet)"
+  },
+  "colors": {
+    "pcb": "#1d4f91",
+    "transducers": "#c0c0c0"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "VCC",
+      "note": "Order Vcc-Trig-Echo-Gnd per sheet. Pins exit the bottom edge, transducers face forward: place at the breadboard edge facing out, or off-board."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VCC",
+      "label": "Vcc",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.0-5.5V DC",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "TRIG",
+      "label": "Trig",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "≥10 µs high pulse starts a ping",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "ECHO",
+      "label": "Echo",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "digital out"
+      ],
+      "voltage": "= VCC",
+      "flags": {},
+      "warnings": [
+        "Echo high = VCC: power from 3V3 on 3.3V boards."
+      ]
+    },
+    {
+      "id": "GND",
+      "label": "Gnd",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "range": "2-450 cm @5V, 2-400 cm @3.3V (RCW)",
+    "identify": "Look for 'HC-SR04P' or an RCWL-9610 chip. Plain HC-SR04 is 5V-only."
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 3.0,
+      "max": 5.5
+    },
+    "logic": {
+      "level": "= VCC"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 3V3 so Echo is 3.3V. If powered from 5V, Echo is 5V and needs the divider."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital (trigger / echo pulse width)"
+    },
+    "current_ma": {
+      "typ": 2.8,
+      "note": "RCW sheet: 2.8 mA @5V, 2.2 mA @3.3V"
+    },
+    "required_passives": [],
+    "mounting": "off_board_or_breadboard_edge",
+    "lib_deps": [
+      "teckel12/NewPing"
+    ],
+    "approx_fields": []
+  },
+  "provenance": {
+    "sources": [
+      "https://pan.baud-dance.com/d/%E7%BD%91%E7%AB%99%E6%96%87%E4%BB%B6/%E8%B5%84%E6%96%99%E5%8C%85/static/%E8%B6%85%E5%A3%B0%E6%B3%A2%E6%A8%A1%E5%9D%97%E6%89%8B%E5%86%8CHC-SR04-P.pdf",
+      "https://www.mikrocontroller.net/attachment/618319/RCWL-9610-V3.0.pdf",
+      "https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf"
+    ],
+    "revision": "RCW HC-SR04-P sheet + RCWL-9610 chip sheet",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

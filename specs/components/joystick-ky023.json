@@ -1,0 +1,184 @@
+{
+  "id": "joystick-ky023",
+  "name": "KY-023 dual-axis joystick with button",
+  "kind": "sensor",
+  "body": {
+    "length_mm": {
+      "value": 34,
+      "approx": true,
+      "note": "Not dimensioned in sources."
+    },
+    "width_mm": {
+      "value": 26,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 32,
+      "approx": true,
+      "note": "with stick"
+    }
+  },
+  "colors": {
+    "pcb": "#111111",
+    "stick": "#111111"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 5,
+      "orientation": "+X",
+      "pin1": "GND",
+      "pin_order_approx": true,
+      "note": "Silk GND-+5V-VRx-VRy-SW is consistent across most clones (arduinomodules). Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VCC",
+      "label": "+5V",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3-5V",
+      "flags": {},
+      "warnings": [
+        "Labeled +5V, but on a 3.3V MCU feed it 3V3."
+      ]
+    },
+    {
+      "id": "VRX",
+      "label": "VRx",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "analog out"
+      ],
+      "voltage": "0..VCC, ~VCC/2 at rest",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VRY",
+      "label": "VRy",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "analog out"
+      ],
+      "voltage": "0..VCC",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "SW",
+      "label": "SW",
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "digital out"
+      ],
+      "voltage": "to GND when pressed; floats otherwise",
+      "flags": {},
+      "warnings": [
+        "Use INPUT_PULLUP."
+      ]
+    }
+  ],
+  "electrical": {
+    "pots": "2 × 10kΩ"
+  },
+  "part": {
+    "category": "input",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5
+    },
+    "logic": {
+      "level": "analog 0..VCC"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Power from 3V3: powered from 5V the wipers swing to 5V and can damage a 3.3V ADC (arduinomodules).",
+          "On ESP32 use ADC1 pins; it's non-linear near the rails."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "2 × analog + digital"
+    },
+    "current_ma": {
+      "note": "≈ 2 × V/10k (arithmetic)"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "body"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://arduinomodules.info/ky-023-joystick-dual-axis-module/",
+      "https://lastminuteengineers.com/joystick-interfacing-arduino-processing/"
+    ],
+    "revision": "arduinomodules.info KY-023",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

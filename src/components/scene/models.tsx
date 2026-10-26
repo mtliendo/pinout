@@ -137,25 +137,32 @@ export function BoardModel({
 }) {
   const length = dim(component.body?.length_mm, 62);
   const width = dim(component.body?.width_mm, 25.4);
+  const thick = dim(component.body?.pcb_thickness_mm, 1.6);
   const ox = component.body?.outline_offset_from_pin1?.x ?? 0;
   const oy = component.body?.outline_offset_from_pin1?.y ?? 0;
   const xiao = component.id.startsWith("xiao-");
+  const pico = component.id.startsWith("raspberry-pi-pico");
+  const uno = component.id === "arduino-uno-r3";
+  const pcb =
+    typeof component.colors?.pcb === "string"
+      ? component.colors.pcb
+      : FILLS.pcb;
   const cx = ox + length / 2;
   const cz = oy + width / 2;
   return (
     <group>
       <group position={[cx, 0.9, cz]}>
-        <CelBox args={[length, 1.6, width]} color={FILLS.pcb} faded={faded} />
+        <CelBox args={[length, thick, width]} color={pcb} faded={faded} />
         <CelBox
           args={[xiao ? 12.5 : 25.2, 3.6, xiao ? 10.5 : 17.6]}
           color={FILLS.module}
           faded={faded}
           position={[xiao ? -1 : -8.4, 2.7, 0]}
         />
-        {!xiao && (
+        {!xiao && !uno && (
           <>
             <CelBox
-              args={[7.2, 0.45, width - 6]}
+              args={[pico ? 5.2 : 7.2, 0.45, width - 6]}
               color={FILLS.antenna}
               faded={faded}
               position={[-length / 2 + 4.8, 1.05, 0]}
@@ -248,6 +255,24 @@ function UsbC({
         faded={faded}
         position={[3.8, 0, 0]}
       />
+    </group>
+  );
+}
+
+export function QuarterModel({
+  position = [0, 0.9, 0],
+}: {
+  position?: [number, number, number];
+}) {
+  const radius = 24.26 / 2;
+  const thick = 1.75;
+  return (
+    <group position={position}>
+      <mesh>
+        <cylinderGeometry args={[radius, radius, thick, 48]} />
+        <meshBasicMaterial color="#c5c1b4" toneMapped={false} />
+        <Edges color={INK} threshold={15} scale={1.01} />
+      </mesh>
     </group>
   );
 }
@@ -394,6 +419,51 @@ export function CatalogPart({
           faded={faded}
           position={[0, 1.1, 1]}
         />
+      </group>
+    );
+  }
+  if (component.id === "relay-module-5v-1ch") {
+    return (
+      <group>
+        <CelBox args={[50, 1.6, 26]} color="#1d4f91" faded={faded} />
+        <CelBox args={[19, 16, 15]} color="#1e5bd8" faded={faded} position={[-8, 9, 0]} />
+        <CelBox args={[12, 8, 18]} color="#d8d0c4" faded={faded} position={[16, 5, 0]} />
+        {[-2.54, 0, 2.54].map((x) => (
+          <CelPin key={x} args={[0.58, 8.2, 0.58]} faded={faded} position={[x - 16, -4.2, 11]} />
+        ))}
+      </group>
+    );
+  }
+  if (component.id === "hc-sr04" || component.id === "hc-sr04p") {
+    return (
+      <group>
+        <CelBox args={[45, 1.6, 20]} color="#1b4f9c" faded={faded} />
+        <CelCyl args={[8, 8, 10, 18]} color="#cfc8ba" faded={faded} position={[-10, 6, 0]} />
+        <CelCyl args={[8, 8, 10, 18]} color="#cfc8ba" faded={faded} position={[10, 6, 0]} />
+      </group>
+    );
+  }
+  if (component.id === "rfid-rc522") {
+    return (
+      <group>
+        <CelBox args={[40, 1.6, 60]} color="#1e7a36" faded={faded} />
+        <CelBox args={[28, 0.6, 28]} color="#c5c1b4" faded={faded} position={[0, 1.2, -6]} />
+      </group>
+    );
+  }
+  if (component.id === "level-shifter-bss138") {
+    return (
+      <group>
+        <CelBox args={[25, 1.6, 16]} color="#1d1d1d" faded={faded} />
+        <CelBox args={[8, 2, 6]} color="#2c2b28" faded={faded} position={[0, 2, 0]} />
+      </group>
+    );
+  }
+  if (component.id === "ext-5v-supply") {
+    return (
+      <group>
+        <CelBox args={[28, 14, 18]} color="#2c2b28" faded={faded} />
+        <CelBox args={[8, 4, 6]} color="#c47a3a" faded={faded} position={[0, 9, 0]} />
       </group>
     );
   }

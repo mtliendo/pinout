@@ -58,6 +58,7 @@ export const PinSchema = z
     voltage: z.string().optional(),
     flags: PinFlagsSchema.optional(),
     warnings: z.array(z.string()).optional(),
+    physical_pin: z.number().optional(),
   })
   .passthrough();
 
@@ -67,10 +68,11 @@ export const HeaderSchema = z
   .object({
     id: z.string(),
     origin_mm: z.tuple([z.number(), z.number()]),
-    pitch: z.number(),
+    pitch: DimValueSchema,
     count: z.number(),
     orientation: z.string().optional(),
     pin1: z.string().optional(),
+    pin_order_approx: z.boolean().optional(),
     kind: z.string().optional(),
     side: z.string().optional(),
     note: z.string().optional(),
@@ -103,7 +105,7 @@ export const FeatureSchema = z
     approx: z.boolean().optional(),
     note: z.string().optional(),
     label: z.string().optional(),
-    gpio: z.number().optional(),
+    gpio: z.unknown().optional(),
     connector: z.string().optional(),
   })
   .passthrough();
@@ -149,13 +151,117 @@ export const ComponentSchema = z
     electrical: z.unknown().optional(),
     power: z.unknown().optional(),
     controls: z.unknown().optional(),
-    wire_length_mm: z.number().optional(),
+    wire_length_mm: DimValueSchema.optional(),
+    safety: z.array(z.string()).optional(),
+    part: z
+      .object({
+        category: z.enum([
+          "sensor",
+          "display",
+          "actuator",
+          "input",
+          "passive",
+          "wire",
+          "power",
+          "breadboard",
+        ]),
+        supply_v: z
+          .object({
+            min: z.number().nullable().optional(),
+            max: z.number().nullable().optional(),
+            note: z.string().optional(),
+          })
+          .passthrough(),
+        logic: z
+          .object({
+            level: z.string().optional(),
+          })
+          .passthrough(),
+        compat: z
+          .object({
+            mcu_3v3: z
+              .object({
+                status: z.enum(["yes", "with_conditions", "no"]),
+                needs: z.array(z.string()).default([]),
+              })
+              .passthrough(),
+            mcu_5v: z
+              .object({
+                status: z.enum(["yes", "with_conditions", "no"]),
+                needs: z.array(z.string()).default([]),
+              })
+              .passthrough(),
+          })
+          .passthrough(),
+        interface: z
+          .object({
+            type: z.string(),
+            i2c_addresses: z.array(z.string()).optional(),
+          })
+          .passthrough(),
+        current_ma: z.unknown().optional(),
+        required_passives: z.array(z.unknown()).default([]),
+        mounting: z.string(),
+        lib_deps: z.array(z.string()).default([]),
+        approx_fields: z.array(z.string()).default([]),
+        no_gnd_pin: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
     /** Incoming: 3.3V vs 5V logic (Uno/Nano). Warn when a 3.3V-only part hits 5V. */
     logic_voltage: z.enum(["3.3V", "5V"]).optional(),
     /** Incoming: `chips/<chip>.json` — pin safety is never inferred. */
     chip: z.string().optional(),
     /** Incoming: breadboard vs off-board female-header boards (Uno R3). */
     placement: z.enum(["breadboard", "off_board_headers"]).optional(),
+    logic: z
+      .object({
+        logic_voltage_v: z.number().optional(),
+        five_v_logic: z.boolean().optional(),
+        pin_voltage: z.string().optional(),
+        warning: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    breadboard_fit: z
+      .object({
+        fits_830: z.boolean(),
+        off_board: z.boolean().optional(),
+        connector: z.string().optional(),
+        straddle: z.record(z.string(), z.string()).optional(),
+        free_holes_per_row: z
+          .object({
+            left: z.number().optional(),
+            right: z.number().optional(),
+          })
+          .passthrough()
+          .optional(),
+        rows: z.string().optional(),
+        note: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    platformio: z
+      .object({
+        board: z.string().optional(),
+        platform: z.string().optional(),
+        framework: z.string().optional(),
+        core: z.string().optional(),
+        arduino: z
+          .object({
+            platform: z.string().optional(),
+            framework: z.string().optional(),
+            note: z.string().optional(),
+          })
+          .passthrough()
+          .optional(),
+        alt: z.unknown().optional(),
+        alt_frameworks: z.array(z.string()).optional(),
+        note: z.string().optional(),
+        source: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
     defaults: z
       .object({
         i2c: z
@@ -171,6 +277,8 @@ export const ComponentSchema = z
           })
           .passthrough()
           .optional(),
+        uart0: z.unknown().optional(),
+        led_builtin: z.number().nullable().optional(),
         pio: z
           .object({
             platform: z.string(),
@@ -311,3 +419,33 @@ export const WireColorsSchema = z
   .passthrough();
 
 export type WireColors = z.infer<typeof WireColorsSchema>;
+
+export const ChipSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    logic_voltage_v: z.number(),
+    five_v_tolerant: z.boolean(),
+    gpio_numbers: z.array(z.number()).optional(),
+    safe_gpio: z.array(z.number()),
+    caution_gpio: z.record(z.string(), z.string()),
+    no_go_gpio: z.record(z.string(), z.string()),
+    strapping_gpio: z.array(z.number()).optional(),
+    input_only_gpio: z.array(z.number()).optional(),
+    usb_gpio: z
+      .union([z.record(z.string(), z.number()), z.null()])
+      .optional(),
+    uart0: z
+      .object({
+        tx: z.number().optional(),
+        rx: z.number().optional(),
+      })
+      .passthrough()
+      .optional(),
+    platformio: z.unknown().optional(),
+    label_aliases: z.unknown().optional(),
+    provenance: ProvenanceSchema,
+  })
+  .passthrough();
+
+export type Chip = z.infer<typeof ChipSchema>;

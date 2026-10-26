@@ -146,5 +146,39 @@
     "verified_by": "Maker",
     "verified_on": "2026-10-26",
     "notes": "No single manufacturer; sheets agree on 3.3V output and 4.5/5-20V supply."
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 4.5,
+      "max": 20
+    },
+    "logic": {
+      "level": "3.3V out"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 5V; OUT is 3.3V."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital"
+    },
+    "current_ma": {
+      "note": "<50 \u00b5A quiescent"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [],
+    "approx_fields": [
+      "pin_order"
+    ]
   }
 }

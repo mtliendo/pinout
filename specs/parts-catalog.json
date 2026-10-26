@@ -1,0 +1,72 @@
+{
+  "generated_on": "2026-10-26",
+  "by": "Maker",
+  "count": 49,
+  "categories": {
+    "actuator": [
+      "buzzer-active-ky012",
+      "buzzer-passive-ky006",
+      "relay-module-5v-1ch",
+      "sg90-servo",
+      "stepper-28byj48",
+      "uln2003-stepper-driver",
+      "ws2812b-ring-12",
+      "ws2812b-strip"
+    ],
+    "breadboard": [
+      "breadboard-830"
+    ],
+    "display": [
+      "lcd1602-i2c-pcf8574",
+      "ssd1306-oled-128x64-i2c",
+      "tm1637-4digit"
+    ],
+    "input": [
+      "joystick-ky023",
+      "keypad-4x4-membrane",
+      "potentiometer-10k",
+      "rfid-rc522",
+      "rotary-encoder-ky040",
+      "tactile-button-6mm"
+    ],
+    "passive": [
+      "cap-electrolytic-1000uf",
+      "cap-electrolytic-100uf",
+      "diode-1n4007",
+      "led-5mm-blue",
+      "led-5mm-green",
+      "led-5mm-red",
+      "led-5mm-yellow",
+      "resistor-100k",
+      "resistor-10k",
+      "resistor-1k",
+      "resistor-220",
+      "resistor-330",
+      "resistor-4k7",
+      "rgb-led-5mm-cc",
+      "transistor-pn2222a"
+    ],
+    "power": [
+      "breadboard-power-mb102"
+    ],
+    "sensor": [
+      "bme280-i2c-breakout",
+      "dht11",
+      "dht22-am2302",
+      "ds18b20-to92",
+      "hc-sr04",
+      "hc-sr04p",
+      "hc-sr501-pir",
+      "ir-receiver-vs1838b",
+      "ldr-gl5528",
+      "mpu6050-gy521",
+      "soil-moisture-capacitive-v1.2",
+      "sound-sensor-ky038"
+    ],
+    "wire": [
+      "jumper-female-female",
+      "jumper-male-female",
+      "jumper-male-male"
+    ]
+  }
+}

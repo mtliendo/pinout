@@ -1,0 +1,195 @@
+{
+  "id": "ws2812b-ring-12",
+  "name": "WS2812B 12-LED ring (5V)",
+  "kind": "actuator",
+  "body": {
+    "outer_diameter_mm": {
+      "value": 37,
+      "approx": true,
+      "note": "Adafruit 12-ring is 37 mm OD; clones vary"
+    },
+    "height_mm": {
+      "value": 3,
+      "approx": true,
+      "note": "approx"
+    }
+  },
+  "colors": {
+    "pcb": "#f5f5f5",
+    "led": "#ffffff"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "solder pads (add header or wires)",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "5V / PWR",
+      "pin_order_approx": true,
+      "note": "Pads 5V, GND, DIN, DOUT; labels and order vary. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VDD",
+      "label": "5V / PWR",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "DIN",
+      "label": "DI / Data In",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "data in"
+      ],
+      "voltage": "NZR",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "DOUT",
+      "label": "DO / Data Out",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "data out"
+      ],
+      "voltage": "to next ring",
+      "flags": {},
+      "warnings": [
+        "Leave unconnected unless chaining."
+      ]
+    }
+  ],
+  "electrical": {
+    "led_vdd_v": "+3.5~+5.3 (WS2812B datasheet)",
+    "din_vih": "0.7·VDD = 3.5V at 5V (WS2812B)",
+    "current_per_led_ma_max": 60,
+    "current_source": "Adafruit: up to 60 mA per pixel at full white; WS2812B datasheet gives no per-LED figure"
+  },
+  "part": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 3.5,
+      "max": 5.3,
+      "note": "WS2812B; run at 5V"
+    },
+    "logic": {
+      "level": "DIN needs 0.7·VDD"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Power from 5V (external 5V beyond a few LEDs), shared GND.",
+          "3.3V data is below the 3.5V VIH at 5V: Adafruit says use a 74AHCT125 / 74HCT245 level shifter. Short wires often work without, but it's out of spec."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "External 5V beyond a few LEDs; budget 60 mA each."
+        ]
+      }
+    },
+    "interface": {
+      "type": "single-wire NZR (800 kHz)"
+    },
+    "current_ma": {
+      "max_per_led": 60,
+      "note": "Adafruit worst case; total = 60 × LED count"
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "300-500Ω",
+        "between": [
+          "GPIO",
+          "DIN"
+        ],
+        "placement": "at the LED end of the wire",
+        "source": "Adafruit best practices"
+      },
+      {
+        "kind": "capacitor",
+        "value": "500-1000µF, ≥6.3V",
+        "between": [
+          "+5V",
+          "GND"
+        ],
+        "placement": "across the strip's power input",
+        "source": "Adafruit best practices"
+      }
+    ],
+    "mounting": "off_board",
+    "lib_deps": [
+      "adafruit/Adafruit NeoPixel",
+      "fastled/FastLED"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf",
+      "https://learn.adafruit.com/adafruit-neopixel-uberguide/best-practices",
+      "https://learn.adafruit.com/adafruit-neopixel-uberguide/powering-neopixels"
+    ],
+    "revision": "Worldsemi WS2812B + Adafruit NeoPixel Überguide",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "12 × 60 mA = 0.72 A worst case at full white. Connect GND first, then 5V, then data (Adafruit)."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

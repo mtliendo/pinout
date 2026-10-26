@@ -42,6 +42,7 @@ function readJsonDir(dir: string): unknown[] {
 
 const scannedComponents = readJsonDir(join(process.cwd(), "specs/components"));
 const scannedBuilds = readJsonDir(join(process.cwd(), "specs/builds"));
+const scannedChips = readJsonDir(join(process.cwd(), "specs/chips"));
 
 /** Live catalog: every JSON under specs/components and specs/builds. New spec files light up without a code change. */
 export const RAW_COMPONENTS =
@@ -49,6 +50,27 @@ export const RAW_COMPONENTS =
 
 export const RAW_BUILDS = scannedBuilds.length > 0 ? scannedBuilds : FALLBACK_BUILDS;
 
+export const RAW_CHIPS = scannedChips;
+
 export const RAW_WIRE_COLORS = wireColorsJson as unknown;
+
+function readJsonFile(path: string, fallback: unknown = null): unknown {
+  try {
+    if (!existsSync(path)) return fallback;
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
+export const RAW_PARTS_CATALOG = readJsonFile(
+  join(process.cwd(), "specs/parts-catalog.json"),
+  { count: 0, categories: {} },
+);
+
+export const RAW_PARTS_OVERLAY = readJsonFile(
+  join(process.cwd(), "specs/parts-overlay.json"),
+  {},
+) as Record<string, unknown>;
 
 export const REFERENCE_BUILD_ID = "pir-servo-s3";

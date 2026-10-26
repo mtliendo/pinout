@@ -14,6 +14,7 @@ type Guide = {
     steps: Array<{
       n: number;
       heading: string;
+      body?: string;
       callout?: string;
       connections_added?: string[];
     }>;
@@ -51,48 +52,57 @@ function trackConsole(page: Page) {
     );
 }
 
-async function pickRelevantPills(page: Page) {
-  const pills = page.locator(".pill");
-  await expect(pills.first()).toBeVisible({ timeout: 60_000 });
-  const preferred =
-    /DevKitC|ESP32-S3|USB|capacitor|PIR|servo|OLED|button|LED|I already|red LED/i;
-  const count = await pills.count();
-  let clicked = 0;
+async function pickBoard(page: Page, name = /S3-DevKitC|N16R8/) {
+  await expect(page.getByTestId("board-picker")).toBeVisible({ timeout: 60_000 });
+  const cards = page.locator(".board-card");
+  const count = await cards.count();
+  expect(count).toBe(10);
+  let clicked = false;
   for (let i = 0; i < count; i++) {
-    const text = (await pills.nth(i).textContent()) ?? "";
-    if (preferred.test(text)) {
-      await pills.nth(i).click();
-      clicked += 1;
+    const text = (await cards.nth(i).textContent()) ?? "";
+    if (name.test(text)) {
+      await cards.nth(i).click();
+      clicked = true;
+      break;
     }
   }
-  if (clicked === 0) await pills.first().click();
+  if (!clicked) await cards.first().click();
+  await page.getByRole("button", { name: "This is the board" }).click();
+}
+
+async function confirmBoard(page: Page) {
+  await expect(page.getByTestId("board-confirm")).toBeVisible();
+  await expect(page.getByText("US quarter · 24.26 mm across")).toBeVisible();
+  await page.getByRole("button", { name: "Yes, this is mine" }).click();
+}
+
+async function pickPathIdea(page: Page, idea = /Motion servo|Button, LED/) {
+  await expect(page.getByTestId("breadboard-picker")).toBeVisible();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByTestId("path-picker")).toBeVisible();
+  await page.getByRole("button", { name: /tested idea/i }).click();
+  await expect(page.getByTestId("idea-list").first()).toBeVisible();
+  const cards = page.locator("[data-testid=idea-list] .path-card");
+  const count = await cards.count();
+  let clicked = false;
+  for (let i = 0; i < count; i++) {
+    const text = (await cards.nth(i).textContent()) ?? "";
+    if (idea.test(text)) {
+      await cards.nth(i).click();
+      clicked = true;
+      break;
+    }
+  }
+  if (!clicked) await cards.first().click();
+  await page.getByRole("button", { name: "Compose the guide" }).click();
 }
 
 async function answerQuestions(page: Page) {
   await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
-  const meta = (await page.locator(".top-meta").textContent()) ?? "";
-  const questions = Number(meta.match(/Question\s+\d+\s+of\s+(\d+)/)?.[1] ?? "0");
-  expect(questions).toBeGreaterThan(0);
-  expect(questions).toBeLessThanOrEqual(5);
-  const left = Number(
-    ((await page.locator(".ask-hint").textContent()) ?? "").match(/(\d+) left/)?.[1] ?? "-1",
-  );
-  expect(left).toBe(questions - 1);
-
-  for (let i = 0; i < 8; i++) {
-    const compose = page.getByRole("button", { name: "Compose the guide" });
-    if (await compose.isVisible()) {
-      await expect(page.getByTestId("breadboard-picker")).toBeVisible();
-      await compose.click();
-      return questions;
-    }
-    await pickRelevantPills(page);
-    const next = page.getByRole("button", { name: "Next" });
-    await expect(next).toBeVisible();
-    await next.click();
-    await expect(page.locator(".ask-card h1")).toBeVisible();
-  }
-  throw new Error("Did not reach compose after questions + breadboard");
+  await pickBoard(page);
+  await confirmBoard(page);
+  await pickPathIdea(page);
+  return 4;
 }
 
 function targetHoleForStep(guide: Guide, n: number) {
@@ -347,6 +357,43 @@ test.describe("Pinout preview", () => {
     expect(flush()).toEqual([]);
   });
 
+  test("parts picker is catalog-only, grouped, and searchable", async ({ page }) => {
+    await unlock(page);
+    await page.goto(shareUrl("/ask?idea=catalog"));
+    await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
+    await pickBoard(page);
+    await confirmBoard(page);
+    await expect(page.getByTestId("breadboard-picker")).toBeVisible();
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByTestId("path-picker")).toBeVisible();
+    await page.getByRole("button", { name: /Choose parts/i }).click();
+    await expect(page.getByTestId("parts-picker")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sensors" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Displays" })).toBeVisible();
+    await page.getByPlaceholder("Search the catalog").fill("HC-SR04");
+    await expect(page.getByRole("button", { name: "HC-SR04 ultrasonic distance sensor (5V)" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /HC-SR04P/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /SG90|servo/i })).toHaveCount(0);
+  });
+
+  test("idea list shows curated ideas first", async ({ page }) => {
+    await unlock(page);
+    await page.goto(
+      shareUrl(
+        `/ask?idea=${encodeURIComponent("motion-triggered servo that waves when someone walks by")}`,
+      ),
+    );
+    await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
+    await pickBoard(page);
+    await confirmBoard(page);
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("button", { name: /tested idea/i }).click();
+    const lists = page.getByTestId("idea-list");
+    await expect(lists.first()).toBeVisible();
+    await expect(lists.first()).toContainText(/Motion servo|Ultrasonic ranger|I2C LCD/);
+    await expect(page.getByText(/fresh ideas from the catalog/i)).toBeVisible();
+  });
+
   test("every catalog board composes the reference idea set", async ({ request }) => {
     if (SHARE) await request.get(shareUrl("/"));
     const catalogRes = await request.get(shareUrl("/api/catalog"));
@@ -354,7 +401,7 @@ test.describe("Pinout preview", () => {
     const catalog = (await catalogRes.json()) as {
       boards: Array<{ id: string; safe_gpio: number[] }>;
     };
-    expect(catalog.boards.length).toBeGreaterThan(0);
+    expect(catalog.boards.length).toBe(10);
     const ideas = [
       "motion-triggered servo that waves when someone walks by",
       "button that toggles an LED and shows status on an OLED",
@@ -381,7 +428,62 @@ test.describe("Pinout preview", () => {
           expect(cpp).toMatch(/SCL_PIN = 7/);
         }
       }
+      const curated = [
+        {
+          idea: "An HC-SR04 measures distance and lights an LED when something is close.",
+          parts: ["hc-sr04", "led-5mm-red", "resistor-220"],
+        },
+        { idea: "A short WS2812B strip on one safe GPIO.", parts: ["ws2812b-strip"] },
+        { idea: "A 1602 LCD on the default I2C pins.", parts: ["lcd1602-i2c-pcf8574"] },
+        {
+          idea: "A TM1637 display and a button.",
+          parts: ["tm1637-4digit", "tactile-button-6mm"],
+        },
+        {
+          idea: "A KY-023 joystick steers an LED.",
+          parts: ["joystick-ky023", "led-5mm-red", "resistor-220"],
+        },
+        {
+          idea: "A button clicks a 5V relay. Low-voltage DC only — never mains.",
+          parts: ["tactile-button-6mm", "relay-module-5v-1ch"],
+        },
+      ];
+      for (const idea of curated) {
+        const res = await request.post(shareUrl("/api/compose"), {
+          data: {
+            idea: idea.idea,
+            answers: {
+              board: [board.id],
+              breadboard: ["full-830"],
+              parts: idea.parts,
+            },
+          },
+        });
+        expect(res.ok(), `${board.id} × ${idea.idea}: ${await res.text()}`).toBeTruthy();
+        const guide = (await res.json()) as Guide;
+        expect(guide.build.board).toBe(board.id);
+        assertSafePins(guide, new Set(board.safe_gpio));
+      }
     }
+  });
+
+  test("compat-fix steps appear in the guide", async ({ request }) => {
+    if (SHARE) await request.get(shareUrl("/"));
+    const sonar = await request.post(shareUrl("/api/compose"), {
+      data: {
+        idea: "An HC-SR04 measures distance and lights an LED when something is close.",
+        answers: {
+          board: ["esp32-s3-devkitc-1-n16r8"],
+          breadboard: ["full-830"],
+          parts: ["hc-sr04", "led-5mm-red", "resistor-220"],
+        },
+      },
+    });
+    expect(sonar.ok(), await sonar.text()).toBeTruthy();
+    const guide = (await sonar.json()) as Guide;
+    const text = guide.build.steps.map((s) => `${s.heading} ${s.body}`).join("\n");
+    expect(text).toMatch(/divider|1 kΩ|HC-SR04P/);
+    expect(guide.build.parts.some((p) => /you'll also need/i.test((p as { note?: string }).note ?? "") || p.component === "resistor-1k")).toBeTruthy();
   });
 
   test("iPhone 390 shows the breadboard picker, reset view, and a C3 compose", async ({
@@ -410,12 +512,8 @@ test.describe("Pinout preview", () => {
       ),
     );
     await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
-    for (let i = 0; i < 8; i++) {
-      if (await page.getByTestId("breadboard-picker").isVisible()) break;
-      await pickRelevantPills(page);
-      const next = page.getByRole("button", { name: "Next" });
-      if (await next.isVisible()) await next.click();
-    }
+    await pickBoard(page, /XIAO ESP32C3|Seeed Studio XIAO ESP32C3/);
+    await confirmBoard(page);
     await expect(page.getByTestId("breadboard-picker")).toBeVisible();
     await expect(page.getByText("Mini 170")).toBeVisible();
 

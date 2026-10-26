@@ -90,18 +90,46 @@ export function findPinByGpio(
   return board.pins?.find((p) => p.gpio === gpio);
 }
 
+const FIVE_LABELS = new Set(["5V", "+5V", "VBUS"]);
+const THREE_LABELS = new Set(["3V3", "3.3V", "3V3(OUT)"]);
+const GND_LABELS = new Set(["G", "GND", "AGND"]);
+
+export function normalizePinLabel(label: string): string {
+  return label.trim().toUpperCase();
+}
+
+export function isFiveVoltLabel(label: string): boolean {
+  return FIVE_LABELS.has(normalizePinLabel(label));
+}
+
+export function isThreeVoltLabel(label: string): boolean {
+  return THREE_LABELS.has(normalizePinLabel(label));
+}
+
+export function isGndLabel(label: string): boolean {
+  return GND_LABELS.has(normalizePinLabel(label));
+}
+
 export function findPinByLabel(
   board: Component,
   label: string,
 ): Pin | undefined {
-  return board.pins?.find((p) => p.label === label);
+  const want = normalizePinLabel(label);
+  const aliases =
+    want === "5V"
+      ? FIVE_LABELS
+      : want === "3V3" || want === "3.3V"
+        ? THREE_LABELS
+        : want === "G" || want === "GND"
+          ? GND_LABELS
+          : new Set([want]);
+  return board.pins?.find((p) => aliases.has(normalizePinLabel(p.label)));
 }
 
 export function findGndPin(board: Component): Pin | undefined {
   return board.pins?.find(
     (p) =>
-      p.label === "G" ||
-      p.label === "GND" ||
+      isGndLabel(p.label) ||
       p.functions.includes("GND") ||
       p.id.endsWith(".GND"),
   );
@@ -113,36 +141,105 @@ export function headerSide(
 ): "left" | "right" {
   const header = board.headers?.[pin.header ?? 0];
   const y = pin.position.y;
-  if (header?.id === "J3" || header?.id === "R") return "right";
-  if (header?.id === "J1" || header?.id === "L") return "left";
+  const id = header?.id ?? "";
+  if (/^(J3|R|JP2|JDIGITAL)$/i.test(id)) return "right";
+  if (/^(J1|J2|L|JP1|JANALOG)$/i.test(id)) return "left";
   return y > 8 ? "right" : "left";
+}
+
+export function uartGpios(board: Component): number[] {
+  const uart = board.defaults?.uart0 as
+    | { tx?: number; rx?: number }
+    | undefined;
+  return [uart?.tx, uart?.rx].filter((n): n is number => typeof n === "number");
 }
 
 export function preferredSafeGpio(board: Component): number[] {
   const jtag = new Set([39, 40, 41, 42]);
+  const caution = new Set(
+    Object.keys(board.caution_gpio ?? {}).map((k) => Number(k)),
+  );
+  const noGo = new Set(Object.keys(board.no_go_gpio ?? {}).map((k) => Number(k)));
+  const uart = new Set(uartGpios(board));
   const listed = new Set(board.safe_gpio ?? []);
   const safe = [...listed].filter((gpio) => {
+    if (caution.has(gpio) || noGo.has(gpio)) return false;
     const pin = findPinByGpio(board, gpio);
     if (!pin) return false;
     const flags = pin.flags ?? {};
     if (flags.strapping || flags.usb || flags.psram_flash_reserved) return false;
     return true;
   });
-  return [...safe.filter((g) => !jtag.has(g)), ...safe.filter((g) => jtag.has(g))];
+  const rest = safe.filter((g) => !jtag.has(g));
+  return [
+    ...rest.filter((g) => !uart.has(g)),
+    ...rest.filter((g) => uart.has(g)),
+    ...safe.filter((g) => jtag.has(g)),
+  ];
+}
+
+export type SpiRole = "spi_sck" | "spi_mosi" | "spi_miso" | "spi_cs" | "spi_rst";
+
+function spiNum(
+  spi: Record<string, unknown> | undefined,
+  ...keys: string[]
+): number | undefined {
+  if (!spi) return undefined;
+  for (const key of keys) {
+    if (typeof spi[key] === "number") return spi[key] as number;
+  }
+  return undefined;
+}
+
+/** Hardware SPI from the board spec only — never inferred, even if caution. */
+export function spiDefaultGpio(
+  board: Component,
+  role: SpiRole,
+): number | undefined {
+  const spi = board.defaults?.spi as Record<string, unknown> | undefined;
+  if (role === "spi_sck") return spiNum(spi, "sck");
+  if (role === "spi_mosi") return spiNum(spi, "mosi", "tx_mosi", "copi");
+  if (role === "spi_miso") return spiNum(spi, "miso", "rx_miso", "cipo");
+  if (role === "spi_cs") return spiNum(spi, "ss", "cs", "csn");
+  if (role === "spi_rst") {
+    return spiNum(spi, "rst") ?? (board.chip === "atmega328p" ? 9 : undefined);
+  }
+  return undefined;
+}
+
+export function hardwareSpiGpios(board: Component): number[] {
+  const roles: SpiRole[] = [
+    "spi_sck",
+    "spi_mosi",
+    "spi_miso",
+    "spi_cs",
+    "spi_rst",
+  ];
+  return [
+    ...new Set(
+      roles
+        .map((role) => spiDefaultGpio(board, role))
+        .filter((n): n is number => typeof n === "number"),
+    ),
+  ];
 }
 
 /** Default I2C/SPI GPIOs from the spec only — never inferred. */
 export function defaultBusGpio(
   board: Component,
-  which: "i2c_sda" | "i2c_scl" | "spi_sck" | "spi_mosi" | "spi_miso",
+  which:
+    | "i2c_sda"
+    | "i2c_scl"
+    | "spi_sck"
+    | "spi_mosi"
+    | "spi_miso"
+    | "spi_cs"
+    | "spi_rst",
 ): number | undefined {
   const i2c = board.defaults?.i2c;
   if (which === "i2c_sda" && typeof i2c?.sda === "number") return i2c.sda;
   if (which === "i2c_scl" && typeof i2c?.scl === "number") return i2c.scl;
-  const spi = board.defaults?.spi;
-  if (which === "spi_sck") return spi?.sck;
-  if (which === "spi_mosi") return spi?.mosi;
-  if (which === "spi_miso") return spi?.miso;
+  if (which.startsWith("spi_")) return spiDefaultGpio(board, which as SpiRole);
   const needle =
     which === "i2c_sda"
       ? /default i2c sda/i
@@ -212,7 +309,7 @@ export function assemblyFrame(breadboard: Breadboard) {
   const length = dim(breadboard.body?.length_mm, 165);
   const width = dim(breadboard.body?.width_mm, 55);
   const min: Vec3 = [-52, -9, -22];
-  const max: Vec3 = [length + 50, 34, width + 16];
+  const max: Vec3 = [length + 80, 34, width + 16];
   const lookAt: Vec3 = [
     (min[0] + max[0]) / 2,
     8,
@@ -235,11 +332,13 @@ export function cameraFor(
   const bias: Vec3 =
     name === "left" || name === "left-low"
       ? [-10, 0, -2]
-      : name === "right"
-        ? [12, 0, 3]
-        : name === "top-zoom-rows-30-35"
-          ? [8, 0, 0]
-          : [0, 0, 0];
+      : name === "right-close"
+        ? [88, 0, 10]
+        : name === "right"
+          ? [12, 0, 3]
+          : name === "top-zoom-rows-30-35"
+            ? [8, 0, 0]
+            : [0, 0, 0];
   const target: Vec3 = [lookAt[0] + bias[0], lookAt[1], lookAt[2] + bias[2]];
   const len = Math.hypot(ISO_DIR[0], ISO_DIR[1], ISO_DIR[2]) || 1;
   const dist = 420;
@@ -248,7 +347,7 @@ export function cameraFor(
     target[1] + (ISO_DIR[1] / len) * dist,
     target[2] + (ISO_DIR[2] / len) * dist,
   ];
-  return { position, lookAt: target, frustum: 300 };
+  return { position, lookAt: target, frustum: name === "right-close" ? 168 : 300 };
 }
 
 export function previewOrbit(t: number, breadboard: Breadboard): CameraPreset {

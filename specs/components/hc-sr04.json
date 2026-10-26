@@ -1,0 +1,170 @@
+{
+  "id": "hc-sr04",
+  "name": "HC-SR04 ultrasonic distance sensor (5V)",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 45,
+    "width_mm": 20,
+    "height_mm": 15,
+    "source": "HC-SR04 sheet: 45*20*15 mm (HC-SR04P is the same size per RCW sheet)"
+  },
+  "colors": {
+    "pcb": "#1d4f91",
+    "transducers": "#c0c0c0"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "VCC",
+      "note": "Order Vcc-Trig-Echo-Gnd per sheet. Pins exit the bottom edge, transducers face forward: place at the breadboard edge facing out, or off-board."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VCC",
+      "label": "Vcc",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V DC",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "TRIG",
+      "label": "Trig",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "≥10 µs high pulse starts a ping",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "ECHO",
+      "label": "Echo",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "digital out"
+      ],
+      "voltage": "5V TTL (Echo high ≈ VCC)",
+      "flags": {},
+      "warnings": [
+        "NEVER wire ECHO straight to a 3.3V GPIO (ESP32/RP2040). Use the divider."
+      ]
+    },
+    {
+      "id": "GND",
+      "label": "Gnd",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "range": "2 cm - 4 m",
+    "frequency_khz": 40,
+    "measure_rate_hz": 40
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 5,
+      "max": 5,
+      "note": "Sheet: working voltage DC 5V"
+    },
+    "logic": {
+      "level": "5V TTL (Echo high ≈ VCC)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Power from 5V, not 3V3.",
+          "Echo is a 5V output: divider (1k Echo→GPIO, 2k GPIO→GND) or a level shifter.",
+          "Trig from 3.3V works in practice (not stated in the sheet)."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital (trigger / echo pulse width)"
+    },
+    "current_ma": {
+      "typ": 15,
+      "note": "Sheet: working current 15 mA"
+    },
+    "required_passives": [
+      {
+        "kind": "voltage divider",
+        "value": "1k + 2k (or 10k + 20k)",
+        "between": [
+          "ECHO",
+          "GPIO",
+          "GND"
+        ],
+        "for": "3.3V MCUs",
+        "note": "5 × 2/3 = 3.33V; arithmetic, not from the sheet."
+      }
+    ],
+    "mounting": "off_board_or_breadboard_edge",
+    "lib_deps": [
+      "teckel12/NewPing"
+    ],
+    "approx_fields": []
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf"
+    ],
+    "revision": "SparkFun-hosted HC-SR04 sheet",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

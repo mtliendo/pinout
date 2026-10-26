@@ -2,6 +2,7 @@
   "id": "esp32-s3-devkitc-1-n16r8",
   "name": "ESP32-S3-DevKitC-1 (N16R8: WROOM-1, 16 MB flash, 8 MB octal PSRAM)",
   "kind": "board",
+  "chip": "esp32-s3",
   "coordinate_frame": {
     "units": "mm",
     "origin": "J1 pin 1 center is at (1.40, 1.27) from the board corner nearest it; all pin positions below are relative to the J1 pin 1 center",

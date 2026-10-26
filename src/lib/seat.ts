@@ -2,12 +2,9 @@ import { adjacentFreeHole, headerSide, parseHole } from "./geometry";
 import type { Breadboard, Component, Pin } from "./specs/schema";
 
 export function boardPinCount(board: Component): number {
-  const left =
-    board.headers?.find((h) => /^(J1|L)$/i.test(h.id)) ?? board.headers?.[0];
-  return (
-    left?.count ??
-    Math.max(1, ...(board.pins ?? []).map((p) => p.position.index), 1)
-  );
+  const counts = (board.headers ?? []).map((h) => h.count);
+  if (counts.length) return Math.max(...counts);
+  return Math.max(1, ...(board.pins ?? []).map((p) => p.position.index), 1);
 }
 
 /** Rows the MCU plus packed discrete parts need, including a one-row gap. */
@@ -15,10 +12,11 @@ export function rowsNeeded(
   board: Component,
   roles: { led?: boolean; button?: boolean },
 ): number {
-  let rows = boardPinCount(board);
+  const fit = board.breadboard_fit;
+  let rows = fit?.off_board || fit?.fits_830 === false ? 0 : boardPinCount(board);
   if (roles.led) rows += 1 + 6;
   if (roles.button) rows += 3;
-  return rows;
+  return Math.max(rows, 1);
 }
 
 export class FitError extends Error {
@@ -34,36 +32,76 @@ export type BoardSeat = {
   leftCol: string;
   rightCol: string;
   narrow: boolean;
+  offBoard: boolean;
+  freeLeft: number;
+  freeRight: number;
+  connector?: string;
 };
 
+const LEFT_HEADERS = /^(J1|J2|L|JP1|JANALOG)$/i;
+const RIGHT_HEADERS = /^(J3|R|JP2|JDIGITAL)$/i;
+
+function fallbackStraddle(board: Component): { left: string; right: string } {
+  const narrow =
+    boardPinCount(board) <= 8 || /xiao|nano|pico/i.test(board.id);
+  if (narrow) return { left: "b", right: "f" };
+  return { left: "b", right: "i" };
+}
+
 export function boardSeat(board: Component, breadboard: Breadboard): BoardSeat {
-  if (board.placement === "off_board_headers") {
-    throw new FitError(
-      `${board.name} sits off the breadboard. Off-board header seating lands with the spec.`,
-    );
-  }
+  const fit = board.breadboard_fit;
   const pinCount = boardPinCount(board);
   const cols = breadboard.grid.columns;
-  const place = board.placement;
-  const narrow =
-    pinCount <= 8 ||
-    /xiao|nano|pico/i.test(board.id) ||
-    (place === "breadboard" && pinCount <= 10);
-  const leftCol = cols.includes("b") ? "b" : cols[0];
-  const rightCol = narrow
-    ? cols.includes("f")
-      ? "f"
-      : cols[Math.min(5, cols.length - 1)]
-    : cols.includes("i")
-      ? "i"
-      : cols[cols.length - 1];
+  const pick = (col: string, fallback: string) =>
+    cols.includes(col) ? col : fallback;
+
+  if (fit?.fits_830 === false || fit?.off_board) {
+    return {
+      startRow: 1,
+      pinCount: 0,
+      leftCol: "b",
+      rightCol: "i",
+      narrow: false,
+      offBoard: true,
+      freeLeft: 0,
+      freeRight: 0,
+      connector: fit.connector,
+    };
+  }
+
+  const fallback = fallbackStraddle(board);
+  let leftCol = fallback.left;
+  let rightCol = fallback.right;
+  const straddle = fit?.straddle;
+  if (straddle) {
+    for (const [header, col] of Object.entries(straddle)) {
+      if (LEFT_HEADERS.test(header)) leftCol = col;
+      else if (RIGHT_HEADERS.test(header)) rightCol = col;
+    }
+  }
+  leftCol = pick(leftCol, cols[0]);
+  rightCol = pick(rightCol, cols[cols.length - 1]);
+
+  const freeLeft = fit?.free_holes_per_row?.left ?? (leftCol === "a" ? 0 : 1);
+  const freeRight = fit?.free_holes_per_row?.right ?? 1;
   const startRow = 1;
-  if (startRow + pinCount - 1 > breadboard.grid.rows) {
+  const seatedCount = fit?.off_board ? 0 : pinCount;
+  if (startRow + seatedCount - 1 > breadboard.grid.rows) {
     throw new FitError(
       `${board.name} needs ${pinCount} rows; this breadboard only has ${breadboard.grid.rows}.`,
     );
   }
-  return { startRow, pinCount, leftCol, rightCol, narrow };
+  return {
+    startRow,
+    pinCount: seatedCount,
+    leftCol,
+    rightCol,
+    narrow: seatedCount <= 8 || /xiao|nano|pico/i.test(board.id),
+    offBoard: false,
+    freeLeft,
+    freeRight,
+    connector: fit?.connector,
+  };
 }
 
 export function boardHoles(
@@ -71,6 +109,7 @@ export function boardHoles(
   breadboard: Breadboard,
 ): Record<string, string> {
   const seat = boardSeat(board, breadboard);
+  if (seat.offBoard) return {};
   const holes: Record<string, string> = {};
   for (const pin of board.pins ?? []) {
     const row = seat.startRow + pin.position.index - 1;
@@ -83,6 +122,27 @@ export function boardHoles(
 
 export function freeHoleOf(seated: string | undefined, fallback: string): string {
   if (!seated) return fallback;
+  return adjacentFreeHole(seated);
+}
+
+function pinHeaderSide(pin: Pin): "left" | "right" {
+  const header = pin.id.split(".")[0] ?? "";
+  if (/^(J3|R|JP2|JDIGITAL)$/i.test(header)) return "right";
+  return "left";
+}
+
+/** Hole a jumper can land in, or `mcu:pinId` when there is no free hole. */
+export function signalEnd(
+  pin: Pin,
+  holes: Record<string, string>,
+  seat: BoardSeat,
+): string {
+  if (seat.offBoard) return `mcu:${pin.id}`;
+  const seated = holes[pin.id];
+  if (!seated) return `mcu:${pin.id}`;
+  const free =
+    pinHeaderSide(pin) === "left" ? seat.freeLeft : seat.freeRight;
+  if (free === 0) return `mcu:${pin.id}`;
   return adjacentFreeHole(seated);
 }
 
@@ -115,7 +175,9 @@ export function packDiscrete(
   for (let r = seat.startRow; r < seat.startRow + seat.pinCount; r++) used.add(r);
 
   const take = (span: number) => {
-    let cursor = seat.startRow + seat.pinCount + 1;
+    let cursor = seat.offBoard
+      ? 1
+      : seat.startRow + seat.pinCount + 1;
     while (cursor + span - 1 <= breadboard.grid.rows) {
       let clear = true;
       for (let r = cursor; r < cursor + span; r++) {
@@ -163,20 +225,25 @@ export function powerHoles(
   holes: Record<string, string>,
   findPinByLabel: (board: Component, label: string) => Pin | undefined,
   findGndPin: (board: Component) => Pin | undefined,
+  seat?: BoardSeat,
 ) {
-  const five = findPinByLabel(board, "5V");
+  const five =
+    findPinByLabel(board, "5V") ?? findPinByLabel(board, "VBUS");
   const gnd =
     findPinByLabel(board, "G") ??
     findPinByLabel(board, "GND") ??
     findGndPin(board);
   const three = findPinByLabel(board, "3V3");
-  const free = (pin: Pin | undefined, fallback: string) =>
-    freeHoleOf(pin ? holes[pin.id] : undefined, fallback);
-  const gndHole = free(gnd, "a1");
+  const endFor = (pin: Pin | undefined, fallback: string) => {
+    if (!pin) return fallback;
+    if (seat) return signalEnd(pin, holes, seat);
+    return freeHoleOf(holes[pin.id], fallback);
+  };
+  const gndHole = endFor(gnd, "a1");
   return {
-    five: free(five, gndHole),
+    five: endFor(five, gndHole),
     gnd: gndHole,
-    three: free(three, gndHole),
+    three: endFor(three, gndHole),
     fivePin: five,
     gndPin: gnd,
     threePin: three,

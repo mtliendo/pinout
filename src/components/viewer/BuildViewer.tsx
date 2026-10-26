@@ -102,9 +102,11 @@ export function BuildViewer() {
       return {
         id,
         qty,
-        name: part
-          ? (payload.components[part.component]?.name ?? part.component)
-          : id,
+        name: part?.note?.startsWith("you'll also need")
+          ? part.note
+          : part
+            ? (payload.components[part.component]?.name ?? part.note ?? part.component)
+            : id,
         component: part?.component ?? id,
       };
     });
@@ -314,7 +316,7 @@ export function BuildViewer() {
                     {needed.map((part) => (
                       <li key={part.id}>
                         <PartGlyph id={part.component} />
-                        <span>
+                        <span style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
                           {part.name}
                           {payload.components[part.component] &&
                           "approx" in

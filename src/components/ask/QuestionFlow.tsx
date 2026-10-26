@@ -3,95 +3,89 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { BoardConfirm } from "@/components/ask/BoardConfirm";
+import { BoardPicker } from "@/components/ask/BoardPicker";
 import { BreadboardPicker } from "@/components/ask/BreadboardPicker";
 import { ComposeError } from "@/components/ask/ComposeError";
-import { fallbackQuestions } from "@/lib/ask-fallback";
+import { IdeaList, PathPicker } from "@/components/ask/PathPicker";
+import { PartsPicker, type CatalogPart } from "@/components/ask/PartsPicker";
+import { type BoardCard } from "@/lib/board-copy";
 import { BREADBOARD_PRESETS, type BreadboardSize } from "@/lib/breadboards";
 import { stripValidatorText } from "@/lib/compose-error";
 import { saveGuide } from "@/lib/guide-store";
+import {
+  AI_CATALOG_IDEAS,
+  CURATED_IDEAS,
+  ideasFor,
+  type CuratedIdea,
+} from "@/lib/ideas/catalog";
 import type { GuidePayload } from "@/lib/types";
 
-type Option = { id: string; label: string; catalogId?: string };
-type Question = {
-  id: string;
-  prompt: string;
-  multi: boolean;
-  options: Option[];
+type Catalog = {
+  boards: BoardCard[];
+  parts: CatalogPart[];
 };
+
+type Status =
+  | "loading"
+  | "board"
+  | "confirm"
+  | "breadboard"
+  | "path"
+  | "curated"
+  | "parts"
+  | "compose"
+  | "error";
 
 export function QuestionFlow() {
   const params = useSearchParams();
   const router = useRouter();
-  const idea = params.get("idea") ?? "";
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const ideaParam = params.get("idea") ?? "";
+  const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const [boardId, setBoardId] = useState<string>("");
   const [breadboard, setBreadboard] = useState<BreadboardSize>(BREADBOARD_PRESETS[2]);
-  const [status, setStatus] = useState<
-    "loading" | "ask" | "breadboard" | "compose" | "error"
-  >("loading");
+  const [ideaId, setIdeaId] = useState<string>("");
+  const [partIds, setPartIds] = useState<string[]>([]);
+  const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!idea) {
-      router.replace("/");
-      return;
-    }
-    const ac = new AbortController();
     fetch("/api/catalog")
       .then((r) => r.json())
-      .then((catalog) => {
-        if (!catalog?.boards) throw new Error("Catalog unavailable");
-        setQuestions(fallbackQuestions(catalog));
-        setStatus("ask");
+      .then((data: Catalog) => {
+        if (!data?.boards?.length) throw new Error("Catalog unavailable");
+        setCatalog(data);
+        setStatus("board");
       })
       .catch((err: Error) => {
         setError(stripValidatorText(err.message));
         setStatus("error");
       });
-    fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idea }),
-      signal: ac.signal,
-    })
-      .then((r) => r.json())
-      .then((data: { questions?: Question[] }) => {
-        if (data.questions?.length) setQuestions(data.questions.slice(0, 5));
-      })
-      .catch(() => undefined);
-    return () => ac.abort();
-  }, [idea, router]);
+  }, []);
 
-  const question = questions[index];
-  const selected = answers[question?.id] ?? [];
-  const remaining = useMemo(
-    () => Math.max(0, questions.length - index - 1),
-    [questions.length, index],
-  );
+  const board = catalog?.boards.find((b) => b.id === boardId);
+  const filteredIdeas = useMemo(() => {
+    if (!board) return [];
+    return ideasFor(board, breadboard.rows, false);
+  }, [board, breadboard.rows]);
+  const aiIdeas = useMemo(() => {
+    if (!board) return [];
+    return ideasFor(board, breadboard.rows, true).filter((i) => i.source === "ai-catalog");
+  }, [board, breadboard.rows]);
 
-  const toggle = (id: string) => {
-    if (!question) return;
-    setAnswers((prev) => {
-      const current = prev[question.id] ?? [];
-      if (question.multi) {
-        const next = current.includes(id)
-          ? current.filter((x) => x !== id)
-          : [...current, id];
-        return { ...prev, [question.id]: next };
-      }
-      return { ...prev, [question.id]: [id] };
-    });
-  };
-
-  const compose = async (finalAnswers: Record<string, string[]>) => {
+  const compose = async (opts: { idea: string; parts?: string[] }) => {
+    if (!boardId) return;
     setStatus("compose");
     const res = await fetch("/api/compose", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        idea,
-        answers: { ...finalAnswers, breadboard: [breadboard.id] },
+        idea: opts.idea,
+        answers: {
+          board: [boardId],
+          breadboard: [breadboard.id],
+          parts: opts.parts ?? [],
+        },
       }),
     });
     const data = await res.json();
@@ -102,17 +96,22 @@ export function QuestionFlow() {
     router.push("/guide");
   };
 
-  const next = async () => {
-    if (!question) return;
-    if (index < questions.length - 1) {
-      setIndex((i) => i + 1);
-      return;
-    }
-    setStatus("breadboard");
-  };
+  const selectedIdea: CuratedIdea | undefined =
+    CURATED_IDEAS.find((i) => i.id === ideaId) ??
+    filteredIdeas.find((i) =>
+      ideaParam.toLowerCase().includes(i.title.split(",")[0].toLowerCase()),
+    );
 
-  const boardQuestionIndex = questions.findIndex((q) => /board/i.test(q.id + q.prompt));
-  const partsQuestionIndex = questions.findIndex((q) => /part/i.test(q.id + q.prompt));
+  const meta =
+    status === "board"
+      ? "1 · Board"
+      : status === "confirm"
+        ? "2 · Confirm"
+        : status === "breadboard"
+          ? "3 · Breadboard"
+          : status === "path" || status === "curated" || status === "parts"
+            ? "4 · Path"
+            : "Getting the parts straight";
 
   return (
     <main className="ask">
@@ -120,16 +119,10 @@ export function QuestionFlow() {
         <Link className="wordmark" href="/">
           Pinout
         </Link>
-        <p className="top-meta">
-          {status === "ask"
-            ? `Question ${index + 1} of ${questions.length}`
-            : status === "breadboard"
-              ? "Breadboard size"
-              : "Getting the parts straight"}
-        </p>
+        <p className="top-meta">{meta}</p>
       </header>
-      <section className="ask-card">
-        <p className="idea-echo">{idea}</p>
+      <section className="ask-card ask-wide">
+        {ideaParam && <p className="idea-echo">{ideaParam}</p>}
         {status === "loading" && <p className="ask-status">Looking at the catalog…</p>}
         {status === "compose" && (
           <p className="ask-status">Assigning safe pins and routing wires…</p>
@@ -138,23 +131,65 @@ export function QuestionFlow() {
           <ComposeError
             message={error}
             onRetry={() => {
-              void compose(answers).catch((err) => {
+              void compose({
+                idea: selectedIdea?.blurb ?? ideaParam,
+                parts: selectedIdea?.partIds ?? partIds,
+              }).catch((err) => {
                 setError(err instanceof Error ? stripValidatorText(err.message) : error);
                 setStatus("error");
               });
             }}
             onOtherBoard={() => {
-              setIndex(Math.max(0, boardQuestionIndex));
-              setStatus("ask");
+              setStatus("board");
               setError("");
             }}
             onOtherParts={() => {
-              setIndex(Math.max(0, partsQuestionIndex));
-              setStatus("ask");
+              setStatus("parts");
               setError("");
             }}
           />
         )}
+
+        {status === "board" && catalog && (
+          <>
+            <h1>Which board are you building on?</h1>
+            <p className="ask-hint">Ten verified boards. Pins come from the spec, never from a guess.</p>
+            <BoardPicker boards={catalog.boards} selected={boardId} onSelect={setBoardId} />
+            <div className="ask-actions">
+              <button type="button" className="btn-ghost" onClick={() => router.push("/")}>
+                Back
+              </button>
+              <button
+                type="button"
+                className="btn-ink"
+                disabled={!boardId}
+                onClick={() => setStatus("confirm")}
+              >
+                This is the board
+              </button>
+            </div>
+          </>
+        )}
+
+        {status === "confirm" && board && (
+          <>
+            <h1>Does this match what you have?</h1>
+            <p className="ask-hint">
+              Drag to rotate, pinch or scroll to zoom. A US quarter sits next to it for scale.
+              Thickness and height marked “about” are estimates.
+            </p>
+            <BoardConfirm board={board} />
+            <div className="ask-actions">
+              <button type="button" className="btn-ghost" onClick={() => setStatus("board")}>
+                Pick another
+              </button>
+              <button type="button" className="btn-ink" onClick={() => setStatus("breadboard")}>
+                Yes, this is mine
+              </button>
+            </div>
+          </>
+        )}
+
         {status === "breadboard" && (
           <>
             <h1>How big is your breadboard?</h1>
@@ -163,21 +198,62 @@ export function QuestionFlow() {
             </p>
             <BreadboardPicker value={breadboard} onChange={setBreadboard} />
             <div className="ask-actions">
-              <button
-                type="button"
-                className="btn-ghost"
-                onClick={() => {
-                  setIndex(Math.max(0, questions.length - 1));
-                  setStatus("ask");
-                }}
-              >
+              <button type="button" className="btn-ghost" onClick={() => setStatus("confirm")}>
+                Back
+              </button>
+              <button type="button" className="btn-ink" onClick={() => setStatus("path")}>
+                Next
+              </button>
+            </div>
+          </>
+        )}
+
+        {status === "path" && (
+          <>
+            <h1>How do you want to start?</h1>
+            <p className="ask-hint">Curated ideas first. Each one is validated on the boards it fits.</p>
+            <PathPicker
+              ideas={filteredIdeas}
+              onCurated={() => setStatus("curated")}
+              onParts={() => setStatus("parts")}
+            />
+            <div className="ask-actions">
+              <button type="button" className="btn-ghost" onClick={() => setStatus("breadboard")}>
+                Back
+              </button>
+            </div>
+          </>
+        )}
+
+        {status === "curated" && (
+          <>
+            <h1>A tested idea</h1>
+            <p className="ask-hint">
+              {filteredIdeas.length
+                ? "These fit this board and breadboard."
+                : "Nothing curated fits. Go back and pick a larger breadboard, or choose parts."}
+            </p>
+            <IdeaList ideas={filteredIdeas} selected={ideaId} onSelect={setIdeaId} />
+            {aiIdeas.length > 0 && (
+              <>
+                <p className="ask-hint">A few fresh ideas from the catalog only.</p>
+                <IdeaList ideas={aiIdeas} selected={ideaId} onSelect={setIdeaId} />
+              </>
+            )}
+            <div className="ask-actions">
+              <button type="button" className="btn-ghost" onClick={() => setStatus("path")}>
                 Back
               </button>
               <button
                 type="button"
                 className="btn-ink"
+                disabled={!ideaId}
                 onClick={() => {
-                  void compose(answers).catch((err) => {
+                  const idea =
+                    CURATED_IDEAS.find((i) => i.id === ideaId) ??
+                    AI_CATALOG_IDEAS.find((i) => i.id === ideaId);
+                  if (!idea) return;
+                  void compose({ idea: idea.blurb, parts: idea.partIds }).catch((err) => {
                     setError(
                       err instanceof Error
                         ? stripValidatorText(err.message)
@@ -192,41 +268,42 @@ export function QuestionFlow() {
             </div>
           </>
         )}
-        {status === "ask" && question && (
+
+        {status === "parts" && catalog && (
           <>
-            <h1>{question.prompt}</h1>
-            <p className="ask-hint">
-              {question.multi
-                ? "Pick every part you already have."
-                : "Pick one."}{" "}
-              {remaining} left after this.
-            </p>
-            <div className="pills">
-              {question.options.map((option) => {
-                const key = option.catalogId || option.id;
-                const on = selected.includes(option.id) || selected.includes(key);
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={on ? "pill on" : "pill"}
-                    onClick={() => toggle(key)}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
+            <h1>Which of these do you already have?</h1>
+            <p className="ask-hint">Catalog parts only, by category. Pinout will not invent a part. “Approx” means pin order or size is not exact.</p>
+            <PartsPicker
+              parts={catalog.parts}
+              selected={partIds}
+              onToggle={(id) =>
+                setPartIds((prev) =>
+                  prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                )
+              }
+            />
             <div className="ask-actions">
-              <button
-                type="button"
-                className="btn-ghost"
-                onClick={() => (index === 0 ? router.push("/") : setIndex((i) => i - 1))}
-              >
+              <button type="button" className="btn-ghost" onClick={() => setStatus("path")}>
                 Back
               </button>
-              <button type="button" className="btn-ink" onClick={() => void next()}>
-                Next
+              <button
+                type="button"
+                className="btn-ink"
+                onClick={() => {
+                  void compose({
+                    idea: ideaParam || "catalog parts on this board",
+                    parts: partIds,
+                  }).catch((err) => {
+                    setError(
+                      err instanceof Error
+                        ? stripValidatorText(err.message)
+                        : "Could not compose a build",
+                    );
+                    setStatus("error");
+                  });
+                }}
+              >
+                Compose the guide
               </button>
             </div>
           </>

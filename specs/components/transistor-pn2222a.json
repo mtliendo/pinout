@@ -1,0 +1,170 @@
+{
+  "id": "transistor-pn2222a",
+  "name": "PN2222A NPN transistor (TO-92)",
+  "kind": "passive",
+  "body": {
+    "length_mm": {
+      "value": 4.8,
+      "approx": true,
+      "note": "TO-92 typical"
+    },
+    "width_mm": {
+      "value": 3.8,
+      "approx": true,
+      "note": "TO-92"
+    },
+    "height_mm": {
+      "value": 4.8,
+      "approx": true,
+      "note": "TO-92"
+    }
+  },
+  "colors": {
+    "body": "#1a1a1a"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "E (emitter)",
+      "note": "MCC PN2222A: 1=E 2=B 3=C, flat face toward you. TO-92 2N2222A from other makers can be C-B-E, and TO-18 cans differ: check YOUR part's datasheet."
+    }
+  ],
+  "pins": [
+    {
+      "id": "E",
+      "label": "emitter",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "B",
+      "label": "base",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "through 1k from the GPIO",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "C",
+      "label": "collector",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "low-side switch"
+      ],
+      "voltage": "≤40V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "vceo_v": 40,
+    "vcbo_v": 75,
+    "vebo_v": 6,
+    "ic_max_ma": 600,
+    "pd_mw": 625,
+    "hfe": "100-300 @150 mA, VCE 10V"
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 40
+    },
+    "logic": {
+      "level": "base driven by GPIO"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "1k base resistor: ~2.6 mA base drive from 3.3V (arithmetic)."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "1k base resistor."
+        ]
+      }
+    },
+    "interface": {
+      "type": "low-side switch"
+    },
+    "current_ma": {
+      "max": 600
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "1k",
+        "between": [
+          "GPIO",
+          "B"
+        ]
+      },
+      {
+        "kind": "flyback diode",
+        "value": "1N4007",
+        "between": [
+          "load+",
+          "C"
+        ],
+        "for": "inductive loads (relay coil, motor)"
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "body"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.mccsemi.com/pdf/Products/PN2222A(TO-92).pdf"
+    ],
+    "revision": "MCC PN2222A (TO-92)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Picked PN2222A over 2N2222: it's the TO-92 part kits ship; the classic 2N2222 is a TO-18 can."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

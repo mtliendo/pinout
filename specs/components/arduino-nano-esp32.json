@@ -1,0 +1,965 @@
+{
+  "id": "arduino-nano-esp32",
+  "name": "Arduino Nano ESP32 (ABX00083, u-blox NORA-W106 / ESP32-S3)",
+  "kind": "board",
+  "chip": "esp32-s3",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "JP1.1 (D13) pin center; USB-C end is -X",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": {
+      "value": 45,
+      "approx": true,
+      "note": "Nano form factor 45 \u00d7 18 mm (Arduino Nano product page); not in ABX00083 datasheet text."
+    },
+    "width_mm": {
+      "value": 18,
+      "approx": true,
+      "note": "Nano form factor."
+    },
+    "pcb_thickness_mm": {
+      "value": 1.6,
+      "approx": true,
+      "note": "Typical."
+    },
+    "height_mm": {
+      "value": 4.5,
+      "approx": true,
+      "note": "Estimate."
+    }
+  },
+  "colors": {
+    "pcb": "#008184",
+    "shield": "#c0c0c0",
+    "silkscreen": "#ffffff"
+  },
+  "headers": [
+    {
+      "id": "JP1",
+      "origin_mm": [
+        0,
+        0.0
+      ],
+      "pitch": 2.54,
+      "count": 15,
+      "orientation": "+X",
+      "pin1": "JP1.1 (D13), USB-C end"
+    },
+    {
+      "id": "JP2",
+      "origin_mm": [
+        0,
+        15.24
+      ],
+      "pitch": 2.54,
+      "count": 15,
+      "orientation": "+X",
+      "pin1": "JP2.1 (D12), USB-C end"
+    }
+  ],
+  "header_row_spacing_mm": {
+    "value": 15.24,
+    "approx": true,
+    "note": "Standard Nano 0.6\" row spacing; Arduino's mechanical drawing is an image, not text."
+  },
+  "pins": [
+    {
+      "id": "JP1.1",
+      "label": "D13",
+      "gpio": 48,
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "SPI SCK",
+        "LED_BUILTIN"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: D13 is also LED_BUILTIN (GPIO48)"
+      ]
+    },
+    {
+      "id": "JP1.2",
+      "label": "3V3",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V out",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.3",
+      "label": "B0",
+      "gpio": 46,
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "boot"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": true,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Board boot pad, not a user pin.",
+        "NEVER: B0 boot pad + strapping - not a user pin"
+      ]
+    },
+    {
+      "id": "JP1.4",
+      "label": "A0",
+      "gpio": 1,
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH0"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.5",
+      "label": "A1",
+      "gpio": 2,
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH1"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.6",
+      "label": "A2",
+      "gpio": 3,
+      "header": 0,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH2"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Caution: strapping (A2)"
+      ]
+    },
+    {
+      "id": "JP1.7",
+      "label": "A3",
+      "gpio": 4,
+      "header": 0,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH3"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.8",
+      "label": "A4",
+      "gpio": 11,
+      "header": 0,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC2_CH0",
+        "I2C SDA"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.9",
+      "label": "A5",
+      "gpio": 12,
+      "header": 0,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC2_CH1",
+        "I2C SCL"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.10",
+      "label": "A6",
+      "gpio": 13,
+      "header": 0,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC2_CH2"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.11",
+      "label": "A7",
+      "gpio": 14,
+      "header": 0,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "ADC2_CH3"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.12",
+      "label": "VBUS",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V (USB only)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "5V only when powered from USB; dead when powered from VIN (Arduino)."
+      ]
+    },
+    {
+      "id": "JP1.13",
+      "label": "B1",
+      "gpio": 0,
+      "header": 0,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 0.0
+      },
+      "functions": [
+        "GPIO",
+        "boot"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": true,
+        "usb": false,
+        "psram_flash_reserved": true,
+        "boot_sensitive": true
+      },
+      "warnings": [
+        "Board boot pad, not a user pin.",
+        "NEVER: B1 boot pad + strapping - not a user pin"
+      ]
+    },
+    {
+      "id": "JP1.14",
+      "label": "GND",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP1.15",
+      "label": "VIN",
+      "gpio": null,
+      "header": 0,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "6-21V in",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "6-21V input to the MP2322 buck."
+      ]
+    },
+    {
+      "id": "JP2.1",
+      "label": "D12",
+      "gpio": 47,
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "SPI CIPO"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.2",
+      "label": "D11",
+      "gpio": 38,
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "SPI COPI"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.3",
+      "label": "D10",
+      "gpio": 21,
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "SPI CS"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.4",
+      "label": "D9",
+      "gpio": 18,
+      "header": 1,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC2_CH7"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.5",
+      "label": "D8",
+      "gpio": 17,
+      "header": 1,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC2_CH6"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.6",
+      "label": "D7",
+      "gpio": 10,
+      "header": 1,
+      "position": {
+        "index": 6,
+        "x": 12.7,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH9"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.7",
+      "label": "D6",
+      "gpio": 9,
+      "header": 1,
+      "position": {
+        "index": 7,
+        "x": 15.24,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH8"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.8",
+      "label": "D5",
+      "gpio": 8,
+      "header": 1,
+      "position": {
+        "index": 8,
+        "x": 17.78,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH7"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.9",
+      "label": "D4",
+      "gpio": 7,
+      "header": 1,
+      "position": {
+        "index": 9,
+        "x": 20.32,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH6"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.10",
+      "label": "D3",
+      "gpio": 6,
+      "header": 1,
+      "position": {
+        "index": 10,
+        "x": 22.86,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH5"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.11",
+      "label": "D2",
+      "gpio": 5,
+      "header": 1,
+      "position": {
+        "index": 11,
+        "x": 25.4,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "ADC1_CH4"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.12",
+      "label": "GND",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 12,
+        "x": 27.94,
+        "y": 15.24
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.13",
+      "label": "RST",
+      "gpio": null,
+      "header": 1,
+      "position": {
+        "index": 13,
+        "x": 30.48,
+        "y": 15.24
+      },
+      "functions": [
+        "reset"
+      ],
+      "voltage": "3.3V logic",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": []
+    },
+    {
+      "id": "JP2.14",
+      "label": "D0/RX",
+      "gpio": 44,
+      "header": 1,
+      "position": {
+        "index": 14,
+        "x": 33.02,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "U0RXD"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: UART0 RX (D0)"
+      ]
+    },
+    {
+      "id": "JP2.15",
+      "label": "D1/TX",
+      "gpio": 43,
+      "header": 1,
+      "position": {
+        "index": 15,
+        "x": 35.56,
+        "y": 15.24
+      },
+      "functions": [
+        "GPIO",
+        "U0TXD"
+      ],
+      "voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)",
+      "flags": {
+        "input_only": false,
+        "strapping": false,
+        "usb": false,
+        "psram_flash_reserved": false,
+        "boot_sensitive": false
+      },
+      "warnings": [
+        "Caution: UART0 TX (D1)"
+      ]
+    }
+  ],
+  "safe_gpio": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    17,
+    18,
+    21,
+    38,
+    47
+  ],
+  "caution_gpio": {
+    "3": "strapping (A2)",
+    "48": "D13 is also LED_BUILTIN (GPIO48)",
+    "43": "UART0 TX (D1)",
+    "44": "UART0 RX (D0)",
+    "45": "blue RGB LED; not on header",
+    "46": "strapping; B0 pad; red RGB LED",
+    "0": "strapping; B1 pad; green RGB LED"
+  },
+  "no_go_gpio": {
+    "46": "B0 boot pad + strapping - not a user pin",
+    "0": "B1 boot pad + strapping - not a user pin"
+  },
+  "logic": {
+    "logic_voltage_v": 3.3,
+    "five_v_logic": false,
+    "pin_voltage": "3.3V logic - 'All digital & analog pins are 3.3 V' (Arduino)"
+  },
+  "power": {
+    "pins": {
+      "3V3": "3.3V out from MP2322GQH buck",
+      "VBUS": "5V from USB only",
+      "VIN": "6-21V in",
+      "GND": "0V"
+    },
+    "note": "Arduino: there is no 5V pin; VBUS only has 5V when powered over USB."
+  },
+  "defaults": {
+    "i2c": {
+      "sda": 11,
+      "scl": 12,
+      "labels": "A4/A5"
+    },
+    "spi": {
+      "sck": 48,
+      "cipo": 47,
+      "copi": 38,
+      "cs": 21,
+      "labels": "D13/D12/D11/D10"
+    },
+    "uart0": {
+      "tx": 43,
+      "rx": 44
+    },
+    "led_builtin": 48,
+    "rgb": {
+      "red": 46,
+      "green": 0,
+      "blue": 45
+    },
+    "pin_numbering_note": "Arduino core defaults to Dn/An labels; GPIO numbers above are what the chip uses."
+  },
+  "breadboard_fit": {
+    "fits_830": true,
+    "straddle": {
+      "JP1": "d",
+      "JP2": "h"
+    },
+    "free_holes_per_row": {
+      "left": 3,
+      "right": 2
+    },
+    "rows": "1-15",
+    "note": "Row spacing approx 15.24 (see header_row_spacing_mm)."
+  },
+  "platformio": {
+    "board": "arduino_nano_esp32",
+    "platform": "espressif32",
+    "framework": "arduino",
+    "source": "https://docs.platformio.org/en/latest/boards/espressif32/arduino_nano_esp32.html",
+    "note": "Official platform works (arduino-esp32 2.x). Pin names follow the Arduino 'Dn' mapping by default."
+  },
+  "features": [
+    {
+      "id": "usb_c",
+      "kind": "usb",
+      "connector": "USB-C (native USB, GPIO19/20)",
+      "position_mm": {
+        "x": -2,
+        "y": 7.62
+      },
+      "approx": true
+    },
+    {
+      "id": "led_builtin",
+      "kind": "led",
+      "gpio": 48,
+      "approx": true,
+      "position_mm": {
+        "x": 6,
+        "y": 3
+      }
+    },
+    {
+      "id": "led_rgb",
+      "kind": "led_rgb",
+      "gpio": {
+        "red": 46,
+        "green": 0,
+        "blue": 45
+      },
+      "active": "LOW (approx)",
+      "approx": true,
+      "position_mm": {
+        "x": 6,
+        "y": 12
+      }
+    },
+    {
+      "id": "btn_reset",
+      "kind": "button",
+      "label": "RESET (PB1)",
+      "approx": true,
+      "position_mm": {
+        "x": 20,
+        "y": 7.6
+      }
+    },
+    {
+      "id": "antenna",
+      "kind": "pcb_antenna",
+      "approx": true,
+      "position_mm": {
+        "x": 38,
+        "y": 7.6
+      }
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "https://docs.arduino.cc/resources/datasheets/ABX00083-datasheet.pdf",
+      "https://docs.arduino.cc/resources/pinouts/ABX00083-full-pinout.pdf",
+      "https://docs.arduino.cc/hardware/nano/"
+    ],
+    "revision": "ABX00083 datasheet + full pinout PDF",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Header order from datasheet tables JP1/JP2; GPIO numbers from the full pinout PDF. Datasheet lists D0/RX and D1/TX descriptions swapped; trust the label."
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "id": "74ahct125",
+  "name": "74AHCT125 quad buffer (one gate used)",
+  "kind": "passive",
+  "body": {
+    "length_mm": {
+      "value": 19.3,
+      "approx": true,
+      "note": "DIP-14 body; not dimensioned from a fetched datasheet"
+    },
+    "width_mm": {
+      "value": 6.4,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 8,
+      "approx": true,
+      "note": "approx"
+    }
+  },
+  "colors": {
+    "body": "#1a1a1a"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "DIP / breakout pads",
+      "origin_mm": [0, 0],
+      "pitch": 2.54,
+      "count": 5,
+      "orientation": "+X",
+      "pin1": "VCC",
+      "pin_order_approx": true,
+      "note": "This guide uses one gate: VCC, GND, OE, A, Y. Read the silk on YOUR package."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VCC",
+      "label": "VCC",
+      "header": 0,
+      "position": { "index": 1, "x": 0.0, "y": 0.0 },
+      "functions": ["power"],
+      "voltage": "5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": { "index": 2, "x": 2.54, "y": 0.0 },
+      "functions": ["GND"],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "OE",
+      "label": "OE (active LOW)",
+      "header": 0,
+      "position": { "index": 3, "x": 5.08, "y": 0.0 },
+      "functions": ["enable"],
+      "voltage": "tie to GND to enable",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "A",
+      "label": "A",
+      "header": 0,
+      "position": { "index": 4, "x": 7.62, "y": 0.0 },
+      "functions": ["digital in"],
+      "voltage": "MCU GPIO (3.3V OK when VCC is 5V on AHCT)",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "Y",
+      "label": "Y",
+      "header": 0,
+      "position": { "index": 5, "x": 10.16, "y": 0.0 },
+      "functions": ["digital out"],
+      "voltage": "5V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "family": "74AHCT125",
+    "note": "AHCT accepts 3.3V TTL input when powered from 5V."
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": { "min": 4.5, "max": 5.5 },
+    "logic": { "level": "5V out; AHCT input is 3.3V-tolerant" },
+    "compat": {
+      "mcu_3v3": { "status": "yes", "needs": [] },
+      "mcu_5v": { "status": "yes", "needs": [] }
+    },
+    "interface": { "type": "logic buffer" },
+    "current_ma": { "note": "gate current" },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [],
+    "approx_fields": ["body", "pin_order"]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.ti.com/lit/ds/symlink/sn74ahct125.pdf"
+    ],
+    "revision": "TI SN74AHCT125 (one-gate subset for Pinout wiring)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

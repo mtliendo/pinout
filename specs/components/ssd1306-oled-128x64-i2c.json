@@ -134,5 +134,50 @@
     "revision": "SSD1306 rev 1.1",
     "verified_by": "Maker",
     "verified_on": "2026-10-26"
+  },
+  "part": {
+    "category": "display",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5,
+      "note": "5V only on regulated modules"
+    },
+    "logic": {
+      "level": "= VCC (pull-ups to VCC)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 3V3."
+        ]
+      },
+      "mcu_5v": {
+        "status": "with_conditions",
+        "needs": [
+          "Only if the module has a regulator; pull-ups then go to 5V, fine for AVR."
+        ]
+      }
+    },
+    "interface": {
+      "type": "I2C",
+      "i2c_addresses": [
+        "0x3C",
+        "0x3D"
+      ]
+    },
+    "current_ma": {
+      "note": "Not in fetched sources"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [
+      "adafruit/Adafruit SSD1306",
+      "adafruit/Adafruit GFX Library"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
   }
 }

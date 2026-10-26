@@ -71,3 +71,11 @@ Source: Espressif DevKitC-1 v1.1 user guide (header tables J1/J3, RGB LED, octal
   - Straddle like that, and take wires from columns a and j into the rails (used in builds/pir-servo-s3.json).
   - If you need more room, either use two breadboards side by side (one header per board) or plug only one header in and run jumpers.
 - Rails: 4 × 50 tie points (BusBoard BB830). Some boards split each rail at the middle; look for a break in the red/blue line and bridge it. Rail order varies, so trust the printed + and - markings.
+
+## Second batch (2026-10-26)
+- Chip files in `chips/` are the pin-safety source of truth; boards reference them with `chip`.
+- ESP32 classic: GPIO16/17 are kept caution at chip level (PSRAM on WROVER), so the DevKitC V4 (WROOM-32E, where they're free) still leaves them out of safe_gpio.
+- DevKitC V4 rows are 25.40 mm apart: no free hole on the J2 side of an 830 breadboard.
+- Uno and Nano are 5V logic: SSD1306 and other 3.3V parts need care.
+- C6 Arduino needs the pioarduino platform; Pico W needs maxgerhardt's platform (`rpipicow`).
+- XIAO ESP32C3 re-checked against Seeed wiki: GPIO2/8/9 strapping, D4=GPIO6 SDA, D5=GPIO7 SCL. Spec is correct.
