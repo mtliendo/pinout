@@ -1203,7 +1203,7 @@ function requireMatch(label: string, text: string, needle: RegExp) {
   requireMatch(
     "Nano ESP32 NeoPixel pinned for Arduino 2.x",
     nanoIni,
-    /adafruit\/Adafruit NeoPixel@1\.12\.3/,
+    /adafruit\/Adafruit NeoPixel @ 1\.12\.3/,
   );
 }
 

@@ -2344,7 +2344,7 @@ function sketchFor(
     // (Nano ESP32 failed to link 1/113 on GitHub). C6/pioarduino is 3.x.
     roles.neo
       ? pio.platform === "espressif32"
-        ? "adafruit/Adafruit NeoPixel@1.12.3"
+        ? "adafruit/Adafruit NeoPixel @ 1.12.3"
         : "adafruit/Adafruit NeoPixel"
       : "",
     roles.lcd ? "marcoschwartz/LiquidCrystal_I2C" : "",
