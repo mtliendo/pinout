@@ -186,6 +186,10 @@ export function cameraFor(
       return { position: [-28, 145, -95], lookAt: center, fov: 40 };
     case "top":
     default:
-      return { position: [center[0] - 8, 175, center[2] - 110], lookAt: center, fov: 36 };
+      return {
+        position: [center[0] - 75, 125, center[2] - 125],
+        lookAt: [center[0] * 0.38, 5, 12],
+        fov: 40,
+      };
   }
 }

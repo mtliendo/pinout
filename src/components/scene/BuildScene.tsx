@@ -158,11 +158,11 @@ export function CameraRig({
       cam.fov += (40 - cam.fov) * 0.08;
       cam.updateProjectionMatrix();
       state.camera.position.set(
-        cx + Math.sin(spin.current) * 155,
-        110,
-        cz + Math.cos(spin.current) * 130,
+        36 + Math.sin(spin.current) * 170,
+        125,
+        14 + Math.cos(spin.current) * 145,
       );
-      state.camera.lookAt(cx, 6, cz);
+      state.camera.lookAt(36, 8, 14);
       return;
     }
     pos.current.lerp(new THREE.Vector3(...target.position), 1 - Math.pow(0.001, delta));
