@@ -52,7 +52,10 @@ function compileOne(
   const result = spawnSync(pio, ["run", "-d", dir], {
     encoding: "utf8",
     timeout: 600_000,
-    env: { ...process.env, PLATFORMIO_CORE_DIR: join(root, ".pio-core") },
+    env: {
+      ...process.env,
+      PLATFORMIO_CORE_DIR: process.env.PLATFORMIO_CORE_DIR ?? join(root, ".pio-core"),
+    },
   });
   if (result.status === 0) return null;
   const out = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;

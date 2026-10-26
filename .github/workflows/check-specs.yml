@@ -8,17 +8,35 @@ jobs:
   specs-and-compile:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      PLATFORMIO_CORE_DIR: ${{ github.workspace }}/.pio-core
     steps:
       - uses: actions/checkout@v4
+
+      # Read packageManager from package.json. Do not set `version` here —
+      # pnpm/action-setup errors if it disagrees with package.json.
+      - uses: pnpm/action-setup@v4
+
+      # pnpm must already be on PATH so setup-node can hash the store.
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.pio-core
+          key: ${{ runner.os }}-pio-${{ hashFiles('pnpm-lock.yaml', 'scripts/check-compile.ts', 'src/lib/compose.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
+
       - name: PlatformIO
         run: pipx install platformio
+
       - name: check:specs (includes pio compile)
         run: pnpm check:specs
