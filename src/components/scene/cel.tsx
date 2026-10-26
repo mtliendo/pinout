@@ -39,7 +39,7 @@ export function mute(hex: string, faded: boolean): string {
 
 function hullPad(dims: number[]) {
   const m = Math.min(...dims.filter((n) => n > 0));
-  return Math.min(2.1, Math.max(0.85, m * 0.12));
+  return Math.min(1.05, Math.max(0.42, m * 0.06));
 }
 
 export function CelBox({
@@ -64,7 +64,7 @@ export function CelBox({
       <mesh>
         <boxGeometry args={args} />
         <meshBasicMaterial color={fill} toneMapped={false} />
-        <Edges threshold={18} color={line} lineWidth={faded ? 1.4 : 2.35} />
+        <Edges threshold={18} color={line} lineWidth={faded ? 0.7 : 1.18} />
       </mesh>
       <mesh>
         <boxGeometry args={[l + pad, h + pad, w + pad]} />
@@ -96,7 +96,7 @@ export function CelCyl({
       <mesh>
         <cylinderGeometry args={[rTop, rBot, h, seg]} />
         <meshBasicMaterial color={fill} toneMapped={false} />
-        <Edges threshold={22} color={line} lineWidth={faded ? 1.2 : 1.7} />
+        <Edges threshold={22} color={line} lineWidth={faded ? 0.6 : 0.85} />
       </mesh>
       <mesh>
         <cylinderGeometry args={[rTop + pad * 0.45, rBot + pad * 0.45, h + pad, seg]} />
@@ -119,7 +119,7 @@ export function CelSphere({
 }) {
   const fill = mute(color, Boolean(faded));
   const line = faded ? PALE_LINE : INK;
-  const pad = Math.max(0.55, radius * 0.06);
+  const pad = Math.max(0.28, radius * 0.03);
   return (
     <group position={position}>
       <mesh>
@@ -149,7 +149,7 @@ export function CelPin({
     <mesh position={position}>
       <boxGeometry args={args} />
       <meshBasicMaterial color={fill} toneMapped={false} />
-      <Edges threshold={15} color={line} lineWidth={1.4} />
+      <Edges threshold={15} color={line} lineWidth={0.7} />
     </mesh>
   );
 }

@@ -79,19 +79,20 @@ async function answerQuestions(page: Page) {
   );
   expect(left).toBe(questions - 1);
 
-  for (let i = 0; i < 5; i++) {
-    await pickRelevantPills(page);
+  for (let i = 0; i < 8; i++) {
     const compose = page.getByRole("button", { name: "Compose the guide" });
     if (await compose.isVisible()) {
+      await expect(page.getByTestId("breadboard-picker")).toBeVisible();
       await compose.click();
       return questions;
     }
+    await pickRelevantPills(page);
     const next = page.getByRole("button", { name: "Next" });
     await expect(next).toBeVisible();
     await next.click();
     await expect(page.locator(".ask-card h1")).toBeVisible();
   }
-  throw new Error("Did not reach compose after 5 questions");
+  throw new Error("Did not reach compose after questions + breadboard");
 }
 
 function targetHoleForStep(guide: Guide, n: number) {
@@ -173,8 +174,19 @@ async function walkGuide(page: Page, dwell = 950, guide?: Guide) {
   await expect(page.getByRole("button", { name: "Copy" }).first()).toBeVisible();
 }
 
-function assertSafePins(guide: Guide) {
-  expect(guide.build.board).toBe("esp32-s3-devkitc-1-n16r8");
+function assertSafePins(guide: Guide, allowed?: Set<number>) {
+  const board = guide.components[guide.build.board];
+  const safe =
+    allowed ??
+    new Set(
+      ((board as { safe_gpio?: number[] } | undefined)?.safe_gpio ?? []).filter(
+        (n): n is number => typeof n === "number",
+      ),
+    );
+  if (!allowed && !safe.size) {
+    expect(guide.build.board).toBe("esp32-s3-devkitc-1-n16r8");
+    for (const gpio of SAFE_S3) safe.add(gpio);
+  }
   const pins = new Map(
     (guide.components[guide.build.board]?.pins ?? []).map((pin) => [pin.id, pin.gpio]),
   );
@@ -184,19 +196,21 @@ function assertSafePins(guide: Guide) {
       const pinId = end.startsWith("mcu:") ? end.slice(4) : end.replace(/^J/, "J");
       const gpio = pins.get(end.startsWith("mcu:") ? pinId : end);
       if (typeof gpio === "number") used.add(gpio);
-      const hole = end.match(/^([aj])(\d+)$/);
-      if (hole) {
-        const row = Number(hole[2]);
-        const header = hole[1] === "a" ? `J1.${row}` : `J3.${row}`;
-        const mapped = pins.get(header);
-        if (typeof mapped === "number") used.add(mapped);
+      if (guide.build.board === "esp32-s3-devkitc-1-n16r8") {
+        const hole = end.match(/^([aj])(\d+)$/);
+        if (hole) {
+          const row = Number(hole[2]);
+          const header = hole[1] === "a" ? `J1.${row}` : `J3.${row}`;
+          const mapped = pins.get(header);
+          if (typeof mapped === "number") used.add(mapped);
+        }
       }
     }
     expect(endIsReal(wire.from)).toBeTruthy();
     expect(endIsReal(wire.to)).toBeTruthy();
   }
   for (const gpio of used) {
-    expect(SAFE_S3.has(gpio), `GPIO${gpio} is not safe`).toBe(true);
+    expect(safe.has(gpio), `GPIO${gpio} is not safe on ${guide.build.board}`).toBe(true);
     expect([35, 36, 37]).not.toContain(gpio);
   }
 }
@@ -214,7 +228,13 @@ async function composeIdea(request: APIRequestContext, idea: string) {
     await request.get(shareUrl("/"));
   }
   const res = await request.post(shareUrl("/api/compose"), {
-    data: { idea, answers: { board: ["esp32-s3-devkitc-1-n16r8"] } },
+    data: {
+      idea,
+      answers: {
+        board: ["esp32-s3-devkitc-1-n16r8"],
+        breadboard: ["full-830"],
+      },
+    },
   });
   expect(res.ok(), await res.text()).toBeTruthy();
   return (await res.json()) as Guide;
@@ -324,6 +344,83 @@ test.describe("Pinout preview", () => {
     const bench = page.locator(".bench");
     const box = await bench.boundingBox();
     expect(box?.width).toBeLessThanOrEqual(820);
+    expect(flush()).toEqual([]);
+  });
+
+  test("every catalog board composes the reference idea set", async ({ request }) => {
+    if (SHARE) await request.get(shareUrl("/"));
+    const catalogRes = await request.get(shareUrl("/api/catalog"));
+    expect(catalogRes.ok()).toBeTruthy();
+    const catalog = (await catalogRes.json()) as {
+      boards: Array<{ id: string; safe_gpio: number[] }>;
+    };
+    expect(catalog.boards.length).toBeGreaterThan(0);
+    const ideas = [
+      "motion-triggered servo that waves when someone walks by",
+      "button that toggles an LED and shows status on an OLED",
+    ];
+    for (const board of catalog.boards) {
+      for (const idea of ideas) {
+        const res = await request.post(shareUrl("/api/compose"), {
+          data: {
+            idea,
+            answers: { board: [board.id], breadboard: ["full-830"] },
+          },
+        });
+        expect(res.ok(), `${board.id} × ${idea}: ${await res.text()}`).toBeTruthy();
+        const guide = (await res.json()) as Guide;
+        expect(guide.build.board).toBe(board.id);
+        assertSafePins(guide, new Set(board.safe_gpio));
+        if (board.id === "xiao-esp32c3" && /oled/i.test(idea)) {
+          const cpp =
+            guide.build.steps.find((step) => step.heading.toLowerCase().includes("flash"))
+              ?.n != null
+              ? JSON.stringify(guide)
+              : "";
+          expect(cpp).toMatch(/SDA_PIN = 6/);
+          expect(cpp).toMatch(/SCL_PIN = 7/);
+        }
+      }
+    }
+  });
+
+  test("iPhone 390 shows the breadboard picker, reset view, and a C3 compose", async ({
+    page,
+    request,
+  }) => {
+    const flush = trackConsole(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+    if (SHARE) await request.get(shareUrl("/"));
+    const c3 = await request.post(shareUrl("/api/compose"), {
+      data: {
+        idea: "button that toggles an LED and shows status on an OLED",
+        answers: { board: ["xiao-esp32c3"], breadboard: ["mini-170"] },
+      },
+    });
+    expect(c3.ok(), await c3.text()).toBeTruthy();
+    const guide = (await c3.json()) as Guide;
+    expect(guide.build.board).toBe("xiao-esp32c3");
+    assertSafePins(guide, new Set([3, 4, 5, 6, 7, 10]));
+    expect(JSON.stringify(guide)).toMatch(/SDA_PIN = 6/);
+    expect(JSON.stringify(guide)).toMatch(/SCL_PIN = 7/);
+
+    await unlock(page);
+    await page.getByRole("button", { name: "Button, LED and OLED" }).click();
+    await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
+    for (let i = 0; i < 8; i++) {
+      if (await page.getByTestId("breadboard-picker").isVisible()) break;
+      await pickRelevantPills(page);
+      const next = page.getByRole("button", { name: "Next" });
+      if (await next.isVisible()) await next.click();
+    }
+    await expect(page.getByTestId("breadboard-picker")).toBeVisible();
+    await expect(page.getByText("Mini 170")).toBeVisible();
+
+    await unlock(page);
+    await page.locator(".preview-meta").getByRole("button", { name: "Build this" }).click();
+    await expect(page.locator(".bench")).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByTestId("reset-view")).toBeVisible();
+    await page.getByTestId("reset-view").click();
     expect(flush()).toEqual([]);
   });
 });

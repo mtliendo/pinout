@@ -1,14 +1,25 @@
 import {
   adjacentFreeHole,
+  defaultBusGpio,
   findGndPin,
   findPinByGpio,
   findPinByLabel,
-  headerSide,
   pinHasFunction,
   preferredSafeGpio,
+  snapRailRow,
 } from "./geometry";
+import {
+  boardHoles,
+  boardSeat,
+  FitError,
+  packDiscrete,
+  powerHoles,
+  type PackedLayout,
+} from "./seat";
 import type { Breadboard, Build, Component, Pin } from "./specs/schema";
 import { assertValidBuild } from "./specs/validate";
+
+export { FitError };
 
 export type SignalNeed = {
   role: string;
@@ -40,49 +51,16 @@ function unique<T>(items: T[]): T[] {
   return [...new Set(items)];
 }
 
-function boardHoles(board: Component): Record<string, string> {
-  const holes: Record<string, string> = {};
-  if (board.id.startsWith("xiao-")) {
-    for (const pin of board.pins ?? []) {
-      const row = pin.position.index + 29;
-      holes[pin.id] = headerSide(board, pin) === "left" ? `b${row}` : `f${row}`;
-    }
-    return holes;
-  }
-  for (const pin of board.pins ?? []) {
-    const row = pin.position.index;
-    holes[pin.id] = headerSide(board, pin) === "left" ? `b${row}` : `i${row}`;
-  }
-  return holes;
-}
-
-function powerHoles(board: Component, holes: Record<string, string>) {
-  const five = findPinByLabel(board, "5V");
-  const gnd =
-    findPinByLabel(board, "G") ??
-    findPinByLabel(board, "GND") ??
-    findGndPin(board);
-  const three = findPinByLabel(board, "3V3");
-  const free = (pin: Pin | undefined, fallback: string) => {
-    if (!pin) return fallback;
-    const seated = holes[pin.id];
-    if (!seated) return fallback;
-    return seated.startsWith("i") || seated.startsWith("f") || seated.startsWith("j")
-      ? `j${pin.position.index}`
-      : `a${pin.position.index}`;
-  };
-  return {
-    five: free(five, "a21"),
-    gnd: free(gnd, "a22"),
-    three: free(three, "a1"),
-    fivePin: five,
-    gndPin: gnd,
-    threePin: three,
-  };
+function railOf(
+  rail: "L+" | "L-",
+  row: number,
+  breadboard: Breadboard,
+): string {
+  const clamped = Math.max(1, Math.min(row, breadboard.grid.rows));
+  return `${rail}@${snapRailRow(clamped, breadboard.grid.rows)}`;
 }
 
 function freeHoleForBoardPin(
-  board: Component,
   pin: Pin,
   holes: Record<string, string>,
 ): string {
@@ -94,13 +72,25 @@ function freeHoleForBoardPin(
 export function assignPins(
   board: Component,
   needs: SignalNeed[],
+  breadboard: Breadboard,
 ): AssignedPin[] {
   const preferred = preferredSafeGpio(board);
   const used = new Set<number>();
-  const holes = boardHoles(board);
+  const holes = boardHoles(board, breadboard);
   const assigned: AssignedPin[] = [];
 
   const pick = (need: SignalNeed): number => {
+    if (need.capability === "i2c_sda" || need.capability === "i2c_scl") {
+      const listed = defaultBusGpio(board, need.capability);
+      if (
+        listed != null &&
+        preferred.includes(listed) &&
+        !used.has(listed)
+      ) {
+        used.add(listed);
+        return listed;
+      }
+    }
     const scored = preferred
       .filter((g) => !used.has(g))
       .map((gpio) => {
@@ -132,7 +122,7 @@ export function assignPins(
       gpio,
       pin,
       hole: holes[pin.id],
-      freeHole: freeHoleForBoardPin(board, pin, holes),
+      freeHole: freeHoleForBoardPin(pin, holes),
     });
   }
   return assigned;
@@ -183,7 +173,8 @@ export function composeBuild(
     board.id === "esp32-s3-devkitc-1-n16r8" &&
     roles.pir &&
     roles.servo &&
-    roles.led;
+    roles.led &&
+    breadboard.grid.rows >= 63;
 
   if (isReferenceShape) {
     const build = composePirServo(board, request);
@@ -191,10 +182,15 @@ export function composeBuild(
     return build;
   }
 
-  const assigned = assignPins(board, needsFor(roles));
+  const seat = boardSeat(board, breadboard);
+  const holes = boardHoles(board, breadboard);
+  const assigned = assignPins(board, needsFor(roles), breadboard);
   const byRole = Object.fromEntries(assigned.map((a) => [a.role, a]));
-  const holes = boardHoles(board);
-  const power = powerHoles(board, holes);
+  const power = powerHoles(board, holes, findPinByLabel, findGndPin);
+  const layout = packDiscrete(seat, breadboard, {
+    led: roles.led,
+    button: roles.button,
+  });
 
   const parts: Build["parts"] = [
     { id: "bb", component: "breadboard-830", qty: 1 },
@@ -211,40 +207,39 @@ export function composeBuild(
     parts.push({ id: "oled", component: "ssd1306-oled-128x64-i2c", qty: 1 });
   parts.push(...GENERIC_JUMPERS);
 
+  const endRow = seat.startRow + seat.pinCount - 1;
   const placements: Build["placements"] = [
     {
       part: "mcu",
-      anchor_hole: board.id.startsWith("xiao-") ? "b30" : "b1",
+      anchor_hole: `${seat.leftCol}${seat.startRow}`,
       rotation_deg: 0,
       pin_holes: holes,
-      note: board.id.startsWith("xiao-")
-        ? "XIAO straddles the gap: left header in column b, right in column f, rows 30-36."
-        : "Straddles the gap: J1 in column b, J3 in column i, rows 1-22.",
+      note: `${board.name.split("(")[0].trim()} straddles the gap: left header in column ${seat.leftCol}, right in column ${seat.rightCol}, rows ${seat.startRow}–${endRow}.`,
     },
   ];
 
   if (roles.led) {
     placements.push({
       part: "r1",
-      anchor_hole: "b30",
+      anchor_hole: layout.resistorFrom,
       rotation_deg: 0,
-      pin_holes: { "1": "b30", "2": "b34" },
+      pin_holes: { "1": layout.resistorFrom, "2": layout.resistorTo },
     });
     placements.push({
       part: "led1",
-      anchor_hole: "c35",
+      anchor_hole: layout.ledCathode,
       rotation_deg: 180,
-      pin_holes: { A: "c34", K: "c35" },
-      note: "Long leg (anode) in row 34.",
+      pin_holes: { A: layout.ledAnode, K: layout.ledCathode },
+      note: `Long leg (anode) in ${layout.ledAnode}.`,
     });
   }
 
   if (roles.button) {
     placements.push({
       part: "btn",
-      anchor_hole: "e40",
+      anchor_hole: layout.buttonHoles["1"],
       rotation_deg: 0,
-      pin_holes: { "1": "e40", "2": "e42", "3": "f40", "4": "f42" },
+      pin_holes: layout.buttonHoles,
       note: "Straddles the center gap. Diagonal legs 1 and 4 are the switch.",
     });
   }
@@ -262,7 +257,7 @@ export function composeBuild(
       part: "servo",
       anchor_hole: null,
       off_board: true,
-      position_hint: "right of the breadboard, near row 45",
+      position_hint: "right of the breadboard, near the far end",
     });
   }
   if (roles.oled) {
@@ -281,7 +276,7 @@ export function composeBuild(
     add({
       id: "w_5v",
       from: power.five,
-      to: "L+@21",
+      to: railOf("L+", rowOfHole(power.five), breadboard),
       color: "red",
       length_mm: 20,
       net: "5V",
@@ -290,17 +285,18 @@ export function composeBuild(
   add({
     id: "w_gnd",
     from: power.gnd,
-    to: "L-@22",
+    to: railOf("L-", rowOfHole(power.gnd), breadboard),
     color: "black",
     length_mm: 20,
     net: "GND",
   });
 
+  const far = breadboard.grid.rows;
   if (roles.pir && byRole.pir) {
     add({
       id: "w_pir_vcc",
       from: "pir:VCC",
-      to: "L+@40",
+      to: railOf("L+", far - 8, breadboard),
       color: "red",
       length_mm: 150,
       net: "5V",
@@ -308,7 +304,7 @@ export function composeBuild(
     add({
       id: "w_pir_gnd",
       from: "pir:GND",
-      to: "L-@42",
+      to: railOf("L-", far - 6, breadboard),
       color: "black",
       length_mm: 150,
       net: "GND",
@@ -327,7 +323,7 @@ export function composeBuild(
     add({
       id: "w_srv_vcc",
       from: "servo:VCC",
-      to: "L+@45",
+      to: railOf("L+", far - 4, breadboard),
       color: "red",
       length_mm: 100,
       net: "5V",
@@ -335,7 +331,7 @@ export function composeBuild(
     add({
       id: "w_srv_gnd",
       from: "servo:GND",
-      to: "L-@46",
+      to: railOf("L-", far - 3, breadboard),
       color: "black",
       length_mm: 100,
       net: "GND",
@@ -355,15 +351,15 @@ export function composeBuild(
     add({
       id: "w_led",
       from: byRole.led.freeHole,
-      to: "a30",
+      to: layout.ledSignal,
       color: "purple",
       length_mm: 65,
       net: "LED",
     });
     add({
       id: "w_led_gnd",
-      from: "a35",
-      to: "L-@35",
+      from: layout.ledGndHole,
+      to: railOf("L-", rowOfHole(layout.ledGndHole), breadboard),
       color: "black",
       length_mm: 20,
       net: "GND",
@@ -373,7 +369,7 @@ export function composeBuild(
   if (roles.button && byRole.button) {
     add({
       id: "w_btn",
-      from: "a40",
+      from: layout.buttonSignal,
       to: byRole.button.freeHole,
       color: "green",
       length_mm: 40,
@@ -381,8 +377,8 @@ export function composeBuild(
     });
     add({
       id: "w_btn_gnd",
-      from: "j42",
-      to: "L-@42",
+      from: layout.buttonGndHole,
+      to: railOf("L-", rowOfHole(layout.buttonGndHole), breadboard),
       color: "black",
       length_mm: 30,
       net: "GND",
@@ -401,7 +397,7 @@ export function composeBuild(
     add({
       id: "w_oled_gnd",
       from: "oled:GND",
-      to: "L-@18",
+      to: railOf("L-", Math.min(18, far), breadboard),
       color: "black",
       length_mm: 80,
       net: "GND",
@@ -429,6 +425,8 @@ export function composeBuild(
     roles,
     byRole,
     power,
+    layout,
+    seat,
     idea: request.idea,
   });
 
@@ -450,6 +448,11 @@ export function composeBuild(
 
   assertValidBuild(build, components, breadboard);
   return build;
+}
+
+function rowOfHole(hole: string): number {
+  const match = hole.match(/(\d+)$/);
+  return match ? Number(match[1]) : 1;
 }
 
 function slugify(value: string): string {
@@ -686,12 +689,15 @@ function buildSteps(args: {
   roles: ReturnType<typeof detectRoles>;
   byRole: Record<string, AssignedPin>;
   power: ReturnType<typeof powerHoles>;
+  layout: PackedLayout;
+  seat: ReturnType<typeof boardSeat>;
   idea: string;
 }): Build["steps"] {
-  const { board, roles, byRole, power } = args;
+  const { board, roles, byRole, power, layout, seat } = args;
   const steps: Build["steps"] = [];
   let n = 1;
-  const xiao = board.id.startsWith("xiao-");
+  const endRow = seat.startRow + seat.pinCount - 1;
+  const xiao = /xiao/i.test(board.id);
 
   steps.push({
     n: n++,
@@ -699,13 +705,13 @@ function buildSteps(args: {
       ? "Seat the XIAO across the gap"
       : "Seat the board across the gap",
     body: xiao
-      ? "Unplug USB. Press the XIAO so the left header sits in column b and the right header in column f, rows 30 to 36. USB points toward row 29."
-      : "Unplug USB. Press the DevKit into the breadboard so the left header goes in column b and the right header in column i, rows 1 to 22. Antenna end at row 1.",
+      ? `Unplug USB. Press the XIAO so the left header sits in column ${seat.leftCol} and the right header in column ${seat.rightCol}, rows ${seat.startRow} to ${endRow}. USB points toward the near end.`
+      : `Unplug USB. Press the board into the breadboard so the left header goes in column ${seat.leftCol} and the right header in column ${seat.rightCol}, rows ${seat.startRow} to ${endRow}.`,
     parts_needed: ["bb", "mcu"],
     highlight: ["mcu"],
     connections_added: [],
     camera: "top",
-    callout: xiao ? "b30" : "b1",
+    callout: `${seat.leftCol}${seat.startRow}`,
     safety: ["Push both headers evenly so pins do not bend."],
     check: "The board sits flat and every pin is in a hole.",
   });
@@ -769,12 +775,12 @@ function buildSteps(args: {
     steps.push({
       n: n++,
       heading: "Seat the tactile button",
-      body: `Straddle the center gap at rows 40 and 42. Jumper from a40 to ${byRole.button.freeHole} (GPIO${byRole.button.gpio}). Jumper from j42 across to the left − rail. The sketch uses INPUT_PULLUP.`,
+      body: `Straddle the center gap at ${layout.buttonHoles["1"]} and ${layout.buttonHoles["2"]}. Jumper from ${layout.buttonSignal} to ${byRole.button.freeHole} (GPIO${byRole.button.gpio}). Jumper from ${layout.buttonGndHole} across to the left − rail. The sketch uses INPUT_PULLUP.`,
       parts_needed: ["btn", "jumpers_mm"],
       highlight: ["btn", byRole.button.pin.id],
       connections_added: ["w_btn", "w_btn_gnd"],
       camera: "top-zoom-rows-30-35",
-      callout: "e40",
+      callout: layout.buttonHoles["1"],
       safety: ["Use diagonal legs so you actually close the switch."],
       check: "Pressing the button joins the GPIO row to ground.",
     });
@@ -802,14 +808,14 @@ function buildSteps(args: {
     steps.push({
       n: n++,
       heading: "Add the LED and resistor",
-      body: `Purple jumper from ${byRole.led.freeHole} (GPIO${byRole.led.gpio}) to a30. 220 Ω between b30 and b34. LED long leg in c34, short leg in c35. Black jumper from a35 to the − rail.`,
+      body: `Purple jumper from ${byRole.led.freeHole} (GPIO${byRole.led.gpio}) to ${layout.ledSignal}. 220 Ω between ${layout.resistorFrom} and ${layout.resistorTo}. LED long leg in ${layout.ledAnode}, short leg in ${layout.ledCathode}. Black jumper from ${layout.ledGndHole} to the − rail.`,
       parts_needed: ["led1", "r1", "jumpers_mm"],
       highlight: ["led1", "r1", byRole.led.pin.id],
       connections_added: ["w_led", "w_led_gnd"],
       camera: "top-zoom-rows-30-35",
-      callout: "c34",
+      callout: layout.ledAnode,
       safety: ["The resistor must sit in series with the LED."],
-      check: "Row 30: purple + resistor. Row 34: resistor + long leg. Row 35: short leg + black.",
+      check: `${layout.ledSignal}: purple + resistor. ${layout.ledAnode}: resistor + long leg. ${layout.ledCathode}: short leg + black.`,
     });
   }
 
@@ -831,16 +837,22 @@ function buildSteps(args: {
   return steps;
 }
 
+function pioBoardId(board: Component): string {
+  if (board.defaults?.pio?.board) return board.defaults.pio.board;
+  if (board.id.startsWith("xiao-esp32c3")) return "seeed_xiao_esp32c3";
+  if (board.id.startsWith("xiao-")) return "seeed_xiao_esp32s3";
+  if (board.id.startsWith("esp32-s3-devkitc")) return "esp32-s3-devkitc-1";
+  return board.id;
+}
+
 function sketchFor(
   board: Component,
   roles: ReturnType<typeof detectRoles>,
   byRole: Record<string, AssignedPin>,
 ): Record<string, string> {
-  const pioBoard = board.id.startsWith("xiao-esp32c3")
-    ? "seeed_xiao_esp32c3"
-    : board.id.startsWith("xiao-")
-      ? "seeed_xiao_esp32s3"
-      : "esp32-s3-devkitc-1";
+  const pioBoard = pioBoardId(board);
+  const pioPlatform = board.defaults?.pio?.platform ?? "espressif32";
+  const pioFramework = board.defaults?.pio?.framework ?? "arduino";
 
   const libs = [
     roles.servo ? "madhephaestus/ESP32Servo" : "",
@@ -851,9 +863,9 @@ function sketchFor(
     .join("\n");
 
   const ini = `[env:${pioBoard}]
-platform = espressif32
+platform = ${pioPlatform}
 board = ${pioBoard}
-framework = arduino
+framework = ${pioFramework}
 monitor_speed = 115200
 ${libs ? `lib_deps =\n  ${libs.split("\n").join("\n  ")}` : ""}
 `;
@@ -959,16 +971,13 @@ export function inferPartsFromIdea(idea: string): string[] {
 
 export function inferBoardFromAnswers(
   answers: Record<string, string | string[]>,
+  allowed: readonly string[] = [],
   fallback = "esp32-s3-devkitc-1-n16r8",
 ): string {
   const values = Object.values(answers).flat();
   for (const value of values) {
-    if (typeof value === "string" && value.startsWith("xiao-esp32c3"))
-      return "xiao-esp32c3";
-    if (typeof value === "string" && value.startsWith("xiao-esp32s3"))
-      return "xiao-esp32s3";
-    if (typeof value === "string" && value.includes("devkit"))
-      return "esp32-s3-devkitc-1-n16r8";
+    if (typeof value !== "string") continue;
+    if (allowed.includes(value)) return value;
     if (
       value === "esp32-s3-devkitc-1-n16r8" ||
       value === "xiao-esp32s3" ||
@@ -976,6 +985,10 @@ export function inferBoardFromAnswers(
     ) {
       return value;
     }
+    if (value.startsWith("xiao-esp32c3")) return "xiao-esp32c3";
+    if (value.startsWith("xiao-esp32s3")) return "xiao-esp32s3";
+    if (value.includes("devkit") && value.includes("s3"))
+      return "esp32-s3-devkitc-1-n16r8";
   }
-  return fallback;
+  return allowed[0] ?? fallback;
 }

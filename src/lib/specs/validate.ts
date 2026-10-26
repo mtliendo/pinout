@@ -205,6 +205,7 @@ export function validateCatalog(raw: {
 /**
  * Runtime / compose-time checks from validate.py:
  * real pins and holes, safe GPIO only, never a GPIO on a 5V net.
+ * Incoming: warn when a 3.3V-only part is powered from a 5V logic board.
  */
 export function validateBuild(
   build: Build,

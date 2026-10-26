@@ -1,7 +1,10 @@
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { composeBuild, inferBoardFromAnswers, inferPartsFromIdea } from "@/lib/compose";
+import { friendlyComposeError } from "@/lib/compose-error";
+import { breadboardForSize, inferBreadboardSize } from "@/lib/breadboards";
 import { gatewayModel } from "@/lib/ai/model";
+import { isCatalogPart } from "@/lib/parts/catalog";
 import { loadCatalog } from "@/lib/specs/load";
 import { validateBuild } from "@/lib/specs/validate";
 
@@ -33,6 +36,9 @@ export async function POST(request: Request) {
   const partIds = Object.values(catalog.components)
     .filter((c) => c.kind !== "board" && c.kind !== "breadboard")
     .map((c) => c.id);
+  const allowedParts = new Set(partIds);
+  const size = inferBreadboardSize(answers);
+  const breadboard = breadboardForSize(catalog.breadboard, size);
 
   let plan: z.infer<typeof PlanSchema> | null = null;
   try {
@@ -47,7 +53,8 @@ HARD RULES:
 - Prefer the fewest catalog parts that make the idea work.
 - A motion/PIR/servo idea should include hc-sr501-pir, sg90-servo, led-5mm-red, resistor-220.
 - A button + LED + OLED idea should include tactile-button-6mm, led-5mm-red, resistor-220, ssd1306-oled-128x64-i2c.
-- Always imply breadboard-830; do not list it.`,
+- Always imply a breadboard; do not list it. Size is chosen separately.
+- No photo-of-parts. No free-text parts.`,
       prompt: `Idea: ${idea}\nAnswers: ${JSON.stringify(answers)}`,
       output: Output.object({
         name: "BuildPlan",
@@ -62,47 +69,53 @@ HARD RULES:
   const chosenBoard =
     plan && boardIds.includes(plan.boardId)
       ? plan.boardId
-      : inferBoardFromAnswers(answers);
+      : inferBoardFromAnswers(answers, boardIds);
 
   const chosenParts = unique(
     [
-      ...(plan?.partIds ?? []).filter((id) => partIds.includes(id)),
+      ...(plan?.partIds ?? []).filter((id) => isCatalogPart(id, allowedParts)),
       ...partsFromAnswers(answers, partIds),
-      ...inferPartsFromIdea(idea),
+      ...inferPartsFromIdea(idea).filter((id) => isCatalogPart(id, allowedParts)),
     ],
   );
 
-  try {
-    let build = composeBuild(
+  const attempt = (partList: string[]) =>
+    composeBuild(
       {
         idea,
         boardId: chosenBoard,
-        partIds: chosenParts,
+        partIds: partList,
         title: plan?.title,
         summary: plan?.summary,
       },
       catalog.components,
-      catalog.breadboard,
+      breadboard,
     );
 
-    let errors = validateBuild(build, catalog.components, catalog.breadboard);
+  try {
+    let build = attempt(chosenParts);
+    let errors = validateBuild(build, catalog.components, breadboard);
     if (errors.length) {
-      build = composeBuild(
-        {
-          idea,
-          boardId: "esp32-s3-devkitc-1-n16r8",
-          partIds: inferPartsFromIdea(idea),
-          title: plan?.title,
-          summary: plan?.summary,
-        },
-        catalog.components,
-        catalog.breadboard,
-      );
-      errors = validateBuild(build, catalog.components, catalog.breadboard);
+      console.error("compose validator", {
+        board: chosenBoard,
+        parts: chosenParts,
+        size,
+        errors,
+      });
+      build = attempt(inferPartsFromIdea(idea).filter((id) => isCatalogPart(id, allowedParts)));
+      errors = validateBuild(build, catalog.components, breadboard);
     }
     if (errors.length) {
+      console.error("compose validator after retry", {
+        board: chosenBoard,
+        errors,
+      });
       return Response.json(
-        { error: "Validator rejected the build", details: errors },
+        {
+          error:
+            "Pinout could not seat that circuit on this board. Try another board, or different catalog parts.",
+          code: "compose_failed",
+        },
         { status: 422 },
       );
     }
@@ -117,17 +130,25 @@ HARD RULES:
     return Response.json({
       build,
       components,
-      breadboard: catalog.breadboard,
+      breadboard,
       wireColors: catalog.wireColors,
       plan: {
         boardId: chosenBoard,
         partIds: chosenParts,
+        breadboard: size,
         llm: plan,
       },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Compose failed";
-    return Response.json({ error: message }, { status: 500 });
+    const details =
+      error instanceof Error ? error.message : "Compose failed";
+    console.error("compose rejected", {
+      board: chosenBoard,
+      parts: chosenParts,
+      size,
+      details,
+    });
+    return Response.json(friendlyComposeError(error), { status: 422 });
   }
 }
 

@@ -1,3 +1,4 @@
+import { breadboardForSize, BREADBOARD_PRESETS } from "../src/lib/breadboards";
 import { composeBuild, inferPartsFromIdea } from "../src/lib/compose";
 import { RAW_BUILDS, RAW_COMPONENTS, RAW_WIRE_COLORS } from "../src/lib/specs/files";
 import type { Build } from "../src/lib/specs/schema";
@@ -132,3 +133,88 @@ for (const net of refNets) {
   }
 }
 console.log("PASS: motion idea composes equivalent pir-servo-s3 nets");
+
+const IDEAS = [
+  {
+    label: "motion",
+    idea: "motion-triggered servo that waves when someone walks by",
+  },
+  {
+    label: "button-oled",
+    idea: "button that toggles an LED and shows status on an OLED",
+  },
+] as const;
+
+for (const board of Object.values(loaded.components).filter((c) => c.kind === "board")) {
+  for (const idea of IDEAS) {
+    try {
+      const built = composeBuild(
+        {
+          idea: idea.idea,
+          boardId: board.id,
+          partIds: inferPartsFromIdea(idea.idea),
+        },
+        loaded.components,
+        loaded.breadboard,
+      );
+      const errors = validateBuild(built, loaded.components, loaded.breadboard);
+      if (errors.length) {
+        console.error(`FAIL: ${board.id} × ${idea.label}`);
+        for (const line of errors) console.error(`  ${line}`);
+        process.exit(1);
+      }
+      const usedGpio = new Set<number>();
+      for (const wire of built.connections) {
+        for (const end of [wire.from, wire.to]) {
+          const pinId = end.startsWith("mcu:") ? end.slice(4) : "";
+          const pin = pinId
+            ? board.pins?.find((p) => p.id === pinId)
+            : undefined;
+          if (typeof pin?.gpio === "number") usedGpio.add(pin.gpio);
+        }
+      }
+      for (const step of built.steps) {
+        const cpp = step.code?.["src/main.cpp"] ?? "";
+        for (const match of cpp.matchAll(/PIN = (\d+)/g)) {
+          usedGpio.add(Number(match[1]));
+        }
+      }
+      for (const gpio of usedGpio) {
+        if (!(board.safe_gpio ?? []).includes(gpio)) {
+          console.error(`FAIL: ${board.id} × ${idea.label} used non-safe GPIO${gpio}`);
+          process.exit(1);
+        }
+      }
+      if (board.id === "xiao-esp32c3" && idea.label === "button-oled") {
+        const cpp = built.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
+        if (!/SDA_PIN = 6/.test(cpp) || !/SCL_PIN = 7/.test(cpp)) {
+          console.error(`FAIL: XIAO C3 I2C must be GPIO6/7\n${cpp}`);
+          process.exit(1);
+        }
+      }
+      console.log(`PASS: ${board.id} × ${idea.label} (${built.steps.length} steps)`);
+    } catch (error) {
+      console.error(`FAIL: ${board.id} × ${idea.label}`);
+      console.error(`  ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+  }
+}
+
+const mini = breadboardForSize(loaded.breadboard, BREADBOARD_PRESETS[0]);
+const c3Mini = composeBuild(
+  {
+    idea: "button that toggles an LED and shows status on an OLED",
+    boardId: "xiao-esp32c3",
+    partIds: inferPartsFromIdea("button that toggles an LED and shows status on an OLED"),
+  },
+  loaded.components,
+  mini,
+);
+const miniErrors = validateBuild(c3Mini, loaded.components, mini);
+if (miniErrors.length) {
+  console.error("FAIL: XIAO C3 on mini-170");
+  for (const line of miniErrors) console.error(`  ${line}`);
+  process.exit(1);
+}
+console.log(`PASS: xiao-esp32c3 × button-oled on mini-170 (${c3Mini.steps.length} steps)`);

@@ -120,8 +120,38 @@ export function headerSide(
 
 export function preferredSafeGpio(board: Component): number[] {
   const jtag = new Set([39, 40, 41, 42]);
-  const safe = board.safe_gpio ?? [];
+  const listed = new Set(board.safe_gpio ?? []);
+  const safe = [...listed].filter((gpio) => {
+    const pin = findPinByGpio(board, gpio);
+    if (!pin) return false;
+    const flags = pin.flags ?? {};
+    if (flags.strapping || flags.usb || flags.psram_flash_reserved) return false;
+    return true;
+  });
   return [...safe.filter((g) => !jtag.has(g)), ...safe.filter((g) => jtag.has(g))];
+}
+
+/** Default I2C/SPI GPIOs from the spec only — never inferred. */
+export function defaultBusGpio(
+  board: Component,
+  which: "i2c_sda" | "i2c_scl" | "spi_sck" | "spi_mosi" | "spi_miso",
+): number | undefined {
+  const i2c = board.defaults?.i2c;
+  if (which === "i2c_sda" && typeof i2c?.sda === "number") return i2c.sda;
+  if (which === "i2c_scl" && typeof i2c?.scl === "number") return i2c.scl;
+  const spi = board.defaults?.spi;
+  if (which === "spi_sck") return spi?.sck;
+  if (which === "spi_mosi") return spi?.mosi;
+  if (which === "spi_miso") return spi?.miso;
+  const needle =
+    which === "i2c_sda"
+      ? /default i2c sda/i
+      : which === "i2c_scl"
+        ? /default i2c scl/i
+        : null;
+  if (!needle) return undefined;
+  const pin = board.pins?.find((p) => p.warnings?.some((w) => needle.test(w)));
+  return typeof pin?.gpio === "number" ? pin.gpio : undefined;
 }
 
 export function pinHasFunction(pin: Pin, fn: string): boolean {

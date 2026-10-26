@@ -150,6 +150,40 @@ export const ComponentSchema = z
     power: z.unknown().optional(),
     controls: z.unknown().optional(),
     wire_length_mm: z.number().optional(),
+    /** Incoming: 3.3V vs 5V logic (Uno/Nano). Warn when a 3.3V-only part hits 5V. */
+    logic_voltage: z.enum(["3.3V", "5V"]).optional(),
+    /** Incoming: `chips/<chip>.json` — pin safety is never inferred. */
+    chip: z.string().optional(),
+    /** Incoming: breadboard vs off-board female-header boards (Uno R3). */
+    placement: z.enum(["breadboard", "off_board_headers"]).optional(),
+    defaults: z
+      .object({
+        i2c: z
+          .object({ sda: z.number(), scl: z.number() })
+          .passthrough()
+          .optional(),
+        spi: z
+          .object({
+            sck: z.number().optional(),
+            mosi: z.number().optional(),
+            miso: z.number().optional(),
+            cs: z.number().optional(),
+          })
+          .passthrough()
+          .optional(),
+        pio: z
+          .object({
+            platform: z.string(),
+            board: z.string(),
+            framework: z.string(),
+          })
+          .passthrough()
+          .optional(),
+        chip: z.string().optional(),
+        placement: z.enum(["breadboard", "off_board_headers"]).optional(),
+      })
+      .passthrough()
+      .optional(),
   })
   .passthrough();
 

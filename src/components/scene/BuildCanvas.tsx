@@ -11,12 +11,14 @@ export function BuildCanvas({
   stepIndex,
   progress,
   preview,
+  resetNonce,
   onCalloutScreen,
 }: {
   payload: GuidePayload;
   stepIndex: number;
   progress: number;
   preview?: boolean;
+  resetNonce?: number;
   onCalloutScreen?: (xy: { x: number; y: number } | null) => void;
 }) {
   const step = payload.build.steps[Math.min(stepIndex, payload.build.steps.length - 1)];
@@ -38,7 +40,12 @@ export function BuildCanvas({
           preview={preview}
         />
       </Suspense>
-      <CameraRig payload={payload} stepIndex={stepIndex} preview={preview} />
+      <CameraRig
+        payload={payload}
+        stepIndex={stepIndex}
+        preview={preview}
+        resetNonce={resetNonce}
+      />
       {!preview && (
         <CalloutProjector world={world} onScreen={onCalloutScreen} />
       )}

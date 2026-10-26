@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { BreadboardPicker } from "@/components/ask/BreadboardPicker";
+import { ComposeError } from "@/components/ask/ComposeError";
+import { BREADBOARD_PRESETS, type BreadboardSize } from "@/lib/breadboards";
+import { stripValidatorText } from "@/lib/compose-error";
 import { saveGuide } from "@/lib/guide-store";
 import type { GuidePayload } from "@/lib/types";
 
@@ -21,9 +25,10 @@ export function QuestionFlow() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
-  const [status, setStatus] = useState<"loading" | "ask" | "compose" | "error">(
-    "loading",
-  );
+  const [breadboard, setBreadboard] = useState<BreadboardSize>(BREADBOARD_PRESETS[2]);
+  const [status, setStatus] = useState<
+    "loading" | "ask" | "breadboard" | "compose" | "error"
+  >("loading");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -43,7 +48,7 @@ export function QuestionFlow() {
         setStatus("ask");
       })
       .catch((err: Error) => {
-        setError(err.message);
+        setError(stripValidatorText(err.message));
         setStatus("error");
       });
   }, [idea, router]);
@@ -74,10 +79,15 @@ export function QuestionFlow() {
     const res = await fetch("/api/compose", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idea, answers: finalAnswers }),
+      body: JSON.stringify({
+        idea,
+        answers: { ...finalAnswers, breadboard: [breadboard.id] },
+      }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error ?? "Could not compose a build");
+    if (!res.ok) {
+      throw new Error(stripValidatorText(data.error ?? "Could not compose a build"));
+    }
     saveGuide(data as GuidePayload);
     router.push("/guide");
   };
@@ -88,13 +98,11 @@ export function QuestionFlow() {
       setIndex((i) => i + 1);
       return;
     }
-    try {
-      await compose(answers);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Compose failed");
-      setStatus("error");
-    }
+    setStatus("breadboard");
   };
+
+  const boardQuestionIndex = questions.findIndex((q) => /board/i.test(q.id + q.prompt));
+  const partsQuestionIndex = questions.findIndex((q) => /part/i.test(q.id + q.prompt));
 
   return (
     <main className="ask">
@@ -105,7 +113,9 @@ export function QuestionFlow() {
         <p className="top-meta">
           {status === "ask"
             ? `Question ${index + 1} of ${questions.length}`
-            : "Getting the parts straight"}
+            : status === "breadboard"
+              ? "Breadboard size"
+              : "Getting the parts straight"}
         </p>
       </header>
       <section className="ask-card">
@@ -115,12 +125,62 @@ export function QuestionFlow() {
           <p className="ask-status">Assigning safe pins and routing wires…</p>
         )}
         {status === "error" && (
-          <div>
-            <p className="ask-status">{error}</p>
-            <Link className="btn-ink" href="/">
-              Start over
-            </Link>
-          </div>
+          <ComposeError
+            message={error}
+            onRetry={() => {
+              void compose(answers).catch((err) => {
+                setError(err instanceof Error ? stripValidatorText(err.message) : error);
+                setStatus("error");
+              });
+            }}
+            onOtherBoard={() => {
+              setIndex(Math.max(0, boardQuestionIndex));
+              setStatus("ask");
+              setError("");
+            }}
+            onOtherParts={() => {
+              setIndex(Math.max(0, partsQuestionIndex));
+              setStatus("ask");
+              setError("");
+            }}
+          />
+        )}
+        {status === "breadboard" && (
+          <>
+            <h1>How big is your breadboard?</h1>
+            <p className="ask-hint">
+              Mini, half, or full. Or drag the row slider. Pinout will refuse a circuit that does not fit.
+            </p>
+            <BreadboardPicker value={breadboard} onChange={setBreadboard} />
+            <div className="ask-actions">
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => {
+                  setIndex(Math.max(0, questions.length - 1));
+                  setStatus("ask");
+                }}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                className="btn-ink"
+                onClick={() => {
+                  void compose(answers).catch((err) => {
+                    setError(
+                      err instanceof Error
+                        ? stripValidatorText(err.message)
+                        : "Could not compose a build",
+                    );
+                    setStatus("error");
+                  });
+                }}
+              >
+                Compose the guide
+              </button>
+            </div>
+          </>
         )}
         {status === "ask" && question && (
           <>
@@ -155,8 +215,8 @@ export function QuestionFlow() {
               >
                 Back
               </button>
-              <button type="button" className="btn-ink" onClick={next}>
-                {index === questions.length - 1 ? "Compose the guide" : "Next"}
+              <button type="button" className="btn-ink" onClick={() => void next()}>
+                Next
               </button>
             </div>
           </>

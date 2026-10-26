@@ -1,3 +1,4 @@
+import { chipIdForBoard, loadChipSpecs, mergeChipSafety } from "@/lib/chips";
 import { RAW_BUILDS, RAW_COMPONENTS, RAW_WIRE_COLORS } from "./files";
 import { validateCatalog, type Catalog } from "./validate";
 
@@ -15,6 +16,15 @@ export function loadCatalog(): Catalog {
       `Spec catalog failed validation:\n${issues
         .map((i) => `${i.path}: ${i.message}`)
         .join("\n")}`,
+    );
+  }
+  const chips = loadChipSpecs();
+  for (const [id, component] of Object.entries(catalog.components)) {
+    if (component.kind !== "board") continue;
+    const chipId = chipIdForBoard(component);
+    catalog.components[id] = mergeChipSafety(
+      component,
+      chipId ? chips[chipId] ?? null : null,
     );
   }
   cached = catalog;

@@ -33,6 +33,7 @@ export function BuildViewer() {
   const [copied, setCopied] = useState("");
   const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
   const [stageBox, setStageBox] = useState({ w: 1, h: 1 });
+  const [resetNonce, setResetNonce] = useState(0);
   const payload = fetched ?? stored;
   const error = fetchError || (!id && !stored ? "No guide in this session." : "");
 
@@ -211,8 +212,17 @@ export function BuildViewer() {
           payload={payload}
           stepIndex={Math.min(stepIndex, total - 1)}
           progress={done ? 1 : progress}
+          resetNonce={resetNonce}
           onCalloutScreen={setSpot}
         />
+        <button
+          type="button"
+          className="reset-view"
+          data-testid="reset-view"
+          onClick={() => setResetNonce((n) => n + 1)}
+        >
+          Reset view
+        </button>
         {showLoupe && (
           <Magnifier
             payload={payload}
@@ -232,7 +242,7 @@ export function BuildViewer() {
               x2={spot.x}
               y2={spot.y}
               stroke="#161410"
-              strokeWidth="1.25"
+              strokeWidth="0.62"
             />
           </svg>
         )}

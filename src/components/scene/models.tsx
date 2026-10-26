@@ -531,7 +531,7 @@ export function GuideArrow({
       <mesh position={[0, len * 0.78, 0]}>
         <coneGeometry args={[1.35, 3.6, 10]} />
         <meshBasicMaterial color={active ? INK : PALE_LINE} toneMapped={false} />
-        <Edges threshold={20} color={INK} lineWidth={1.6} />
+        <Edges threshold={20} color={INK} lineWidth={0.8} />
       </mesh>
     </group>
   );

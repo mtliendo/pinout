@@ -1,7 +1,7 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import {
   assemblyFrame,
@@ -167,15 +167,156 @@ export function CameraRig({
   payload,
   stepIndex,
   preview,
+  resetNonce = 0,
 }: {
   payload: GuidePayload;
   stepIndex: number;
   preview?: boolean;
+  resetNonce?: number;
 }) {
+  const { gl, size } = useThree();
+  const user = useRef({
+    taken: false,
+    zoom: 1,
+    panX: 0,
+    panZ: 0,
+  });
+  const lastStep = useRef(stepIndex);
   const target = useMemo(() => {
     const step = payload.build.steps[Math.min(stepIndex, payload.build.steps.length - 1)];
     return cameraFor(step?.camera ?? "hero", payload.breadboard, step?.callout);
   }, [payload, stepIndex]);
+
+  useEffect(() => {
+    user.current = { taken: false, zoom: 1, panX: 0, panZ: 0 };
+  }, [resetNonce]);
+
+  useEffect(() => {
+    if (lastStep.current === stepIndex) return;
+    lastStep.current = stepIndex;
+    user.current.taken = false;
+    user.current.zoom = 1;
+    user.current.panX = 0;
+    user.current.panZ = 0;
+  }, [stepIndex]);
+
+  useEffect(() => {
+    if (preview) return;
+    const el = gl.domElement;
+    const drag = { on: false, x: 0, y: 0, pinch: 0 };
+
+    const take = () => {
+      user.current.taken = true;
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      take();
+      user.current.zoom = clamp(
+        user.current.zoom * Math.exp(event.deltaY * 0.0016),
+        0.32,
+        2.6,
+      );
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      drag.on = true;
+      drag.x = event.clientX;
+      drag.y = event.clientY;
+      el.setPointerCapture(event.pointerId);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!drag.on) return;
+      const dx = event.clientX - drag.x;
+      const dy = event.clientY - drag.y;
+      drag.x = event.clientX;
+      drag.y = event.clientY;
+      take();
+      const world = camPose.frustum / Math.max(1, size.height);
+      user.current.panX -= dx * world;
+      user.current.panZ -= dy * world;
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      drag.on = false;
+      try {
+        el.releasePointerCapture(event.pointerId);
+      } catch {
+        /* already released */
+      }
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        drag.pinch = pinchDist(event.touches);
+        drag.x = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+        drag.y = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+      } else if (event.touches.length === 1) {
+        drag.on = true;
+        drag.x = event.touches[0].clientX;
+        drag.y = event.touches[0].clientY;
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        event.preventDefault();
+        const next = pinchDist(event.touches);
+        if (drag.pinch > 0) {
+          take();
+          user.current.zoom = clamp(
+            user.current.zoom * (drag.pinch / next),
+            0.32,
+            2.6,
+          );
+        }
+        const mx = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+        const my = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        const world = camPose.frustum / Math.max(1, size.height);
+        user.current.panX -= (mx - drag.x) * world;
+        user.current.panZ -= (my - drag.y) * world;
+        drag.pinch = next;
+        drag.x = mx;
+        drag.y = my;
+        return;
+      }
+      if (!drag.on || event.touches.length !== 1) return;
+      const dx = event.touches[0].clientX - drag.x;
+      const dy = event.touches[0].clientY - drag.y;
+      drag.x = event.touches[0].clientX;
+      drag.y = event.touches[0].clientY;
+      take();
+      const world = camPose.frustum / Math.max(1, size.height);
+      user.current.panX -= dx * world;
+      user.current.panZ -= dy * world;
+    };
+
+    const onTouchEnd = () => {
+      drag.on = false;
+      drag.pinch = 0;
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("pointerdown", onPointerDown);
+    el.addEventListener("pointermove", onPointerMove);
+    el.addEventListener("pointerup", onPointerUp);
+    el.addEventListener("pointercancel", onPointerUp);
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("pointermove", onPointerMove);
+      el.removeEventListener("pointerup", onPointerUp);
+      el.removeEventListener("pointercancel", onPointerUp);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [gl, preview, size.height]);
 
   useFrame((state, delta) => {
     const cam = state.camera as THREE.OrthographicCamera;
@@ -191,18 +332,34 @@ export function CameraRig({
       camPose.frustum = 420;
       camPose.primed = true;
     }
-    const k = 1 - Math.exp(-3.1 * delta);
-    const want = target;
-    camPose.pos.lerp(new THREE.Vector3(...want.position), k);
-    camPose.look.lerp(new THREE.Vector3(...want.lookAt), k);
-    camPose.frustum += (want.frustum - camPose.frustum) * k;
-    applyOrtho(cam, state.size, camPose.pos, camPose.look, camPose.frustum);
+    if (!user.current.taken) {
+      const k = 1 - Math.exp(-3.1 * delta);
+      const want = target;
+      camPose.pos.lerp(new THREE.Vector3(...want.position), k);
+      camPose.look.lerp(new THREE.Vector3(...want.lookAt), k);
+      camPose.frustum += (want.frustum - camPose.frustum) * k;
+    }
+    const look = camPose.look.clone().add(new THREE.Vector3(user.current.panX, 0, user.current.panZ));
+    const pos = camPose.pos.clone().add(new THREE.Vector3(user.current.panX, 0, user.current.panZ));
+    applyOrtho(cam, state.size, pos, look, camPose.frustum * user.current.zoom);
     if (typeof document !== "undefined") {
-      document.body.dataset.camx = camPose.pos.x.toFixed(1);
-      document.body.dataset.camz = camPose.pos.z.toFixed(1);
+      document.body.dataset.camx = pos.x.toFixed(1);
+      document.body.dataset.camz = pos.z.toFixed(1);
+      document.body.dataset.camzoom = user.current.zoom.toFixed(2);
     }
   });
   return null;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function pinchDist(touches: TouchList) {
+  return Math.hypot(
+    touches[0].clientX - touches[1].clientX,
+    touches[0].clientY - touches[1].clientY,
+  );
 }
 
 function applyOrtho(

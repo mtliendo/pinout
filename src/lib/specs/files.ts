@@ -1,3 +1,5 @@
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import breadboard from "../../../specs/components/breadboard-830.json";
 import s3devkit from "../../../specs/components/esp32-s3-devkitc-1-n16r8.json";
 import pir from "../../../specs/components/hc-sr501-pir.json";
@@ -11,7 +13,7 @@ import xiaoS3 from "../../../specs/components/xiao-esp32s3.json";
 import pirServoBuild from "../../../specs/builds/pir-servo-s3.json";
 import wireColorsJson from "../../../specs/wire-colors.json";
 
-export const RAW_COMPONENTS = [
+const FALLBACK_COMPONENTS = [
   breadboard,
   s3devkit,
   pir,
@@ -24,7 +26,28 @@ export const RAW_COMPONENTS = [
   xiaoS3,
 ] as unknown[];
 
-export const RAW_BUILDS = [pirServoBuild] as unknown[];
+const FALLBACK_BUILDS = [pirServoBuild] as unknown[];
+
+function readJsonDir(dir: string): unknown[] {
+  try {
+    if (!existsSync(dir)) return [];
+    return readdirSync(dir)
+      .filter((name) => name.endsWith(".json"))
+      .sort()
+      .map((name) => JSON.parse(readFileSync(join(dir, name), "utf8")));
+  } catch {
+    return [];
+  }
+}
+
+const scannedComponents = readJsonDir(join(process.cwd(), "specs/components"));
+const scannedBuilds = readJsonDir(join(process.cwd(), "specs/builds"));
+
+/** Live catalog: every JSON under specs/components and specs/builds. New spec files light up without a code change. */
+export const RAW_COMPONENTS =
+  scannedComponents.length > 0 ? scannedComponents : FALLBACK_COMPONENTS;
+
+export const RAW_BUILDS = scannedBuilds.length > 0 ? scannedBuilds : FALLBACK_BUILDS;
 
 export const RAW_WIRE_COLORS = wireColorsJson as unknown;
 

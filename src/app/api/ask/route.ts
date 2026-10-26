@@ -47,6 +47,8 @@ Rules:
 - Options must be chips the user can tap. Prefer catalog ids.
 - Every option needs catalogId: a catalog board/part id, or "" if it is not a catalog item.
 - Ask which board they have, which catalog parts they already have, and only the clarifications that change the wiring.
+- Parts come only from the catalog. Never ask the user to type a part name or upload a photo of parts.
+- Do not ask breadboard size. A later step handles that.
 - Never invent pins, voltages, or parts that are not in the catalog.
 - Do not ask for pin numbers. Pin assignment is deterministic and never comes from you.
 Catalog boards: ${boards}
