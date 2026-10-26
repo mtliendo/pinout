@@ -57,7 +57,12 @@ export function BuildViewer() {
       setProgress(value);
       const node = motionRef.current;
       if (node) node.dataset.progress = value.toFixed(3);
-      (window as Window & { __pinoutProgress?: number }).__pinoutProgress = value;
+      const w = window as Window & {
+        __pinoutProgress?: number;
+        __pinoutHistory?: number[];
+      };
+      w.__pinoutProgress = value;
+      w.__pinoutHistory = [...(w.__pinoutHistory ?? []), value].slice(-40);
     };
     write(0);
     let frame = 0;

@@ -97,19 +97,28 @@ async function walkGuide(page: Page, dwell = 950) {
 
   const next = page.getByRole("button", { name: /Done, next step/ });
   await expect(next).toBeVisible();
-  await next.click();
+  await page.evaluate(() => {
+    const w = window as unknown as { __pinoutHistory?: number[]; __pinoutProgress?: number };
+    w.__pinoutHistory = [];
+    w.__pinoutProgress = -1;
+  });
+  await next.click({ noWaitAfter: true });
   let mid = 1;
-  for (let i = 0; i < 20; i++) {
-    mid = Number(
-      await page.evaluate(
-        () => (window as unknown as { __pinoutProgress?: number }).__pinoutProgress ?? 1,
-      ),
-    );
-    if (mid > 0.05 && mid < 0.95) break;
+  let history: number[] = [];
+  for (let i = 0; i < 25; i++) {
+    const sample = await page.evaluate(() => {
+      const w = window as unknown as { __pinoutHistory?: number[]; __pinoutProgress?: number };
+      return { now: w.__pinoutProgress ?? 1, history: w.__pinoutHistory ?? [] };
+    });
+    mid = sample.now;
+    history = sample.history;
+    if (history.some((n) => n > 0.05 && n < 0.95) || (mid > 0.05 && mid < 0.95)) break;
     await page.waitForTimeout(30);
   }
-  expect(mid, `expected in-flight progress, got ${mid}`).toBeGreaterThan(0.05);
-  expect(mid).toBeLessThan(0.95);
+  const sawFlight = history.some((n) => n > 0.05 && n < 0.95) || (mid > 0.05 && mid < 0.95);
+  expect(sawFlight, `expected in-flight progress, last=${mid} history=${history.join(",")}`).toBe(
+    true,
+  );
   await expect(page.getByText(/Step 2 of/)).toBeVisible();
   await expect(page.locator(".you-need strong").first()).toHaveText(/^\d+x$/);
   const step2Qty = Number(
