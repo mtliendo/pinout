@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -45,6 +45,7 @@ function compileOne(
   root: string,
 ): string | null {
   const dir = join(root, name.replace(/[^a-z0-9._-]+/gi, "_").slice(0, 80));
+  rmSync(dir, { recursive: true, force: true });
   mkdirSync(join(dir, "src"), { recursive: true });
   writeFileSync(join(dir, "platformio.ini"), files["platformio.ini"]);
   writeFileSync(join(dir, "src/main.cpp"), files["src/main.cpp"]);

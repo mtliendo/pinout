@@ -2218,7 +2218,9 @@ function sketchFor(
     roles.servo
       ? family === "esp32"
         ? "madhephaestus/ESP32Servo"
-        : "arduino-libraries/Servo"
+        : family === "avr"
+          ? "arduino-libraries/Servo"
+          : ""
       : "",
     roles.oled ? "adafruit/Adafruit SSD1306" : "",
     roles.oled ? "adafruit/Adafruit GFX Library" : "",

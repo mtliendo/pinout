@@ -994,6 +994,21 @@ function requireMatch(label: string, text: string, needle: RegExp) {
   );
   const ini = unoServo.steps.find((s) => s.code)?.code?.["platformio.ini"] ?? "";
   requireMatch("Uno servo lib_deps", ini, /arduino-libraries\/Servo/);
+  const picoServo = composeBuild(
+    {
+      idea: "motion servo",
+      boardId: "raspberry-pi-pico",
+      partIds: ["hc-sr501-pir", "sg90-servo", "led-5mm-red", "resistor-220"],
+    },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const picoIni = picoServo.steps.find((s) => s.code)?.code?.["platformio.ini"] ?? "";
+  if (/arduino-libraries\/Servo/.test(picoIni)) {
+    console.error("FAIL: Pico servo must use the earlephilhower Servo.h, not arduino-libraries/Servo");
+    process.exit(1);
+  }
+  console.log("PASS: Pico servo uses core Servo.h");
 }
 
 {
