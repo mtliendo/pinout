@@ -598,6 +598,11 @@ input {
   color: var(--color-ink-2);
 }
 
+.you-need {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .you-need p {
   margin: 0 0 var(--space-xs);
   color: var(--color-muted);
@@ -612,11 +617,18 @@ input {
 
 .you-need li {
   display: grid;
-  grid-template-columns: 28px 1fr auto;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
   gap: var(--space-xs);
-  align-items: center;
+  align-items: start;
   padding: 8px 0;
   border-top: 1px solid var(--color-rule);
+  min-width: 0;
+}
+
+.you-need li span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .you-need svg {

@@ -515,10 +515,22 @@ export function validateBuild(
   findRoot(parent, "rail:R+");
 
   const usedRails = new Set<string>();
+  const railHoles: Record<string, string> = {};
   for (const wire of build.connections) {
     for (const end of [wire.from, wire.to]) {
       const match = RAIL.exec(end);
-      if (match) usedRails.add(match[1]);
+      if (match) {
+        usedRails.add(match[1]);
+        if (railHoles[end] && railHoles[end] !== wire.id) {
+          err.push(`hole ${end} used twice (${railHoles[end]})`);
+        }
+        railHoles[end] = wire.id;
+      }
+    }
+  }
+  for (const [hole, who] of Object.entries(used)) {
+    if (RAIL.test(hole) && railHoles[hole] && railHoles[hole] !== who) {
+      err.push(`hole ${hole} used twice (${who})`);
     }
   }
   const powerName = (pin: Pin) => {
@@ -545,9 +557,10 @@ export function validateBuild(
   for (const rail of usedRails) {
     const root = findRoot(parent, `rail:${rail}`);
     const fed = Object.entries(pinmeta).some(([node, { component, pin }]) => {
+      const powerPart = component.part?.category === "power";
       return (
         findRoot(parent, node) === root &&
-        component.kind === "board" &&
+        (component.kind === "board" || powerPart) &&
         powerName(pin)
       );
     });
@@ -565,7 +578,14 @@ export function validateBuild(
     for (const { node, component, pin } of members) {
       const gpio = pin.gpio;
       if (component.kind === "board" && gpio != null) {
-        if (!(component.safe_gpio ?? []).includes(gpio)) {
+        const spiDefault = Object.values(component.defaults?.spi ?? {}).some(
+          (value) => value === gpio,
+        );
+        const avrRst =
+          component.chip === "atmega328p" &&
+          gpio === 9 &&
+          Object.values(component.defaults?.spi ?? {}).includes(10);
+        if (!(component.safe_gpio ?? []).includes(gpio) && !spiDefault && !avrRst) {
           err.push(`signal on non-safe GPIO${gpio} (${node})`);
         }
         if (five) {

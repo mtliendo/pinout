@@ -1,0 +1,95 @@
+{
+  "id": "ext-5v-supply",
+  "name": "External 5V DC supply",
+  "kind": "passive",
+  "body": {
+    "length_mm": {
+      "value": 40,
+      "approx": true,
+      "note": "Brick or bench supply; not a specific model"
+    },
+    "width_mm": {
+      "value": 30,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 20,
+      "approx": true,
+      "note": "approx"
+    }
+  },
+  "colors": {
+    "body": "#212121"
+  },
+  "headers": [
+    {
+      "id": "OUT",
+      "kind": "pigtail / barrel",
+      "origin_mm": [0, 0],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "V+",
+      "note": "Positive and ground only. Share ground with the MCU."
+    }
+  ],
+  "pins": [
+    {
+      "id": "V+",
+      "label": "5V",
+      "header": 0,
+      "position": { "index": 1, "x": 0.0, "y": 0.0 },
+      "functions": ["power"],
+      "voltage": "5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": { "index": 2, "x": 2.54, "y": 0.0 },
+      "functions": ["GND"],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "vout": "5V DC",
+    "note": "Size at 60 mA per WS2812B LED."
+  },
+  "part": {
+    "category": "power",
+    "supply_v": { "min": 5, "max": 5 },
+    "logic": { "level": "n/a" },
+    "compat": {
+      "mcu_3v3": { "status": "yes", "needs": [] },
+      "mcu_5v": { "status": "yes", "needs": [] }
+    },
+    "interface": { "type": "power" },
+    "current_ma": { "note": "supply" },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [],
+    "approx_fields": ["body"]
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
+    ],
+    "revision": "Generic 5V DC supply for addressable-LED current (Adafruit WS2812B note)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

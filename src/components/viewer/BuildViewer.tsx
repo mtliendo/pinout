@@ -316,7 +316,7 @@ export function BuildViewer() {
                     {needed.map((part) => (
                       <li key={part.id}>
                         <PartGlyph id={part.component} />
-                        <span>
+                        <span style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
                           {part.name}
                           {payload.components[part.component] &&
                           "approx" in

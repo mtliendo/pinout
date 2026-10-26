@@ -1,5 +1,8 @@
 import type { Build, Component } from "@/lib/specs/schema";
 
+export const TM1637_CAUTION =
+  "Caution: the TM1637 chip is only characterised at 4.5-5.5V. Common shortcut: power VCC from 3V3 and wire CLK/DIO direct (out of chip spec, usually works, a bit dimmer). In-spec option: VCC from 5V with CLK and DIO through a bidirectional level shifter (BSS138 type), since module pull-ups go to VCC. Never 5V VCC with CLK/DIO wired direct.";
+
 export type ExtraNeed = {
   id: string;
   component: string;
@@ -22,6 +25,9 @@ const CATALOG_FIX_PARTS = new Set([
   "cap-electrolytic-1000uf",
   "cap-electrolytic-100uf",
   "hc-sr04p",
+  "74ahct125",
+  "level-shifter-bss138",
+  "ext-5v-supply",
 ]);
 
 function extra(
@@ -95,20 +101,12 @@ export function compatFixes(
 
   for (const id of partIds) addNeeds(id);
 
+  // Wired in compose (echo divider, neo buffer, relay split, RC522 shifter).
+  // Keep extras on the BOM; do not emit text-only steps after the risky wiring.
   if (has("hc-sr04") && three) {
-    extras.push(extra("resistor-1k", "1 kΩ for the Echo divider"));
-    extras.push(extra("resistor-2k", "2 kΩ for the Echo divider (Echo→GPIO 1k, GPIO→GND 2k)"));
+    extras.push(extra("resistor-1k", "1 kΩ Echo to the GPIO node", 1));
+    extras.push(extra("resistor-1k", "two 1 kΩ in series from the node to GND (3.33 V)", 2));
     extras.push(extra("hc-sr04p", "or use an HC-SR04P instead of the 5V-only HC-SR04"));
-    steps.push(
-      step(
-        "3.3V board — divider on Echo",
-        "The HC-SR04 Echo pin is 5V. Add a 1 kΩ / 2 kΩ divider (1k Echo to GPIO, 2k GPIO to GND), or swap in an HC-SR04P and power that from 3V3.",
-        ["Never wire Echo straight into a 3.3V GPIO."],
-        extras.filter((e) =>
-          ["resistor-1k", "resistor-2k", "hc-sr04p"].includes(e.component),
-        ).map((e) => e.id),
-      ),
-    );
   }
 
   if (has("lcd1602-i2c-pcf8574") && three) {
@@ -124,44 +122,10 @@ export function compatFixes(
   }
 
   if ((has("ws2812b-strip") || has("ws2812b-ring-12")) && three) {
-    extras.push(extra("74ahct125", "74AHCT125 (or 74HCT245) on the data line"));
-    extras.push(extra("resistor-330", "300–500 Ω series resistor on DIN"));
+    extras.push(extra("ext-5v-supply", "external 5V supply into the strip and the + rail"));
+    extras.push(extra("74ahct125", "74AHCT125 on the data line, powered from 5V, OE to GND"));
+    extras.push(extra("resistor-330", "330 Ω after the buffer, then DIN"));
     extras.push(extra("cap-electrolytic-1000uf", "1000 µF across the strip 5V/GND"));
-    steps.push(
-      step(
-        "3.3V board — WS2812B needs a 5V data buffer",
-        "Power the pixels from an external 5V supply sized at 60 mA per LED, shared ground. Buffer DIN through a 74AHCT125, put a 300–500 Ω resistor at the strip, and a 1000 µF capacitor across 5V/GND.",
-        ["Do not power a long strip from the MCU 5V pin."],
-        extras
-          .filter((e) =>
-            ["74ahct125", "resistor-330", "cap-electrolytic-1000uf"].includes(
-              e.component,
-            ),
-          )
-          .map((e) => e.id),
-      ),
-    );
-  }
-
-  if (has("relay-module-5v-1ch") && three) {
-    steps.push(
-      step(
-        "3.3V board — JD-VCC split, active LOW",
-        "The relay is active LOW. Remove the JD-VCC jumper. Feed 5V to JD-VCC and 3.3V to VCC, GPIO to IN. Only switch low-voltage DC (a 5–12 V lamp or fan). This guide never covers mains.",
-        [
-          "Pinout guides only switch low-voltage DC loads. Never wire wall power on a breadboard.",
-          "Wall power can kill.",
-        ],
-      ),
-    );
-  } else if (has("relay-module-5v-1ch")) {
-    steps.push(
-      step(
-        "Relay is active LOW — low-voltage DC only",
-        "IN is active LOW. Only switch low-voltage DC. This guide never covers mains.",
-        ["Never wire wall power on a breadboard."],
-      ),
-    );
   }
 
   if (has("buzzer-active-ky012") && three) {
@@ -200,15 +164,7 @@ export function compatFixes(
   }
 
   if (has("rfid-rc522") && !three) {
-    extras.push(extra("level-shifter-spi", "level shifter on SCK/MOSI/SDA/RST"));
-    steps.push(
-      step(
-        "5V board — RC522 is 3.3V only",
-        "Power the RC522 from 3V3 only. Put a level shifter on SCK, MOSI, SDA and RST. MISO at 3.3V is fine for AVR.",
-        [],
-        extras.filter((e) => e.component === "level-shifter-spi").map((e) => e.id),
-      ),
-    );
+    extras.push(extra("level-shifter-bss138", "BSS138 shifter on SCK, MOSI, SS and RST"));
   }
 
   if (has("bme280-i2c-breakout") && !three) {
@@ -221,15 +177,11 @@ export function compatFixes(
   }
 
   if (has("tm1637-4digit") && three) {
-    extras.push(extra("level-shifter-tm1637", "level shifter on CLK/DIO if you power the module from 5V"));
     steps.push(
       step(
-        "TM1637 is caution on a 3.3V board",
-        "Do not label this module safe on 3.3V. Prefer 5V power with CLK and DIO through a level shifter. If you power it from 3V3 instead, expect it dimmer and treat the wiring as caution.",
-        ["Never call the TM1637 3.3V-safe."],
-        extras
-          .filter((e) => e.component === "level-shifter-tm1637")
-          .map((e) => e.id),
+        "TM1637 — caution on 3.3V",
+        TM1637_CAUTION,
+        [TM1637_CAUTION],
       ),
     );
   }

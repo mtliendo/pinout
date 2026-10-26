@@ -112,7 +112,7 @@
       "mcu_3v3": {
         "status": "with_conditions",
         "needs": [
-          "Power from 3V3, not 5V: at 5V the chip wants ≥3.5V HIGH and a 3.3V GPIO is out of spec (module pull-ups also go to VCC). Expect it a bit dimmer."
+          "Caution: the TM1637 chip is only characterised at 4.5-5.5V. Common shortcut: power VCC from 3V3 and wire CLK/DIO direct (out of chip spec, usually works, a bit dimmer). In-spec option: VCC from 5V with CLK and DIO through a bidirectional level shifter (BSS138 type), since module pull-ups go to VCC. Never 5V VCC with CLK/DIO wired direct."
         ]
       },
       "mcu_5v": {

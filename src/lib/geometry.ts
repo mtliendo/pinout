@@ -147,12 +147,20 @@ export function headerSide(
   return y > 8 ? "right" : "left";
 }
 
+export function uartGpios(board: Component): number[] {
+  const uart = board.defaults?.uart0 as
+    | { tx?: number; rx?: number }
+    | undefined;
+  return [uart?.tx, uart?.rx].filter((n): n is number => typeof n === "number");
+}
+
 export function preferredSafeGpio(board: Component): number[] {
   const jtag = new Set([39, 40, 41, 42]);
   const caution = new Set(
     Object.keys(board.caution_gpio ?? {}).map((k) => Number(k)),
   );
   const noGo = new Set(Object.keys(board.no_go_gpio ?? {}).map((k) => Number(k)));
+  const uart = new Set(uartGpios(board));
   const listed = new Set(board.safe_gpio ?? []);
   const safe = [...listed].filter((gpio) => {
     if (caution.has(gpio) || noGo.has(gpio)) return false;
@@ -162,21 +170,76 @@ export function preferredSafeGpio(board: Component): number[] {
     if (flags.strapping || flags.usb || flags.psram_flash_reserved) return false;
     return true;
   });
-  return [...safe.filter((g) => !jtag.has(g)), ...safe.filter((g) => jtag.has(g))];
+  const rest = safe.filter((g) => !jtag.has(g));
+  return [
+    ...rest.filter((g) => !uart.has(g)),
+    ...rest.filter((g) => uart.has(g)),
+    ...safe.filter((g) => jtag.has(g)),
+  ];
+}
+
+export type SpiRole = "spi_sck" | "spi_mosi" | "spi_miso" | "spi_cs" | "spi_rst";
+
+function spiNum(
+  spi: Record<string, unknown> | undefined,
+  ...keys: string[]
+): number | undefined {
+  if (!spi) return undefined;
+  for (const key of keys) {
+    if (typeof spi[key] === "number") return spi[key] as number;
+  }
+  return undefined;
+}
+
+/** Hardware SPI from the board spec only — never inferred, even if caution. */
+export function spiDefaultGpio(
+  board: Component,
+  role: SpiRole,
+): number | undefined {
+  const spi = board.defaults?.spi as Record<string, unknown> | undefined;
+  if (role === "spi_sck") return spiNum(spi, "sck");
+  if (role === "spi_mosi") return spiNum(spi, "mosi", "tx_mosi", "copi");
+  if (role === "spi_miso") return spiNum(spi, "miso", "rx_miso", "cipo");
+  if (role === "spi_cs") return spiNum(spi, "ss", "cs", "csn");
+  if (role === "spi_rst") {
+    return spiNum(spi, "rst") ?? (board.chip === "atmega328p" ? 9 : undefined);
+  }
+  return undefined;
+}
+
+export function hardwareSpiGpios(board: Component): number[] {
+  const roles: SpiRole[] = [
+    "spi_sck",
+    "spi_mosi",
+    "spi_miso",
+    "spi_cs",
+    "spi_rst",
+  ];
+  return [
+    ...new Set(
+      roles
+        .map((role) => spiDefaultGpio(board, role))
+        .filter((n): n is number => typeof n === "number"),
+    ),
+  ];
 }
 
 /** Default I2C/SPI GPIOs from the spec only — never inferred. */
 export function defaultBusGpio(
   board: Component,
-  which: "i2c_sda" | "i2c_scl" | "spi_sck" | "spi_mosi" | "spi_miso",
+  which:
+    | "i2c_sda"
+    | "i2c_scl"
+    | "spi_sck"
+    | "spi_mosi"
+    | "spi_miso"
+    | "spi_cs"
+    | "spi_rst",
 ): number | undefined {
   const i2c = board.defaults?.i2c;
   if (which === "i2c_sda" && typeof i2c?.sda === "number") return i2c.sda;
   if (which === "i2c_scl" && typeof i2c?.scl === "number") return i2c.scl;
-  const spi = board.defaults?.spi;
-  if (which === "spi_sck") return spi?.sck;
-  if (which === "spi_mosi") return spi?.mosi;
-  if (which === "spi_miso") return spi?.miso;
+  if (which.startsWith("spi_")) return spiDefaultGpio(board, which as SpiRole);
   const needle =
     which === "i2c_sda"
       ? /default i2c sda/i

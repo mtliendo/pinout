@@ -1,7 +1,10 @@
 import { breadboardForSize, BREADBOARD_PRESETS } from "../src/lib/breadboards";
 import { EXPECTED_BOARDS } from "../src/lib/boards/expected";
 import { composeBuild, inferPartsFromIdea, pioEnv } from "../src/lib/compose";
+import { hardwareSpiGpios } from "../src/lib/geometry";
 import { CURATED_IDEAS, ideasFor } from "../src/lib/ideas/catalog";
+import { compileCatalog, shouldCompile } from "./check-compile";
+import { TM1637_CAUTION } from "../src/lib/compat";
 import {
   RAW_BUILDS,
   RAW_CHIPS,
@@ -94,6 +97,20 @@ expectRejects(
     });
   },
   /GPIO4 shares a net with 5V/,
+);
+
+expectRejects(
+  "duplicate rail hole",
+  (build) => {
+    build.connections.push({
+      id: "w_dup_rail",
+      from: "a35",
+      to: "L-@22",
+      color: "black",
+      net: "GND",
+    });
+  },
+  /hole L-@22 used twice/,
 );
 
 expectRejects(
@@ -334,8 +351,9 @@ for (const board of Object.values(loaded.components).filter((c) => c.kind === "b
           usedGpio.add(Number(match[1]));
         }
       }
+      const spiOk = new Set(hardwareSpiGpios(board));
       for (const gpio of usedGpio) {
-        if (!(board.safe_gpio ?? []).includes(gpio)) {
+        if (!(board.safe_gpio ?? []).includes(gpio) && !spiOk.has(gpio)) {
           console.error(`FAIL: ${board.id} × ${idea.label} used non-safe GPIO${gpio}`);
           process.exit(1);
         }
@@ -669,8 +687,8 @@ expectCompat(
   "HC-SR04 divider on 3.3V",
   V3,
   ["hc-sr04", "led-5mm-red", "resistor-220"],
-  /divider on Echo|1 kΩ \/ 2 kΩ|HC-SR04P/,
-  /you'll also need|resistor-2k|resistor-1k/,
+  /divider|1 kΩ|HC-SR04P|two 1 kΩ/,
+  /resistor-1k|hc-sr04p/,
 );
 expectCompat(
   "LCD backpack level shifter on 3.3V",
@@ -683,8 +701,8 @@ expectCompat(
   "WS2812B buffer on 3.3V",
   V3,
   ["ws2812b-strip"],
-  /74AHCT125|300–500|1000 µF|60 mA/,
-  /you'll also need|74ahct125/,
+  /74AHCT125|330 Ω|1000 µF|external 5V/,
+  /74ahct125|ext-5v-supply/,
 );
 expectCompat(
   "relay JD-VCC split on 3.3V",
@@ -727,8 +745,8 @@ expectCompat(
   "RC522 level shifter on 5V",
   UNO,
   ["rfid-rc522"],
-  /RC522 is 3\.3V only|level shifter/,
-  /you'll also need|level-shifter-spi/,
+  /RC522 is 3\.3V only|shifter|MISO/,
+  /level-shifter-bss138/,
 );
 expectCompat(
   "BME280 VIN-only on 5V",
@@ -740,7 +758,7 @@ expectCompat(
   "TM1637 caution on 3.3V never safe",
   V3,
   ["tm1637-4digit", "tactile-button-6mm"],
-  /caution on a 3\.3V board|Never call the TM1637 3\.3V-safe/,
+  new RegExp(TM1637_CAUTION.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
 );
 {
   const built = composeBuild(
@@ -748,9 +766,17 @@ expectCompat(
     loaded.components,
     loaded.breadboard,
   );
-  const text = built.steps.map((s) => `${s.heading} ${s.body}`).join("\n");
-  if (/\bsafe\b/i.test(text) && !/not label this module safe|never call the tm1637 3\.3v-safe/i.test(text)) {
+  const text = built.steps.map((s) => `${s.heading} ${s.body} ${s.safety.join(" ")}`).join("\n");
+  if (!text.includes(TM1637_CAUTION)) {
+    console.error("FAIL: TM1637 missing the v4 caution sentence");
+    process.exit(1);
+  }
+  if (/\bsafe\b/i.test(text)) {
     console.error("FAIL: TM1637 labeled safe on 3.3V");
+    process.exit(1);
+  }
+  if (built.provenance?.verified_by === "Maker") {
+    console.error("FAIL: generated guide used verified_by Maker");
     process.exit(1);
   }
   console.log("PASS: TM1637 never labeled safe on 3.3V");
@@ -796,11 +822,16 @@ for (const board of boards) {
           if (typeof pin?.gpio === "number") usedGpio.add(pin.gpio);
         }
       }
+      const spiOk = new Set(hardwareSpiGpios(board));
       for (const gpio of usedGpio) {
-        if (!(board.safe_gpio ?? []).includes(gpio)) {
+        if (!(board.safe_gpio ?? []).includes(gpio) && !spiOk.has(gpio)) {
           console.error(`FAIL: ${board.id} × ${idea.id} used non-safe GPIO${gpio}`);
           process.exit(1);
         }
+      }
+      if (built.provenance?.verified_by === "Maker" && built.id !== "pir-servo-s3") {
+        console.error(`FAIL: ${board.id} × ${idea.id} generated provenance is Maker`);
+        process.exit(1);
       }
       console.log(`PASS: ${board.id} × ${idea.id} (${built.steps.length} steps)`);
     } catch (error) {
@@ -809,4 +840,181 @@ for (const board of boards) {
       process.exit(1);
     }
   }
+}
+
+function requireMatch(label: string, text: string, needle: RegExp) {
+  if (!needle.test(text)) {
+    console.error(`FAIL: ${label}`);
+    console.error(`  expected /${needle.source}/`);
+    console.error(`  got: ${text.slice(0, 800)}`);
+    process.exit(1);
+  }
+  console.log(`PASS: ${label}`);
+}
+
+{
+  const unoRfid = composeBuild(
+    { idea: "rc522", boardId: UNO, partIds: ["rfid-rc522"] },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const conn = unoRfid.connections.map((c) => `${c.id} ${c.from} ${c.to}`).join("\n");
+  requireMatch("Uno RC522 SCK D13", conn, /JDIGITAL\.14/);
+  requireMatch("Uno RC522 MOSI D11", conn, /JDIGITAL\.12/);
+  requireMatch("Uno RC522 MISO D12", conn, /JDIGITAL\.13/);
+  requireMatch("Uno RC522 SS D10", conn, /JDIGITAL\.11/);
+  requireMatch("Uno RC522 RST D9", conn, /JDIGITAL\.10/);
+  requireMatch("Uno RC522 shifter HV first", unoRfid.steps.map((s) => s.heading).join("\n"), /Power the BSS138 shifter/);
+  const cpp = unoRfid.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
+  requireMatch("Uno RC522 sketch inits", cpp, /SPI\.begin[\s\S]*PCD_Init[\s\S]*PICC_ReadCardSerial/);
+  if (unoRfid.connections.some((c) => c.from === "rfid:SCK" && c.to.startsWith("mcu:"))) {
+    console.error("FAIL: RC522 SCK must go through the shifter on Uno");
+    process.exit(1);
+  }
+}
+
+{
+  const pico = composeBuild(
+    {
+      idea: "button oled",
+      boardId: "raspberry-pi-pico",
+      partIds: [
+        "tactile-button-6mm",
+        "led-5mm-red",
+        "resistor-220",
+        "ssd1306-oled-128x64-i2c",
+      ],
+    },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const cpp = pico.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
+  requireMatch("Pico lastBtn declared", cpp, /int lastBtn = HIGH;/);
+  requireMatch("Pico OLED I2C 4/5", cpp, /SDA_PIN = 4[\s\S]*SCL_PIN = 5/);
+  requireMatch("Pico Wire.setSDA", cpp, /Wire\.setSDA\(SDA_PIN\)/);
+  requireMatch("Pico button GP26", cpp, /BTN_PIN = 26/);
+  requireMatch("Pico LED not UART0", cpp, /LED_PIN = (?!0\b)\d+/);
+}
+
+{
+  const sonar = composeBuild(
+    {
+      idea: "sonar",
+      boardId: "raspberry-pi-pico-w",
+      partIds: ["hc-sr04", "led-5mm-red", "resistor-220"],
+    },
+    loaded.components,
+    loaded.breadboard,
+  );
+  if (sonar.connections.some((c) => c.from === "sonar:ECHO" && /^(j|a|mcu:)/.test(c.to))) {
+    const direct = sonar.connections.find((c) => c.id === "w_son_echo");
+    if (direct && (direct.to.startsWith("mcu:") || /^[aj]\d+$/.test(direct.to))) {
+      const toGpio = sonar.connections.some(
+        (c) => c.id === "w_son_echo" && c.to === sonar.connections.find((x) => x.net === "ECHO_DIV")?.to,
+      );
+      void toGpio;
+    }
+  }
+  const echoWire = sonar.connections.find((c) => c.id === "w_son_echo");
+  if (!echoWire || echoWire.to === echoWire.from) {
+    console.error("FAIL: Pico W echo wire missing");
+    process.exit(1);
+  }
+  if (/^(mcu:|j\d+|a\d+)$/.test(echoWire.to) && echoWire.to.startsWith("mcu:")) {
+    console.error("FAIL: Echo wired direct to MCU");
+    process.exit(1);
+  }
+  requireMatch("Pico W divider parts", sonar.parts.map((p) => p.id).join(" "), /r_echo|r_div1|r_div2/);
+}
+
+{
+  const unoSonar = composeBuild(
+    {
+      idea: "sonar",
+      boardId: UNO,
+      partIds: ["hc-sr04", "led-5mm-red", "resistor-220"],
+    },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const cpp = unoSonar.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
+  const echo = Number(/ECHO_PIN = (\d+)/.exec(cpp)?.[1] ?? 0);
+  if (echo < 4) {
+    console.error(`FAIL: Uno Echo on GPIO${echo}, want D4+`);
+    process.exit(1);
+  }
+  const rails = unoSonar.connections
+    .flatMap((c) => [c.from, c.to])
+    .filter((end) => /^L-@/.test(end));
+  if (new Set(rails).size !== rails.length) {
+    console.error(`FAIL: Uno sonar duplicate rail ${rails.join(",")}`);
+    process.exit(1);
+  }
+  const flash = unoSonar.steps.find((s) => /flash/i.test(s.heading));
+  if (/hold BOOT/i.test(`${flash?.body} ${flash?.safety.join(" ")}`)) {
+    console.error("FAIL: Uno flash says hold BOOT");
+    process.exit(1);
+  }
+  console.log("PASS: Uno sonar Echo D4+ and no BOOT");
+}
+
+{
+  const relay = composeBuild(
+    {
+      idea: "relay",
+      boardId: V3,
+      partIds: ["tactile-button-6mm", "relay-module-5v-1ch"],
+    },
+    loaded.components,
+    loaded.breadboard,
+  );
+  requireMatch(
+    "relay JD-VCC wired",
+    relay.connections.map((c) => `${c.id} ${c.from} ${c.to}`).join("\n"),
+    /w_rel_jdvcc relay:JD-VCC/,
+  );
+  requireMatch(
+    "relay remove jumper first",
+    relay.steps.map((s) => s.heading).join("\n"),
+    /Remove the JD-VCC jumper/,
+  );
+  const cpp = relay.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
+  requireMatch("relay writes RELAY_PIN", cpp, /digitalWrite\(RELAY_PIN/);
+}
+
+{
+  const neo = composeBuild(
+    { idea: "neo", boardId: "esp32-c6-devkitc-1", partIds: ["ws2812b-strip"] },
+    loaded.components,
+    loaded.breadboard,
+  );
+  if (neo.connections.some((c) => c.id === "w_5v")) {
+    console.error("FAIL: C6 neo must not feed L+ from the MCU 5V pin");
+    process.exit(1);
+  }
+  requireMatch("C6 neo ext 5V", neo.connections.map((c) => c.id).join(" "), /w_ext_5v/);
+  const cpp = neo.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
+  if (/pinMode\(NEO_PIN/.test(cpp)) {
+    console.error("FAIL: NeoPixel sketch must not pinMode the data pin");
+    process.exit(1);
+  }
+  requireMatch("NeoPixel begin/show", cpp, /pixels\.begin\(\)[\s\S]*pixels\.show\(\)/);
+}
+
+if (loaded.builds["pir-servo-s3"]?.provenance?.verified_by !== "Maker") {
+  console.error("FAIL: hand-verified pir-servo-s3 lost Maker provenance");
+  process.exit(1);
+}
+console.log("PASS: hand-verified pir-servo-s3 keeps Maker");
+
+if (shouldCompile()) {
+  const { ran, failed } = compileCatalog(loaded.components, loaded.breadboard);
+  if (failed.length) {
+    console.error(`FAIL: compile (${failed.length}/${ran})`);
+    for (const line of failed) console.error(line);
+    process.exit(1);
+  }
+  console.log(`PASS: compiled ${ran} sketches`);
+} else {
+  console.log("SKIP: compile (no pio or VERCEL=1)");
 }

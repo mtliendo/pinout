@@ -1,0 +1,197 @@
+{
+  "id": "level-shifter-bss138",
+  "name": "4-channel BSS138 bidirectional level shifter",
+  "kind": "passive",
+  "body": {
+    "length_mm": {
+      "value": 16,
+      "approx": true,
+      "note": "Common 4-ch module; size varies by clone"
+    },
+    "width_mm": {
+      "value": 13,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 3,
+      "approx": true,
+      "note": "approx"
+    }
+  },
+  "colors": {
+    "pcb": "#1d4f91"
+  },
+  "headers": [
+    {
+      "id": "HV",
+      "kind": "male header",
+      "origin_mm": [0, 0],
+      "pitch": 2.54,
+      "count": 6,
+      "orientation": "+X",
+      "pin1": "HV",
+      "pin_order_approx": true,
+      "note": "HV side: HV, HV1–HV4, GND. Breakout pin order varies by clone."
+    },
+    {
+      "id": "LV",
+      "kind": "male header",
+      "origin_mm": [0, 10],
+      "pitch": 2.54,
+      "count": 6,
+      "orientation": "+X",
+      "pin1": "LV",
+      "pin_order_approx": true,
+      "note": "LV side: LV, LV1–LV4, GND."
+    }
+  ],
+  "pins": [
+    {
+      "id": "HV",
+      "label": "HV",
+      "header": 0,
+      "position": { "index": 1, "x": 0.0, "y": 0.0 },
+      "functions": ["power"],
+      "voltage": "5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "LV",
+      "label": "LV",
+      "header": 1,
+      "position": { "index": 1, "x": 0.0, "y": 10.0 },
+      "functions": ["power"],
+      "voltage": "3.3V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": { "index": 6, "x": 12.7, "y": 0.0 },
+      "functions": ["GND"],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "HV1",
+      "label": "HV1",
+      "header": 0,
+      "position": { "index": 2, "x": 2.54, "y": 0.0 },
+      "functions": ["level shift"],
+      "voltage": "HV side",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "LV1",
+      "label": "LV1",
+      "header": 1,
+      "position": { "index": 2, "x": 2.54, "y": 10.0 },
+      "functions": ["level shift"],
+      "voltage": "LV side",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "HV2",
+      "label": "HV2",
+      "header": 0,
+      "position": { "index": 3, "x": 5.08, "y": 0.0 },
+      "functions": ["level shift"],
+      "voltage": "HV side",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "LV2",
+      "label": "LV2",
+      "header": 1,
+      "position": { "index": 3, "x": 5.08, "y": 10.0 },
+      "functions": ["level shift"],
+      "voltage": "LV side",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "HV3",
+      "label": "HV3",
+      "header": 0,
+      "position": { "index": 4, "x": 7.62, "y": 0.0 },
+      "functions": ["level shift"],
+      "voltage": "HV side",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "LV3",
+      "label": "LV3",
+      "header": 1,
+      "position": { "index": 4, "x": 7.62, "y": 10.0 },
+      "functions": ["level shift"],
+      "voltage": "LV side",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "HV4",
+      "label": "HV4",
+      "header": 0,
+      "position": { "index": 5, "x": 10.16, "y": 0.0 },
+      "functions": ["level shift"],
+      "voltage": "HV side",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "LV4",
+      "label": "LV4",
+      "header": 1,
+      "position": { "index": 5, "x": 10.16, "y": 10.0 },
+      "functions": ["level shift"],
+      "voltage": "LV side",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "type": "BSS138 MOSFET bidirectional shifter",
+    "channels": 4
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": { "min": 1.8, "max": 10 },
+    "logic": { "level": "HV and LV are separate rails" },
+    "compat": {
+      "mcu_3v3": { "status": "yes", "needs": [] },
+      "mcu_5v": { "status": "yes", "needs": [] }
+    },
+    "interface": { "type": "level shifter" },
+    "current_ma": { "note": "signal only" },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [],
+    "approx_fields": ["body", "pin_order"]
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn.sparkfun.com/datasheets/BreakoutBoards/Logic_Level_Bidirectional.pdf"
+    ],
+    "revision": "SparkFun BSS138 4-ch bidirectional shifter (typical clone)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

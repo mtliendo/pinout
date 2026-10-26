@@ -482,7 +482,7 @@ test.describe("Pinout preview", () => {
     expect(sonar.ok(), await sonar.text()).toBeTruthy();
     const guide = (await sonar.json()) as Guide;
     const text = guide.build.steps.map((s) => `${s.heading} ${s.body}`).join("\n");
-    expect(text).toMatch(/divider on Echo|1 kΩ \/ 2 kΩ|HC-SR04P/);
+    expect(text).toMatch(/divider|1 kΩ|HC-SR04P/);
     expect(guide.build.parts.some((p) => /you'll also need/i.test((p as { note?: string }).note ?? "") || p.component === "resistor-1k")).toBeTruthy();
   });
 

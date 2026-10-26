@@ -56,6 +56,20 @@
       "pin1": "NO",
       "pin_order_approx": true,
       "note": "NO-COM-NC; order varies. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    },
+    {
+      "id": "JD",
+      "kind": "male header (JD-VCC jumper)",
+      "origin_mm": [
+        0,
+        12
+      ],
+      "pitch": 2.54,
+      "count": 1,
+      "orientation": "+X",
+      "pin1": "JD-VCC",
+      "pin_order_approx": true,
+      "note": "Remove this jumper before feeding JD-VCC from a separate 5V supply (Handsontec). Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
     }
   ],
   "pins": [
@@ -158,10 +172,28 @@
       "voltage": "load",
       "flags": {},
       "warnings": []
+    },
+    {
+      "id": "JD-VCC",
+      "label": "JD-VCC",
+      "header": 2,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 12.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V coil supply",
+      "flags": {},
+      "warnings": [
+        "First remove the JD-VCC jumper, then feed this pin from 5V. Never 3V3."
+      ]
     }
   ],
   "electrical": {
-    "coil": "SRD-05: 5V, 71.4 mA / 70Ω (high-sensitivity 0.36W) or 89.3 mA / 55Ω (standard 0.45W)",
+    "coil": "SRD-05: 5V, 71.4 mA / 70\u03a9 (high-sensitivity 0.36W) or 89.3 mA / 55\u03a9 (standard 0.45W)",
     "contacts": "10A 250VAC / 10A 30VDC (module)",
     "input_current_ma": "15-20 (Handsontec)",
     "variants": "With optocoupler (Handsontec style, JD-VCC jumper) or without (transistor only). Look for a 4-pin opto chip (often PC817) near IN."
@@ -190,8 +222,9 @@
       "mcu_3v3": {
         "status": "with_conditions",
         "needs": [
-          "Coil needs 5V: VCC/JD-VCC from 5V, never 3V3.",
-          "Reliable 3.3V control (Handsontec): pull the JD-VCC jumper, 5V to JD-VCC, 3V3 to VCC, GPIO to IN. Or drive IN with a PN2222 stage."
+          "The coil needs 5V: JD-VCC (or VCC with the jumper on) must come from 5V, never 3V3.",
+          "Reliable 3.3V control (Handsontec opto boards): first remove the JD-VCC jumper, then 5V to JD-VCC, 3V3 to VCC, GPIO to IN, and GND to GND. No-opto boards: VCC from 5V and drive IN through a PN2222 stage.",
+          "Dev-board 5V pins are only live on USB power."
         ]
       },
       "mcu_5v": {
