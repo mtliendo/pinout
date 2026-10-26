@@ -502,6 +502,19 @@ export function validateBuild(
     }
   }
 
+  const jumperRemoval = build.steps.some((step) =>
+    /Remove the JD-VCC jumper/.test(step.heading),
+  );
+  if (jumperRemoval) {
+    const jdToRail = build.connections.some((wire) => {
+      const ends = [wire.from, wire.to];
+      return ends.includes("relay:JD-VCC") && ends.some((end) => /^L\+@/.test(end));
+    });
+    if (!jdToRail) {
+      err.push("jumper-removal step has no JD-VCC wire to the + rail");
+    }
+  }
+
   const nets: Record<
     string,
     Array<{ node: string; component: Component; pin: Pin }>

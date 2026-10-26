@@ -1052,6 +1052,14 @@ export function composeBuild(
   }
 
   if (roles.relay && byRole.relay) {
+    add({
+      id: "w_rel_jdvcc",
+      from: "relay:JD-VCC",
+      to: railOf("L+", 14, breadboard),
+      color: "red",
+      length_mm: 80,
+      net: "5V",
+    });
     if (relaySplit) {
       add({
         id: "w_rel_vcc",
@@ -2050,10 +2058,10 @@ function buildSteps(args: {
       heading: "Wire the relay module",
       body: relaySplit
         ? `Read the silkscreen on YOUR relay board before wiring — pin order and the JD-VCC header vary by clone. After the jumper is off, JD-VCC to the 5V-fed + rail, VCC to 3V3 (${power.three}), IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}), GND to the − rail. Active LOW. Only switch low-voltage DC. Dev-board 5V pins are only live on USB power.`
-        : `Read the silkscreen on YOUR relay board before wiring — pin order varies by clone. VCC to the + rail, GND to the − rail, IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}). The coil is active LOW. Only switch low-voltage DC.`,
+        : `Read the silkscreen on YOUR relay board before wiring — pin order and the JD-VCC header vary by clone. JD-VCC and VCC to the + rail (separate holes), GND to the − rail, IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}). The coil is active LOW. Only switch low-voltage DC.`,
       parts_needed: ["relay", "jumpers_fm"],
       highlight: ["relay", byRole.relay.pin.id],
-      connections_added: ["w_rel_vcc", "w_rel_gnd", "w_rel_in"],
+      connections_added: ["w_rel_jdvcc", "w_rel_vcc", "w_rel_gnd", "w_rel_in"],
       camera: "right-close",
       callout: "relay:IN",
       safety: [

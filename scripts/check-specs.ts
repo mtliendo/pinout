@@ -1066,8 +1066,16 @@ function requireMatch(label: string, text: string, needle: RegExp) {
     loaded.components,
     loaded.breadboard,
   );
-  if (relay.connections.some((c) => c.from === "relay:JD-VCC" || c.to === "relay:JD-VCC")) {
-    console.error("FAIL: relay must not invent a JD-VCC pin");
+  const jd = relay.connections.find((c) => c.id === "w_rel_jdvcc");
+  if (!jd || jd.from !== "relay:JD-VCC" || !/^L\+@/.test(jd.to)) {
+    console.error(
+      `FAIL: S3 relay missing JD-VCC → L+ wire (got ${jd ? `${jd.from} ${jd.to}` : "none"})`,
+    );
+    process.exit(1);
+  }
+  const wireStep = relay.steps.find((s) => /Wire the relay/.test(s.heading));
+  if (!wireStep?.connections_added?.includes("w_rel_jdvcc")) {
+    console.error("FAIL: step 5 must draw w_rel_jdvcc");
     process.exit(1);
   }
   requireMatch(
@@ -1082,6 +1090,52 @@ function requireMatch(label: string, text: string, needle: RegExp) {
   );
   const cpp = relay.steps.find((s) => s.code)?.code?.["src/main.cpp"] ?? "";
   requireMatch("relay writes RELAY_PIN", cpp, /digitalWrite\(RELAY_PIN/);
+
+  const stripped = structuredClone(relay);
+  stripped.connections = stripped.connections.filter((c) => c.id !== "w_rel_jdvcc");
+  for (const step of stripped.steps) {
+    step.connections_added = (step.connections_added ?? []).filter((id) => id !== "w_rel_jdvcc");
+  }
+  const strippedErrors = validateBuild(stripped, loaded.components, loaded.breadboard);
+  if (!strippedErrors.some((line) => /JD-VCC wire/.test(line))) {
+    console.error("FAIL: jumper-removal without JD-VCC must fail validateBuild");
+    console.error(`  got: ${strippedErrors.join(" | ") || "(no errors)"}`);
+    process.exit(1);
+  }
+  console.log("PASS: jumper-removal without JD-VCC is rejected");
+}
+
+{
+  const boardsWithRelay = Object.values(loaded.components).filter((c) => c.kind === "board");
+  for (const board of boardsWithRelay) {
+    const built = composeBuild(
+      {
+        idea: "relay",
+        boardId: board.id,
+        partIds: ["tactile-button-6mm", "relay-module-5v-1ch"],
+      },
+      loaded.components,
+      loaded.breadboard,
+    );
+    const jd = built.connections.find((c) => c.id === "w_rel_jdvcc");
+    const ends = jd ? [jd.from, jd.to] : [];
+    if (!jd || !ends.includes("relay:JD-VCC") || !ends.some((end) => /^L\+@/.test(end))) {
+      console.error(`FAIL: ${board.id} relay missing JD-VCC → L+`);
+      process.exit(1);
+    }
+    const wireStep = built.steps.find((s) => /Wire the relay/.test(s.heading));
+    if (!wireStep?.connections_added?.includes("w_rel_jdvcc")) {
+      console.error(`FAIL: ${board.id} relay step does not draw w_rel_jdvcc`);
+      process.exit(1);
+    }
+    const errors = validateBuild(built, loaded.components, loaded.breadboard);
+    if (errors.length) {
+      console.error(`FAIL: ${board.id} relay validate`);
+      for (const line of errors) console.error(`  ${line}`);
+      process.exit(1);
+    }
+  }
+  console.log(`PASS: ${boardsWithRelay.length} boards wire relay JD-VCC to L+`);
 }
 
 {

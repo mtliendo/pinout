@@ -56,6 +56,20 @@
       "pin1": "NO",
       "pin_order_approx": true,
       "note": "NO-COM-NC; order varies. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    },
+    {
+      "id": "JD",
+      "kind": "JD-VCC pin of the 3-pin JD-VCC/VCC/GND jumper header (opto boards only)",
+      "origin_mm": [
+        0,
+        8
+      ],
+      "pitch": 2.54,
+      "count": 1,
+      "orientation": "+X",
+      "pin1": "JD-VCC",
+      "pin_order_approx": true,
+      "note": "APPROXIMATE position: the Handsontec doc shows a JD-VCC/VCC/GND header beside the logic pins but gives no dimensions. Read the silkscreen on YOUR board. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
     }
   ],
   "pins": [
@@ -158,6 +172,24 @@
       "voltage": "load",
       "flags": {},
       "warnings": []
+    },
+    {
+      "id": "JD-VCC",
+      "label": "JD-VCC",
+      "header": 2,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 8
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V relay-coil supply when the JD-VCC jumper is removed (Handsontec)",
+      "flags": {},
+      "warnings": [
+        "Remove the JD-VCC jumper first, then feed 5V here. Never 3V3."
+      ]
     }
   ],
   "electrical": {
