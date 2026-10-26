@@ -19,7 +19,6 @@ import {
   GuideArrow,
   partWorld,
 } from "./models";
-import { dim } from "@/lib/specs/schema";
 
 export function BuildScene({
   payload,
@@ -151,9 +150,6 @@ export function CameraRig({
   useFrame((state, delta) => {
     if (preview) {
       spin.current += delta * 0.18;
-      const length = dim(payload.breadboard.body?.length_mm, 165);
-      const cx = length / 2;
-      const cz = 14;
       const cam = state.camera as THREE.PerspectiveCamera;
       cam.fov += (40 - cam.fov) * 0.08;
       cam.updateProjectionMatrix();
