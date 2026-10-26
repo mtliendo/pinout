@@ -52,7 +52,7 @@ function trackConsole(page: Page) {
     );
 }
 
-async function pickBoard(page: Page, name = /DevKitC-1|ESP32-S3-DevKitC/) {
+async function pickBoard(page: Page, name = /S3-DevKitC|N16R8/) {
   await expect(page.getByTestId("board-picker")).toBeVisible({ timeout: 60_000 });
   const cards = page.locator(".board-card");
   const count = await cards.count();
@@ -371,7 +371,8 @@ test.describe("Pinout preview", () => {
     await expect(page.getByRole("heading", { name: "Sensors" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Displays" })).toBeVisible();
     await page.getByPlaceholder("Search the catalog").fill("HC-SR04");
-    await expect(page.getByRole("button", { name: /HC-SR04 ultrasonic/ })).toHaveCount(2);
+    await expect(page.getByRole("button", { name: "HC-SR04 ultrasonic distance sensor (5V)" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /HC-SR04P/ })).toBeVisible();
     await expect(page.getByRole("button", { name: /SG90|servo/i })).toHaveCount(0);
   });
 
