@@ -52,6 +52,7 @@ export function BuildViewer() {
   const last = payload?.build.steps[total - 1];
 
   useLayoutEffect(() => {
+    setProgress(0);
     let frame = 0;
     const start = performance.now();
     const duration = 850;
@@ -61,7 +62,11 @@ export function BuildViewer() {
       if (t < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    const interval = window.setInterval(() => tick(performance.now()), 32);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearInterval(interval);
+    };
   }, [stepIndex]);
 
   useEffect(() => {

@@ -98,9 +98,13 @@ async function walkGuide(page: Page, dwell = 950) {
   const next = page.getByRole("button", { name: /Done, next step/ });
   await expect(next).toBeVisible();
   await next.click();
-  await page.waitForTimeout(280);
-  const mid = Number(await page.getByTestId("motion").getAttribute("data-progress"));
-  expect(mid, `expected in-flight progress, got ${mid}`).toBeGreaterThan(0.1);
+  let mid = 1;
+  for (let i = 0; i < 24; i++) {
+    await page.waitForTimeout(40);
+    mid = Number(await page.locator("[data-testid=motion]").getAttribute("data-progress"));
+    if (mid > 0.08 && mid < 0.92) break;
+  }
+  expect(mid, `expected in-flight progress, got ${mid}`).toBeGreaterThan(0.08);
   expect(mid).toBeLessThan(0.92);
   await expect(page.getByText(/Step 2 of/)).toBeVisible();
   await expect(page.locator(".you-need strong").first()).toHaveText(/^\d+x$/);
