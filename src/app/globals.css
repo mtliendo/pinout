@@ -807,6 +807,35 @@ input {
   margin: var(--space-lg) 0;
 }
 
+.parts-picker {
+  display: grid;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+
+.parts-search input {
+  width: 100%;
+  border: 1px solid var(--color-rule);
+  border-radius: 12px;
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+  padding: 10px 14px;
+  font: inherit;
+}
+
+.parts-cat h2 {
+  font-size: 1.05rem;
+  margin: 0 0 var(--space-xs);
+}
+
+.approx-badge {
+  margin-left: 6px;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: inherit;
+  opacity: 0.7;
+}
+
 @media (max-width: 960px) {
   .home-grid {
     grid-template-columns: 1fr;

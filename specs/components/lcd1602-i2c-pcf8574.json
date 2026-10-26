@@ -1,0 +1,188 @@
+{
+  "id": "lcd1602-i2c-pcf8574",
+  "name": "16x2 character LCD (HD44780) with PCF8574 I2C backpack",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 80,
+    "width_mm": 36,
+    "height_mm": {
+      "value": 20,
+      "approx": true,
+      "note": "Incl. backpack; not dimensioned."
+    },
+    "source": "Handsontec: board size 80x36 mm"
+  },
+  "colors": {
+    "pcb": "#1b5e20",
+    "bezel": "#111111",
+    "screen": "#1e5bd8"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "GND",
+      "pin_order_approx": true,
+      "note": "Backpack order usually GND-VCC-SDA-SCL (LME). Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VCC",
+      "label": "VCC",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V (Handsontec, LME)",
+      "flags": {},
+      "warnings": [
+        "The LCD needs 5V; at 3.3V it's dim or blank."
+      ]
+    },
+    {
+      "id": "SDA",
+      "label": "SDA",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "pulled up to VCC (5V) on the backpack",
+      "flags": {},
+      "warnings": [
+        "On a 3.3V MCU this pulls the GPIO to 5V."
+      ]
+    },
+    {
+      "id": "SCL",
+      "label": "SCL",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "I2C"
+      ],
+      "voltage": "pulled up to VCC (5V)",
+      "flags": {},
+      "warnings": [
+        "Same as SDA."
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "contrast",
+      "kind": "trimpot",
+      "note": "Blank screen is usually contrast: turn it."
+    },
+    {
+      "id": "backlight_jumper",
+      "kind": "jumper",
+      "note": "Remove to turn the backlight off."
+    }
+  ],
+  "electrical": {
+    "i2c_address_7bit": "PCF8574(T): 0x27 default (0x20-0x27). PCF8574A(T): 0x3F default (0x38-0x3F).",
+    "pcf8574_vcc_v": "2.5-6 (TI)"
+  },
+  "part": {
+    "category": "display",
+    "supply_v": {
+      "min": 5,
+      "max": 5,
+      "note": "Handsontec: supply 5V"
+    },
+    "logic": {
+      "level": "I2C pulled up to 5V on most backpacks"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Power VCC from 5V.",
+          "Backpack pull-ups go to 5V: use a bidirectional I2C level shifter (BSS138 type), or remove the backpack's pull-ups and add 3.3V ones. Wiring it direct 'usually works' but puts 5V on the GPIO; Pinout won't do that."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "I2C",
+      "i2c_addresses": [
+        "0x27",
+        "0x3F"
+      ],
+      "note": "Run an I2C scanner if neither answers."
+    },
+    "current_ma": {
+      "note": "Backlight dominates; not in fetched sources"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [
+      "marcoschwartz/LiquidCrystal_I2C"
+    ],
+    "approx_fields": [
+      "height",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.handsontec.com/dataspecs/module/I2C_1602_LCD.pdf",
+      "https://lastminuteengineers.com/i2c-lcd-arduino-tutorial/",
+      "https://www.ti.com/lit/ds/symlink/pcf8574.pdf"
+    ],
+    "revision": "Handsontec I2C 1602 sheet",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Address depends on chip (PCF8574 vs PCF8574A), not the seller."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

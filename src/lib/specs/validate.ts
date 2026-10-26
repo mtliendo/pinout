@@ -12,6 +12,10 @@ import {
   type Pin,
   type WireColors,
 } from "./schema";
+import {
+  validatePartsCatalog,
+  type PartsCatalogFile,
+} from "./validate-parts";
 
 export type ValidationIssue = { path: string; message: string };
 
@@ -265,6 +269,8 @@ export function validateCatalog(raw: {
   builds: unknown[];
   wireColors: unknown;
   chips?: unknown[];
+  partsCatalog?: unknown;
+  partsOverlay?: Record<string, unknown>;
 }): { catalog: Catalog | null; issues: ValidationIssue[] } {
   const issues: ValidationIssue[] = [];
   const components: Record<string, Component> = {};
@@ -332,6 +338,19 @@ export function validateCatalog(raw: {
       for (const message of validateBoardChip(comp, chips)) {
         issues.push({ path: `components/${comp.id}`, message });
       }
+    }
+  }
+
+  if (raw.partsCatalog) {
+    const byId = Object.fromEntries(
+      raw.components.map((c) => [(c as { id?: string })?.id ?? "?", c]),
+    );
+    for (const message of validatePartsCatalog({
+      catalog: raw.partsCatalog as PartsCatalogFile,
+      overlay: raw.partsOverlay ?? {},
+      components: byId,
+    })) {
+      issues.push({ path: "parts-catalog", message });
     }
   }
 

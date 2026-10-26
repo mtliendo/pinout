@@ -1,0 +1,132 @@
+{
+  "id": "resistor-4k7",
+  "name": "4.7 kΩ resistor, 1/4 W axial",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "lead 1",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "length_mm": {
+      "value": 6.3,
+      "approx": true,
+      "note": "Typical 1/4 W body; not from a fetched datasheet"
+    },
+    "diameter_mm": {
+      "value": 2.4,
+      "approx": true,
+      "note": "approx"
+    },
+    "span_holes": 4
+  },
+  "colors": {
+    "body": "#d8c49a",
+    "bands": [
+      "yellow",
+      "violet",
+      "red",
+      "gold"
+    ]
+  },
+  "headers": [
+    {
+      "id": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "either (non-polar)",
+      "note": "Bent to span 4 holes (10.16 mm) in builds."
+    }
+  ],
+  "pins": [
+    {
+      "id": "1",
+      "label": "lead 1",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0.0
+      },
+      "functions": [
+        "passive"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "2",
+      "label": "lead 2",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "passive"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "ohms": 4700,
+    "power_w": 0.25,
+    "tolerance": "±5% (gold band)",
+    "typical_use": "DS18B20 / I2C pull-up"
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": null,
+      "note": "Limited by 1/4 W"
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "passive"
+    },
+    "current_ma": {
+      "note": "P = V²/R ≤ 0.25 W"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "body"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.digikey.com/en/resources/conversion-calculators/conversion-calculator-resistor-color-code"
+    ],
+    "revision": "4-band color code (IEC 60062)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Body size approx; 1/4 W assumed (kit standard)."
+  },
+  "safe_gpio": [],
+  "features": []
+}

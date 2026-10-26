@@ -1,0 +1,141 @@
+{
+  "id": "buzzer-passive-ky006",
+  "name": "Passive buzzer module KY-006 (PWM tones)",
+  "kind": "actuator",
+  "body": {
+    "length_mm": 18.5,
+    "width_mm": 15,
+    "height_mm": {
+      "value": 10,
+      "approx": true,
+      "note": "approx"
+    },
+    "source": "Joy-IT: 18.5 x 15 mm"
+  },
+  "colors": {
+    "pcb": "#111111",
+    "buzzer": "#1a1a1a"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "S (signal)",
+      "pin_order_approx": true,
+      "note": "Joy-IT order Signal-(+V)-(−); Keyes boards vary. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "S",
+      "label": "S",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "PWM in"
+      ],
+      "voltage": "square wave; 1.5-2.5 kHz loudest",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VCC",
+      "label": "+ / middle",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3-5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "−",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "supply_v": "3.3-5 (Joy-IT)",
+    "tone_range_khz": "1.5-2.5"
+  },
+  "part": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5
+    },
+    "logic": {
+      "level": "PWM"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Use tone() / LEDC on ESP32."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "PWM (tone)"
+    },
+    "current_ma": {
+      "note": "Not published in fetched sources"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "pin_order",
+      "height"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://sensorkit.joy-it.net/en/sensors/ky-006"
+    ],
+    "revision": "Joy-IT SensorKit KY-006",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

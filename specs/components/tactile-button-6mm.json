@@ -119,5 +119,37 @@
     "verified_by": "Maker",
     "verified_on": "2026-10-26",
     "notes": "Wire to a GPIO with INPUT_PULLUP and the other side to GND; use diagonal legs to be safe."
+  },
+  "part": {
+    "category": "input",
+    "supply_v": {
+      "min": 0,
+      "max": 24
+    },
+    "logic": {
+      "level": "= MCU"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "INPUT_PULLUP, other leg to GND."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital"
+    },
+    "current_ma": {
+      "max": 50
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": []
   }
 }

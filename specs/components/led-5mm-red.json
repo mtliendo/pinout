@@ -84,5 +84,50 @@
     "revision": "generic T-1 3/4",
     "verified_by": "Maker",
     "verified_on": "2026-10-26"
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 2.5
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "220\u03a9 from 3.3V \u2248 6 mA."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "330\u03a9 from 5V."
+        ]
+      }
+    },
+    "interface": {
+      "type": "digital / PWM"
+    },
+    "current_ma": {
+      "max": 30
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "220\u03a9",
+        "between": [
+          "GPIO",
+          "A"
+        ]
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "height"
+    ]
   }
 }

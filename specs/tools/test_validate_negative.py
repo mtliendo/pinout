@@ -2,7 +2,7 @@
 """Negative tests: each mutation must make validate.py FAIL."""
 import json,shutil,subprocess,tempfile,os,sys
 HERE=os.path.dirname(os.path.abspath(__file__))
-SPECS=os.path.dirname(HERE)
+SPECS=os.path.dirname(HERE) if os.path.isdir(os.path.join(os.path.dirname(HERE),"components")) else HERE
 def J(d,p): return json.load(open(os.path.join(d,p)))
 def S(d,p,o): json.dump(o,open(os.path.join(d,p),"w"))
 def copy_specs(d):
@@ -10,7 +10,7 @@ def copy_specs(d):
         src=os.path.join(SPECS,name); dst=os.path.join(d,name)
         if os.path.isdir(src): shutil.copytree(src,dst)
         elif os.path.isfile(src): shutil.copy2(src,dst)
-    shutil.copy2(os.path.join(HERE,"validate.py"),os.path.join(d,"validate.py"))
+    shutil.copy2(os.path.join(HERE,"validate.py") if os.path.isfile(os.path.join(HERE,"validate.py")) else os.path.join(SPECS,"validate.py"), os.path.join(d,"validate.py"))
 def m_safe(f,g):
     def go(d): c=J(d,f); c["safe_gpio"].append(g); S(d,f,c)
     return go

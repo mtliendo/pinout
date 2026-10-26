@@ -1,0 +1,246 @@
+{
+  "id": "relay-module-5v-1ch",
+  "name": "5V 1-channel relay module (Songle SRD-05VDC-SL-C)",
+  "kind": "actuator",
+  "body": {
+    "length_mm": {
+      "value": 50,
+      "approx": true,
+      "note": "Common size; not dimensioned in fetched sources."
+    },
+    "width_mm": {
+      "value": 26,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 19,
+      "approx": true,
+      "note": "Relay height approx"
+    }
+  },
+  "colors": {
+    "pcb": "#1d4f91",
+    "relay": "#1e5bd8",
+    "terminal": "#1e88e5"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "VCC (DC+)",
+      "pin_order_approx": true,
+      "note": "Logic header is VCC-GND-IN or IN-GND-VCC depending on board. Opto boards add a JD-VCC/VCC/GND jumper header. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    },
+    {
+      "id": "LOAD",
+      "kind": "3-way screw terminal (LOAD SIDE)",
+      "origin_mm": [
+        0,
+        30
+      ],
+      "pitch": {
+        "value": 5.0,
+        "approx": true,
+        "note": "terminal pitch"
+      },
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "NO",
+      "pin_order_approx": true,
+      "note": "NO-COM-NC; order varies. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VCC",
+      "label": "VCC / DC+",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "GND / DC-",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "IN",
+      "label": "IN",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "Active LOW on opto boards (Handsontec); some boards active HIGH via jumper",
+      "flags": {},
+      "warnings": [
+        "With VCC=5V, a 3.3V HIGH may not fully turn the opto off, so the relay can stick on. See compat."
+      ]
+    },
+    {
+      "id": "NO",
+      "label": "NO",
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 30
+      },
+      "functions": [
+        "switched contact"
+      ],
+      "voltage": "relay contact (10A 250VAC / 30VDC rating)",
+      "flags": {},
+      "warnings": [
+        "Load side. Never touch while powered."
+      ]
+    },
+    {
+      "id": "COM",
+      "label": "COM",
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 5.0,
+        "y": 30
+      },
+      "functions": [
+        "switched contact"
+      ],
+      "voltage": "load",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "NC",
+      "label": "NC",
+      "header": 1,
+      "position": {
+        "index": 3,
+        "x": 10.0,
+        "y": 30
+      },
+      "functions": [
+        "switched contact"
+      ],
+      "voltage": "load",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "coil": "SRD-05: 5V, 71.4 mA / 70Ω (high-sensitivity 0.36W) or 89.3 mA / 55Ω (standard 0.45W)",
+    "contacts": "10A 250VAC / 10A 30VDC (module)",
+    "input_current_ma": "15-20 (Handsontec)",
+    "variants": "With optocoupler (Handsontec style, JD-VCC jumper) or without (transistor only). Look for a 4-pin opto chip (often PC817) near IN."
+  },
+  "safety": [
+    "Pinout guides only switch low-voltage DC loads (e.g. a 5-12V lamp or fan). Never wire wall power on a breadboard.",
+    "Wall power can kill. Switching it needs an enclosed, rated, fused setup checked by someone qualified. Never touch the screw terminals while anything is plugged in."
+  ],
+  "controls": [
+    {
+      "id": "jd_vcc_jumper",
+      "kind": "jumper",
+      "note": "In: relay coil fed from VCC. Out: feed JD-VCC from a separate 5V for real isolation (Handsontec)."
+    }
+  ],
+  "part": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 5,
+      "max": 5
+    },
+    "logic": {
+      "level": "IN active LOW (opto boards)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Coil needs 5V: VCC/JD-VCC from 5V, never 3V3.",
+          "Reliable 3.3V control (Handsontec): pull the JD-VCC jumper, 5V to JD-VCC, 3V3 to VCC, GPIO to IN. Or drive IN with a PN2222 stage."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "digital (active LOW)"
+    },
+    "current_ma": {
+      "typ": 71.4,
+      "max": 89.3,
+      "note": "Coil current (Songle) + 15-20 mA input (Handsontec)"
+    },
+    "required_passives": [
+      {
+        "kind": "flyback diode",
+        "value": "on-board (LME)",
+        "between": [
+          "coil+",
+          "coil-"
+        ]
+      }
+    ],
+    "mounting": "off_board",
+    "lib_deps": [],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.circuitbasics.com/wp-content/uploads/2015/11/SRD-05VDC-SL-C-Datasheet.pdf",
+      "https://www.handsontec.com/dataspecs/relay/1Ch-relay.pdf",
+      "https://lastminuteengineers.com/one-channel-relay-module-arduino-tutorial/"
+    ],
+    "revision": "Songle SRD-05VDC-SL-C + Handsontec 1-ch relay sheet",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

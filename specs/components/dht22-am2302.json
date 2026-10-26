@@ -1,0 +1,183 @@
+{
+  "id": "dht22-am2302",
+  "name": "DHT22 / AM2302 temperature + humidity sensor (bare 4-pin)",
+  "kind": "sensor",
+  "body": {
+    "length_mm": 15.1,
+    "width_mm": 25.0,
+    "height_mm": 7.7,
+    "lead_pitch_mm": 2.54,
+    "source": "Adafruit DHT guide"
+  },
+  "colors": {
+    "body": "#f2f2f2"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "VCC (leftmost, grille facing you)",
+      "note": "Bare 4-pin sensor; pin 3 is NC. 3-pin PCB modules exist (pull-up fitted) and their order varies: read the silkscreen."
+    }
+  ],
+  "pins": [
+    {
+      "id": "VCC",
+      "label": "VCC",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3-5.5V DC",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "DATA",
+      "label": "DATA",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "one-wire (Aosong single-bus, NOT Dallas 1-Wire)"
+      ],
+      "voltage": "open-drain; idles at pull-up voltage",
+      "flags": {},
+      "warnings": [
+        "Needs a pull-up (Adafruit: 10k) from DATA to VCC."
+      ]
+    },
+    {
+      "id": "NC",
+      "label": "NC",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "nc"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": [
+        "Not connected. Leave unwired."
+      ]
+    },
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "humidity": "0-100% RH ±2% (max ±5%)",
+    "temperature": "-40~80°C ±0.5°C",
+    "supply": "3.3-5.5V DC (AM2302 sheet)",
+    "startup": "No commands for 1 s after power-up (AM2302 sheet)."
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 3.3,
+      "max": 5.5
+    },
+    "logic": {
+      "level": "follows pull-up (open-drain)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Power from 3V3 (pull-up to 3V3) so DATA never sees 5V."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "one-wire (proprietary single-bus)",
+      "sample_rate": "≤0.5 Hz"
+    },
+    "current_ma": {
+      "max": 2.5,
+      "note": "Adafruit: 2.5 mA max during conversion"
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "10k",
+        "between": [
+          "DATA",
+          "VCC"
+        ],
+        "source": "Adafruit DHT guide",
+        "note": "Omit on 3-pin PCB modules that already have one."
+      },
+      {
+        "kind": "capacitor",
+        "value": "100nF",
+        "between": [
+          "VCC",
+          "GND"
+        ],
+        "optional": true,
+        "source": "AM2302 sheet"
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [
+      "adafruit/DHT sensor library",
+      "adafruit/Adafruit Unified Sensor"
+    ],
+    "approx_fields": []
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn-shop.adafruit.com/datasheets/Digital+humidity+and+temperature+sensor+AM2302.pdf",
+      "https://learn.adafruit.com/dht/overview"
+    ],
+    "revision": "Aosong AM2302 sheet",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Wired AM2302: red=VCC, black=GND (Aosong). Read no faster than 0.5 Hz."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

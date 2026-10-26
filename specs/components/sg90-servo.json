@@ -126,5 +126,52 @@
     "verified_by": "Maker",
     "verified_on": "2026-10-26",
     "notes": "Clones vary; 180\u00b0 travel approx."
+  },
+  "part": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 4.8,
+      "max": 6.6,
+      "note": "4.8 nominal (TowerPro); 6.6 per reseller"
+    },
+    "logic": {
+      "level": "PWM in"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Power from 5V, not 3V3; 3.3V signal normally works."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "PWM (50 Hz servo)"
+    },
+    "current_ma": {
+      "note": "TowerPro publishes none; reseller 'up to 200 mA'"
+    },
+    "required_passives": [
+      {
+        "kind": "capacitor",
+        "value": "100-470\u00b5F",
+        "between": [
+          "5V",
+          "GND"
+        ],
+        "note": "Engineering practice (notes.md)"
+      }
+    ],
+    "mounting": "off_board",
+    "lib_deps": [
+      "madhephaestus/ESP32Servo"
+    ],
+    "approx_fields": [
+      "current_ma"
+    ]
   }
 }

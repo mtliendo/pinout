@@ -88,5 +88,37 @@
     "verified_by": "Maker",
     "verified_on": "2026-10-26",
     "notes": "Color code red-red-brown = 220 \u03a9 is the standard resistor code; dimensions approx."
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": null
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "passive"
+    },
+    "current_ma": {
+      "note": "\u22640.25 W"
+    },
+    "required_passives": [],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "body"
+    ]
   }
 }

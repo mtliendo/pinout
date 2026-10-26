@@ -1,0 +1,193 @@
+{
+  "id": "rgb-led-5mm-cc",
+  "name": "5 mm RGB LED, common cathode (diffused)",
+  "kind": "passive",
+  "body": {
+    "diameter_mm": 5.0,
+    "height_mm": {
+      "value": 8.6,
+      "approx": true,
+      "note": "T-1 3/4 typical"
+    },
+    "lead_spacing_mm": 2.54
+  },
+  "colors": {
+    "body": "#f0f0f0"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "R (next to the long cathode lead)",
+      "pin_order_approx": true,
+      "note": "Common-cathode order R-K-G-B; the cathode is the LONGEST lead (SparkFun). Common-ANODE parts look identical. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "R",
+      "label": "red anode",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "Vf 1.8/2.0/2.2V @20mA",
+      "flags": {},
+      "warnings": [
+        "Series resistor per color."
+      ]
+    },
+    {
+      "id": "K",
+      "label": "common cathode (longest)",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "G",
+      "label": "green anode",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "Vf 3.0/3.2/3.4V @20mA",
+      "flags": {},
+      "warnings": [
+        "Series resistor per color."
+      ]
+    },
+    {
+      "id": "B",
+      "label": "blue anode",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "Vf 3.0/3.2/3.4V @20mA",
+      "flags": {},
+      "warnings": [
+        "Series resistor per color."
+      ]
+    }
+  ],
+  "electrical": {
+    "if_max_ma": 20,
+    "if_peak_ma": 30,
+    "vf_v_min_typ_max": {
+      "red": [
+        1.8,
+        2.0,
+        2.2
+      ],
+      "green": [
+        3.0,
+        3.2,
+        3.4
+      ],
+      "blue": [
+        3.0,
+        3.2,
+        3.4
+      ]
+    }
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 3.4,
+      "note": "Forward voltages"
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Green/blue Vf (3.0-3.4V) is at or above a 3.3V GPIO: with a series resistor they'll be dim or off. Red is fine with 220Ω. For full G/B, drive from 5V through transistors."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "220-330Ω per color from 5V."
+        ]
+      }
+    },
+    "interface": {
+      "type": "PWM (3 channels)"
+    },
+    "current_ma": {
+      "max": 20,
+      "note": "Per color (YSL datasheet)"
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "220Ω (3.3V) / 330Ω (5V), one per color",
+        "between": [
+          "GPIO",
+          "anode"
+        ],
+        "note": "Computed from Vf/If, not given by the datasheet"
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "height",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.sparkfun.com/datasheets/Components/YSL-R596CR3G4B5C-C10.pdf",
+      "https://www.sparkfun.com/products/9264"
+    ],
+    "revision": "Young Sun YSL-R596CR3G4B5C-C10 (SparkFun COM-09264)",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

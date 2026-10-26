@@ -1,0 +1,189 @@
+{
+  "id": "stepper-28byj48",
+  "name": "28BYJ-48 5V unipolar stepper motor",
+  "kind": "actuator",
+  "body": {
+    "diameter_mm": 28,
+    "height_mm": {
+      "value": 19,
+      "approx": true,
+      "note": "Body depth excl. shaft; not in fetched text."
+    },
+    "source": "LME: ~28 mm diameter"
+  },
+  "wire_length_mm": {
+    "value": 240,
+    "approx": true,
+    "note": "Lead length varies."
+  },
+  "colors": {
+    "body": "#c0c0c0",
+    "cap": "#2f5fd0"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "5-pin JST XH plug (keyed; mates with the ULN2003 board)",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 5,
+      "orientation": "+X",
+      "pin1": "blue",
+      "pin_order_approx": true,
+      "note": "Lead colors blue-pink-red-yellow-orange are common practice, not from the sheet. Never wire to GPIO directly. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "BLUE",
+      "label": "blue",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "coil"
+      ],
+      "voltage": "coil",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "PINK",
+      "label": "pink",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "coil"
+      ],
+      "voltage": "coil",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "RED",
+      "label": "red",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V common",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "YELLOW",
+      "label": "yellow",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "coil"
+      ],
+      "voltage": "coil",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "ORANGE",
+      "label": "orange",
+      "header": 0,
+      "position": {
+        "index": 5,
+        "x": 10.16,
+        "y": 0.0
+      },
+      "functions": [
+        "coil"
+      ],
+      "voltage": "coil",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "rated_voltage_v": 5,
+    "phases": 4,
+    "gear_ratio": "1/64 (sheet)",
+    "stride_angle": "5.625°/64",
+    "coil_resistance_ohm": "50 ±7%",
+    "current_ma": "~240 per phase (LME); 5V/50Ω ≈ 100 (arithmetic)"
+  },
+  "part": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 5,
+      "max": 5
+    },
+    "logic": {
+      "level": "n/a (driven by ULN2003)"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Needs the ULN2003 board and 5V motor power. 3.3V GPIO drives ULN2003 inputs fine (TI: TTL/CMOS-compatible)."
+        ]
+      },
+      "mcu_5v": {
+        "status": "with_conditions",
+        "needs": [
+          "Needs the ULN2003 board."
+        ]
+      }
+    },
+    "interface": {
+      "type": "4-phase via driver"
+    },
+    "current_ma": {
+      "typ": 240,
+      "note": "LME; coil resistance gives ~100 mA per coil at 5V"
+    },
+    "required_passives": [],
+    "mounting": "off_board",
+    "lib_deps": [
+      "waspinator/AccelStepper"
+    ],
+    "approx_fields": [
+      "height",
+      "wire_length_mm",
+      "pin_order"
+    ],
+    "no_gnd_pin": "Coils return through the ULN2003 board; red lead is +5V common."
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn-shop.adafruit.com/product-files/858/28BYJ-48.pdf",
+      "https://lastminuteengineers.com/28byj48-stepper-motor-arduino-tutorial/"
+    ],
+    "revision": "Kiatronics 28BYJ-48 sheet",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

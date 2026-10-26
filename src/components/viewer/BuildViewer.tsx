@@ -102,9 +102,11 @@ export function BuildViewer() {
       return {
         id,
         qty,
-        name: part
-          ? (payload.components[part.component]?.name ?? part.component)
-          : id,
+        name: part?.note?.startsWith("you'll also need")
+          ? part.note
+          : part
+            ? (payload.components[part.component]?.name ?? part.note ?? part.component)
+            : id,
         component: part?.component ?? id,
       };
     });

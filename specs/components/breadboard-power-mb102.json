@@ -1,0 +1,186 @@
+{
+  "id": "breadboard-power-mb102",
+  "name": "MB102 breadboard power module (3.3V / 5V)",
+  "kind": "passive",
+  "body": {
+    "length_mm": {
+      "value": 53,
+      "approx": true,
+      "note": "Not dimensioned in Handsontec text"
+    },
+    "width_mm": {
+      "value": 33,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 20,
+      "approx": true,
+      "note": "Barrel jack height"
+    }
+  },
+  "colors": {
+    "pcb": "#c62828"
+  },
+  "headers": [
+    {
+      "id": "RAIL_A",
+      "kind": "2-pin rail plug",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+Y",
+      "pin1": "+",
+      "pin_order_approx": true,
+      "note": "Plugs into one end of a rail pair. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    },
+    {
+      "id": "RAIL_B",
+      "kind": "2-pin rail plug",
+      "origin_mm": [
+        48.26,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+Y",
+      "pin1": "+",
+      "pin_order_approx": true,
+      "note": "Other rail pair. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    }
+  ],
+  "pins": [
+    {
+      "id": "A+",
+      "label": "+ (3.3V/5V/off, jumper)",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V or 5V by jumper",
+      "flags": {},
+      "warnings": [
+        "Set each side's jumper BEFORE plugging in."
+      ]
+    },
+    {
+      "id": "A-",
+      "label": "−",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 0,
+        "y": 2.54
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "B+",
+      "label": "+ (3.3V/5V/off, jumper)",
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 48.26,
+        "y": 0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.3V or 5V by jumper",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "B-",
+      "label": "−",
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 48.26,
+        "y": 2.54
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "input": "6.5-12V DC barrel, or 5V USB",
+    "output": "3.3V and 5V (AMS1117-5 / AMS1117-3.3 per schematic)",
+    "max_current_ma": 700
+  },
+  "part": {
+    "category": "power",
+    "supply_v": {
+      "min": 6.5,
+      "max": 12,
+      "note": "Barrel input (or 5V USB)"
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Don't also power the MCU board over USB while feeding its 5V/3V3 pin from this (back-feed).",
+          "Share GND with the MCU."
+        ]
+      },
+      "mcu_5v": {
+        "status": "with_conditions",
+        "needs": [
+          "Same back-feed rule."
+        ]
+      }
+    },
+    "interface": {
+      "type": "power"
+    },
+    "current_ma": {
+      "max": 700,
+      "note": "Handsontec: <700 mA"
+    },
+    "required_passives": [],
+    "mounting": "breadboard_rails",
+    "lib_deps": [],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.handsontec.com/dataspecs/mb102-ps.pdf"
+    ],
+    "revision": "Handsontec MB102 sheet",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Check that the module's + lines up with the breadboard's red line before powering."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

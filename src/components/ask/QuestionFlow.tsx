@@ -8,16 +8,22 @@ import { BoardPicker } from "@/components/ask/BoardPicker";
 import { BreadboardPicker } from "@/components/ask/BreadboardPicker";
 import { ComposeError } from "@/components/ask/ComposeError";
 import { IdeaList, PathPicker } from "@/components/ask/PathPicker";
+import { PartsPicker, type CatalogPart } from "@/components/ask/PartsPicker";
 import { type BoardCard } from "@/lib/board-copy";
 import { BREADBOARD_PRESETS, type BreadboardSize } from "@/lib/breadboards";
 import { stripValidatorText } from "@/lib/compose-error";
 import { saveGuide } from "@/lib/guide-store";
-import { CURATED_IDEAS, ideasFor, type CuratedIdea } from "@/lib/ideas/catalog";
+import {
+  AI_CATALOG_IDEAS,
+  CURATED_IDEAS,
+  ideasFor,
+  type CuratedIdea,
+} from "@/lib/ideas/catalog";
 import type { GuidePayload } from "@/lib/types";
 
 type Catalog = {
   boards: BoardCard[];
-  parts: Array<{ id: string; name: string; kind: string }>;
+  parts: CatalogPart[];
 };
 
 type Status =
@@ -60,7 +66,11 @@ export function QuestionFlow() {
   const board = catalog?.boards.find((b) => b.id === boardId);
   const filteredIdeas = useMemo(() => {
     if (!board) return [];
-    return ideasFor(board, breadboard.rows);
+    return ideasFor(board, breadboard.rows, false);
+  }, [board, breadboard.rows]);
+  const aiIdeas = useMemo(() => {
+    if (!board) return [];
+    return ideasFor(board, breadboard.rows, true).filter((i) => i.source === "ai-catalog");
   }, [board, breadboard.rows]);
 
   const compose = async (opts: { idea: string; parts?: string[] }) => {
@@ -224,6 +234,12 @@ export function QuestionFlow() {
                 : "Nothing curated fits. Go back and pick a larger breadboard, or choose parts."}
             </p>
             <IdeaList ideas={filteredIdeas} selected={ideaId} onSelect={setIdeaId} />
+            {aiIdeas.length > 0 && (
+              <>
+                <p className="ask-hint">A few fresh ideas from the catalog only.</p>
+                <IdeaList ideas={aiIdeas} selected={ideaId} onSelect={setIdeaId} />
+              </>
+            )}
             <div className="ask-actions">
               <button type="button" className="btn-ghost" onClick={() => setStatus("path")}>
                 Back
@@ -233,7 +249,9 @@ export function QuestionFlow() {
                 className="btn-ink"
                 disabled={!ideaId}
                 onClick={() => {
-                  const idea = CURATED_IDEAS.find((i) => i.id === ideaId);
+                  const idea =
+                    CURATED_IDEAS.find((i) => i.id === ideaId) ??
+                    AI_CATALOG_IDEAS.find((i) => i.id === ideaId);
                   if (!idea) return;
                   void compose({ idea: idea.blurb, parts: idea.partIds }).catch((err) => {
                     setError(
@@ -254,26 +272,16 @@ export function QuestionFlow() {
         {status === "parts" && catalog && (
           <>
             <h1>Which of these do you already have?</h1>
-            <p className="ask-hint">Catalog parts only. Pinout will not invent a part.</p>
-            <div className="pills">
-              {catalog.parts.map((part) => {
-                const on = partIds.includes(part.id);
-                return (
-                  <button
-                    key={part.id}
-                    type="button"
-                    className={on ? "pill on" : "pill"}
-                    onClick={() =>
-                      setPartIds((prev) =>
-                        on ? prev.filter((id) => id !== part.id) : [...prev, part.id],
-                      )
-                    }
-                  >
-                    {part.name}
-                  </button>
-                );
-              })}
-            </div>
+            <p className="ask-hint">Catalog parts only, by category. Pinout will not invent a part. “Approx” means pin order or size is not exact.</p>
+            <PartsPicker
+              parts={catalog.parts}
+              selected={partIds}
+              onToggle={(id) =>
+                setPartIds((prev) =>
+                  prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                )
+              }
+            />
             <div className="ask-actions">
               <button type="button" className="btn-ghost" onClick={() => setStatus("path")}>
                 Back

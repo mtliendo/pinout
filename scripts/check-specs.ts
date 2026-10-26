@@ -1,8 +1,17 @@
 import { breadboardForSize, BREADBOARD_PRESETS } from "../src/lib/breadboards";
 import { EXPECTED_BOARDS } from "../src/lib/boards/expected";
 import { composeBuild, inferPartsFromIdea, pioEnv } from "../src/lib/compose";
-import { RAW_BUILDS, RAW_CHIPS, RAW_COMPONENTS, RAW_WIRE_COLORS } from "../src/lib/specs/files";
+import { CURATED_IDEAS, ideasFor } from "../src/lib/ideas/catalog";
+import {
+  RAW_BUILDS,
+  RAW_CHIPS,
+  RAW_COMPONENTS,
+  RAW_PARTS_CATALOG,
+  RAW_PARTS_OVERLAY,
+  RAW_WIRE_COLORS,
+} from "../src/lib/specs/files";
 import type { Build, Component } from "../src/lib/specs/schema";
+import { checkPartComponent, validatePartsCatalog } from "../src/lib/specs/validate-parts";
 import { validateBuild, validateCatalog } from "../src/lib/specs/validate";
 
 const { catalog, issues } = validateCatalog({
@@ -10,6 +19,8 @@ const { catalog, issues } = validateCatalog({
   builds: RAW_BUILDS,
   wireColors: RAW_WIRE_COLORS,
   chips: RAW_CHIPS,
+  partsCatalog: RAW_PARTS_CATALOG,
+  partsOverlay: RAW_PARTS_OVERLAY,
 });
 
 if (!catalog || issues.length) {
@@ -128,6 +139,8 @@ function expectCatalogRejects(
     chips: structuredClone(RAW_CHIPS),
     builds: structuredClone(RAW_BUILDS),
     wireColors: structuredClone(RAW_WIRE_COLORS),
+    partsCatalog: structuredClone(RAW_PARTS_CATALOG),
+    partsOverlay: structuredClone(RAW_PARTS_OVERLAY),
   };
   mutate(raw);
   const result = validateCatalog(raw);
@@ -427,3 +440,373 @@ if (miniErrors.length) {
   process.exit(1);
 }
 console.log(`PASS: xiao-esp32c3 × button-oled on mini-170 (${c3Mini.steps.length} steps)`);
+
+function rawById(): Record<string, Record<string, unknown>> {
+  return Object.fromEntries(
+    (RAW_COMPONENTS as Array<{ id: string }>).map((c) => [c.id, structuredClone(c)]),
+  ) as Record<string, Record<string, unknown>>;
+}
+
+function expectPartRejects(
+  label: string,
+  pid: string,
+  mutate: (comp: Record<string, unknown>) => void,
+  needle: string,
+) {
+  const copy = rawById();
+  mutate(copy[pid]);
+  const errors = checkPartComponent(copy[pid]);
+  const hit = errors.find((line) => line.includes(needle));
+  if (!hit) {
+    console.error(`FAIL: ${label}`);
+    console.error(`  expected "${needle}"`);
+    console.error(`  got: ${errors.join(" | ") || "(no errors)"}`);
+    process.exit(1);
+  }
+  console.log(`PASS: ${label} -> ${hit}`);
+}
+
+expectPartRejects(
+  "duplicate pin id",
+  "dht11",
+  (c) => {
+    (c.pins as Array<{ id: string }>)[1].id = "VCC";
+  },
+  "duplicate pin ids",
+);
+expectPartRejects(
+  "missing provenance sources",
+  "hc-sr04",
+  (c) => {
+    (c.provenance as { sources: string[] }).sources = [];
+  },
+  "provenance incomplete",
+);
+expectPartRejects(
+  "non-URL source",
+  "hc-sr04",
+  (c) => {
+    (c.provenance as { sources: string[] }).sources.push("my memory");
+  },
+  "not a URL",
+);
+expectPartRejects(
+  "3.3V-only part marked 5V-safe",
+  "rfid-rc522",
+  (c) => {
+    ((c.part as { compat: { mcu_5v: { status: string } } }).compat.mcu_5v.status = "yes");
+  },
+  "3.3V-only part",
+);
+expectPartRejects(
+  "5V-logic part marked 3.3V-safe",
+  "lcd1602-i2c-pcf8574",
+  (c) => {
+    ((c.part as { compat: { mcu_3v3: { status: string } } }).compat.mcu_3v3.status = "yes");
+  },
+  "5V-supply part with 5V logic",
+);
+expectPartRejects(
+  "with_conditions without needs",
+  "hc-sr04",
+  (c) => {
+    (c.part as { compat: { mcu_3v3: { needs: string[] } } }).compat.mcu_3v3.needs = [];
+  },
+  "lists no needs",
+);
+expectPartRejects(
+  "unverified lib_dep",
+  "dht11",
+  (c) => {
+    (c.part as { lib_deps: string[] }).lib_deps.push("someone/MadeUpLib");
+  },
+  "not in the registry-verified list",
+);
+expectPartRejects(
+  "approx without note",
+  "bme280-i2c-breakout",
+  (c) => {
+    delete (c.body as { length_mm: { note?: string } }).length_mm.note;
+  },
+  "approx",
+);
+expectPartRejects(
+  "pins out of physical order",
+  "mpu6050-gy521",
+  (c) => {
+    (c.pins as unknown[]).reverse();
+  },
+  "physical order",
+);
+expectPartRejects(
+  "pin off pitch",
+  "tm1637-4digit",
+  (c) => {
+    (c.pins as Array<{ position: { x: number } }>)[2].position.x = 6.0;
+  },
+  "not on 2.54 mm pitch",
+);
+expectPartRejects(
+  "approx order w/o silkscreen note",
+  "sound-sensor-ky038",
+  (c) => {
+    (c.headers as Array<{ note: string }>)[0].note = "trust me";
+  },
+  "silkscreen",
+);
+expectPartRejects(
+  "header count mismatch",
+  "hc-sr04p",
+  (c) => {
+    (c.pins as unknown[]).pop();
+  },
+  "count 4 != 3",
+);
+expectPartRejects(
+  "I2C without address",
+  "mpu6050-gy521",
+  (c) => {
+    (c.part as { interface: { i2c_addresses: string[] } }).interface.i2c_addresses = [];
+  },
+  "i2c_addresses",
+);
+expectPartRejects(
+  "bad supply range",
+  "dht22-am2302",
+  (c) => {
+    (c.part as { supply_v: { min: number } }).supply_v.min = 6;
+  },
+  "supply_v min/max",
+);
+expectPartRejects(
+  "unknown kind",
+  "ldr-gl5528",
+  (c) => {
+    c.kind = "gizmo";
+  },
+  "not in schema kinds",
+);
+expectPartRejects(
+  "missing part block",
+  "diode-1n4007",
+  (c) => {
+    delete c.part;
+  },
+  "missing part",
+);
+expectPartRejects(
+  "active part with no GND",
+  "hc-sr04",
+  (c) => {
+    (c.pins as unknown[]).pop();
+    (c.headers as Array<{ count: number }>)[0].count = 3;
+  },
+  "no GND pin",
+);
+
+{
+  const cat = structuredClone(RAW_PARTS_CATALOG) as {
+    count: number;
+    categories: Record<string, string[]>;
+  };
+  cat.categories.sensor.push("ghost-part");
+  cat.count += 1;
+  const ghost = validatePartsCatalog({
+    catalog: cat,
+    overlay: RAW_PARTS_OVERLAY,
+    components: Object.fromEntries(
+      (RAW_COMPONENTS as Array<{ id: string }>).map((c) => [c.id, c]),
+    ),
+  });
+  if (!ghost.some((line) => line.includes("ghost-part"))) {
+    console.error("FAIL: catalog entry with no file");
+    process.exit(1);
+  }
+  console.log("PASS: catalog entry with no file -> ghost-part");
+}
+
+function expectCompat(
+  label: string,
+  boardId: string,
+  partIds: string[],
+  needle: RegExp,
+  extraNeedle?: RegExp,
+) {
+  const built = composeBuild(
+    { idea: label, boardId, partIds },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const text = built.steps.map((s) => `${s.heading} ${s.body} ${s.safety.join(" ")}`).join("\n");
+  if (!needle.test(text)) {
+    console.error(`FAIL: ${label}`);
+    console.error(`  expected /${needle.source}/`);
+    console.error(`  got: ${text}`);
+    process.exit(1);
+  }
+  if (extraNeedle) {
+    const extras = built.parts.map((p) => `${p.component} ${p.note ?? ""}`).join("\n");
+    if (!extraNeedle.test(extras)) {
+      console.error(`FAIL: ${label} extras`);
+      console.error(`  expected /${extraNeedle.source}/`);
+      console.error(`  got: ${extras}`);
+      process.exit(1);
+    }
+  }
+  const errors = validateBuild(built, loaded.components, loaded.breadboard);
+  if (errors.length) {
+    console.error(`FAIL: ${label} validate`);
+    for (const line of errors) console.error(`  ${line}`);
+    process.exit(1);
+  }
+  console.log(`PASS: ${label}`);
+}
+
+const V3 = "esp32-s3-devkitc-1-n16r8";
+const UNO = "arduino-uno-r3";
+
+expectCompat(
+  "HC-SR04 divider on 3.3V",
+  V3,
+  ["hc-sr04", "led-5mm-red", "resistor-220"],
+  /divider on Echo|1 kΩ \/ 2 kΩ|HC-SR04P/,
+  /you'll also need|resistor-2k|resistor-1k/,
+);
+expectCompat(
+  "LCD backpack level shifter on 3.3V",
+  V3,
+  ["lcd1602-i2c-pcf8574"],
+  /LCD backpack is 5V|level shifter/,
+  /you'll also need|level-shifter-i2c/,
+);
+expectCompat(
+  "WS2812B buffer on 3.3V",
+  V3,
+  ["ws2812b-strip"],
+  /74AHCT125|300–500|1000 µF|60 mA/,
+  /you'll also need|74ahct125/,
+);
+expectCompat(
+  "relay JD-VCC split on 3.3V",
+  V3,
+  ["relay-module-5v-1ch", "tactile-button-6mm"],
+  /JD-VCC|active LOW|never covers mains|low-voltage DC/,
+);
+expectCompat(
+  "active buzzer through PN2222A on 3.3V",
+  V3,
+  ["buzzer-active-ky012", "tactile-button-6mm"],
+  /PN2222A/,
+  /transistor-pn2222a/,
+);
+expectCompat(
+  "blue LED dim warning on 3.3V",
+  V3,
+  ["led-5mm-blue", "resistor-220"],
+  /blue\/green may look dim|may look dim/,
+);
+expectCompat(
+  "green LED dim warning on 3.3V",
+  V3,
+  ["led-5mm-green", "resistor-220"],
+  /blue\/green may look dim|may look dim/,
+);
+expectCompat(
+  "RGB LED dim warning on 3.3V",
+  V3,
+  ["rgb-led-5mm-cc"],
+  /blue\/green may look dim|RGB LED/,
+);
+expectCompat(
+  "joystick from 3V3",
+  V3,
+  ["joystick-ky023", "led-5mm-red", "resistor-220"],
+  /power the joystick from 3V3|Power VCC from 3V3/,
+);
+expectCompat(
+  "RC522 level shifter on 5V",
+  UNO,
+  ["rfid-rc522"],
+  /RC522 is 3\.3V only|level shifter/,
+  /you'll also need|level-shifter-spi/,
+);
+expectCompat(
+  "BME280 VIN-only on 5V",
+  UNO,
+  ["bme280-i2c-breakout"],
+  /BME280 is 3\.3V unless|VIN board|bare BME280/,
+);
+expectCompat(
+  "TM1637 caution on 3.3V never safe",
+  V3,
+  ["tm1637-4digit", "tactile-button-6mm"],
+  /caution on a 3\.3V board|Never call the TM1637 3\.3V-safe/,
+);
+{
+  const built = composeBuild(
+    { idea: "tm1637 caution", boardId: V3, partIds: ["tm1637-4digit"] },
+    loaded.components,
+    loaded.breadboard,
+  );
+  const text = built.steps.map((s) => `${s.heading} ${s.body}`).join("\n");
+  if (/\bsafe\b/i.test(text) && !/not label this module safe|never call the tm1637 3\.3v-safe/i.test(text)) {
+    console.error("FAIL: TM1637 labeled safe on 3.3V");
+    process.exit(1);
+  }
+  console.log("PASS: TM1637 never labeled safe on 3.3V");
+}
+expectCompat(
+  "keypad silkscreen always",
+  V3,
+  ["keypad-4x4-membrane"],
+  /Read the keypad silkscreen|pin order varies/,
+);
+expectCompat(
+  "approx fields never exact",
+  V3,
+  ["keypad-4x4-membrane", "joystick-ky023"],
+  /approximate|do not treat pin order|read the silkscreen/i,
+);
+
+const boards = Object.values(loaded.components).filter((c) => c.kind === "board");
+for (const board of boards) {
+  const fits = ideasFor(board, loaded.breadboard.grid.rows, false);
+  for (const idea of CURATED_IDEAS) {
+    if (!fits.some((f) => f.id === idea.id)) {
+      console.log(`SKIP: ${board.id} × ${idea.id} (does not fit)`);
+      continue;
+    }
+    try {
+      const built = composeBuild(
+        { idea: idea.blurb, boardId: board.id, partIds: idea.partIds },
+        loaded.components,
+        loaded.breadboard,
+      );
+      const errors = validateBuild(built, loaded.components, loaded.breadboard);
+      if (errors.length) {
+        console.error(`FAIL: ${board.id} × ${idea.id}`);
+        for (const line of errors) console.error(`  ${line}`);
+        process.exit(1);
+      }
+      const usedGpio = new Set<number>();
+      for (const wire of built.connections) {
+        for (const end of [wire.from, wire.to]) {
+          const pinId = end.startsWith("mcu:") ? end.slice(4) : "";
+          const pin = pinId ? board.pins?.find((p) => p.id === pinId) : undefined;
+          if (typeof pin?.gpio === "number") usedGpio.add(pin.gpio);
+        }
+      }
+      for (const gpio of usedGpio) {
+        if (!(board.safe_gpio ?? []).includes(gpio)) {
+          console.error(`FAIL: ${board.id} × ${idea.id} used non-safe GPIO${gpio}`);
+          process.exit(1);
+        }
+      }
+      console.log(`PASS: ${board.id} × ${idea.id} (${built.steps.length} steps)`);
+    } catch (error) {
+      console.error(`FAIL: ${board.id} × ${idea.id}`);
+      console.error(`  ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+  }
+}

@@ -119,5 +119,36 @@
     "revision": "BB830",
     "verified_by": "Maker",
     "verified_on": "2026-10-26"
+  },
+  "part": {
+    "category": "breadboard",
+    "supply_v": {
+      "min": 0,
+      "max": 36
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "n/a"
+    },
+    "current_ma": {
+      "max": 2000,
+      "note": "2 A rating (BusBoard)"
+    },
+    "required_passives": [],
+    "mounting": "base",
+    "lib_deps": [],
+    "approx_fields": []
   }
 }

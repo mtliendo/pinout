@@ -1,0 +1,242 @@
+{
+  "id": "uln2003-stepper-driver",
+  "name": "ULN2003 stepper driver board (for 28BYJ-48)",
+  "kind": "actuator",
+  "body": {
+    "length_mm": {
+      "value": 35,
+      "approx": true,
+      "note": "Not dimensioned in fetched sources."
+    },
+    "width_mm": {
+      "value": 32,
+      "approx": true,
+      "note": "approx"
+    },
+    "height_mm": {
+      "value": 15,
+      "approx": true,
+      "note": "approx"
+    }
+  },
+  "colors": {
+    "pcb": "#1b5e20"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "male header",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 4,
+      "orientation": "+X",
+      "pin1": "IN1",
+      "pin_order_approx": true,
+      "note": "Input header IN1-IN4. Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    },
+    {
+      "id": "PWR",
+      "kind": "2-pin power header + ON/OFF jumper",
+      "origin_mm": [
+        0,
+        -8
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "- (GND)",
+      "pin_order_approx": true,
+      "note": "Breakout pin order varies by clone: read the silkscreen on YOUR board before wiring."
+    },
+    {
+      "id": "MOTOR",
+      "kind": "5-pin JST XH socket",
+      "origin_mm": [
+        0,
+        20
+      ],
+      "pitch": {
+        "value": 2.5,
+        "approx": true,
+        "note": "JST XH pitch"
+      },
+      "count": 5,
+      "orientation": "+X",
+      "pin1": "motor plug",
+      "note": "28BYJ-48 plugs in here (keyed)."
+    }
+  ],
+  "pins": [
+    {
+      "id": "IN1",
+      "label": "IN1",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "TTL/CMOS input (ULN2003A has 2.7k series R)",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "IN2",
+      "label": "IN2",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "TTL/CMOS",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "IN3",
+      "label": "IN3",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "TTL/CMOS",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "IN4",
+      "label": "IN4",
+      "header": 0,
+      "position": {
+        "index": 4,
+        "x": 7.62,
+        "y": 0.0
+      },
+      "functions": [
+        "digital in"
+      ],
+      "voltage": "TTL/CMOS",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "GND",
+      "label": "-",
+      "header": 1,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": -8
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "VM",
+      "label": "+",
+      "header": 1,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": -8
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "5V for 28BYJ-48 (board takes 5-12V per LME)",
+      "flags": {},
+      "warnings": [
+        "Separate 5V supply if the MCU browns out; share GND."
+      ]
+    }
+  ],
+  "electrical": {
+    "uln2003a": "7 Darlington pairs, 500 mA/channel, 50V, clamp diodes to COM (TI)"
+  },
+  "part": {
+    "category": "actuator",
+    "supply_v": {
+      "min": 5,
+      "max": 12,
+      "note": "Board motor supply per LME; use 5V with 28BYJ-48"
+    },
+    "logic": {
+      "level": "inputs TTL/CMOS compatible"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Motor power from 5V (never 3V3); share GND. Inputs take 3.3V GPIO fine (TI: TTL/CMOS-compatible)."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "4 digital inputs → 4 coil sinks"
+    },
+    "current_ma": {
+      "max": 500,
+      "note": "Per channel (TI)"
+    },
+    "required_passives": [
+      {
+        "kind": "flyback diode",
+        "value": "built into ULN2003A",
+        "between": [
+          "outputs",
+          "COM"
+        ],
+        "source": "TI ULN2003A"
+      }
+    ],
+    "mounting": "off_board",
+    "lib_deps": [
+      "waspinator/AccelStepper"
+    ],
+    "approx_fields": [
+      "body",
+      "pin_order"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.ti.com/lit/ds/symlink/uln2003a.pdf",
+      "https://lastminuteengineers.com/28byj48-stepper-motor-arduino-tutorial/"
+    ],
+    "revision": "TI ULN2003A SLRS027T",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

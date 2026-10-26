@@ -1,0 +1,110 @@
+{
+  "id": "jumper-male-female",
+  "name": "Jumper wires male/female, 150 mm",
+  "kind": "passive",
+  "body": {
+    "length_mm": 150,
+    "source": "Adafruit Premium Female/Male 'Extension' Jumper Wires - 40 x 6\" (150mm) #826"
+  },
+  "colors": {
+    "wire": "rainbow"
+  },
+  "headers": [
+    {
+      "id": "ends",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 150,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "end A (male)",
+      "note": "0.1\" (2.54 mm) connectors"
+    }
+  ],
+  "pins": [
+    {
+      "id": "A",
+      "label": "end A (male)",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0,
+        "y": 0.0
+      },
+      "functions": [
+        "wire"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "B",
+      "label": "end B (female)",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 150,
+        "y": 0.0
+      },
+      "functions": [
+        "wire"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "note": "Fine for signals and small loads; not for multi-amp LED strip power."
+  },
+  "part": {
+    "category": "wire",
+    "supply_v": {
+      "min": 0,
+      "max": null
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": []
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "wire"
+    },
+    "current_ma": {
+      "note": "n/a"
+    },
+    "required_passives": [],
+    "mounting": "breadboard ↔ module male pins",
+    "lib_deps": [],
+    "approx_fields": []
+  },
+  "provenance": {
+    "sources": [
+      "https://www.adafruit.com/product/826"
+    ],
+    "revision": "Premium Female/Male 'Extension' Jumper Wires - 40 x 6\" (150mm) #826",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26"
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

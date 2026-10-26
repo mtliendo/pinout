@@ -1,0 +1,138 @@
+{
+  "id": "led-5mm-blue",
+  "name": "5 mm blue LED",
+  "kind": "passive",
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "cathode lead",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "body": {
+    "diameter_mm": 5.0,
+    "height_mm": {
+      "value": 8.6,
+      "approx": true,
+      "note": "T-1 3/4 typical"
+    },
+    "lead_spacing_mm": 2.54
+  },
+  "colors": {
+    "body": "#1e5bd8"
+  },
+  "headers": [
+    {
+      "id": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 2,
+      "orientation": "+X",
+      "pin1": "cathode (short lead, flat side)"
+    }
+  ],
+  "pins": [
+    {
+      "id": "K",
+      "label": "cathode (−, short leg, flat edge)",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "A",
+      "label": "anode (+, long leg)",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "Vf 3.3V typ / 4.0V max @20mA",
+      "flags": {},
+      "warnings": [
+        "Always use a series resistor."
+      ]
+    }
+  ],
+  "electrical": {
+    "vf_typ_v": 3.3,
+    "vf_max_v": 4.0,
+    "vf_test_ma": 20,
+    "if_max_ma": 30,
+    "pd_mw": 120,
+    "vr_max_v": 5,
+    "model": "WP7113QBC/D"
+  },
+  "part": {
+    "category": "passive",
+    "supply_v": {
+      "min": 0,
+      "max": 4.0
+    },
+    "logic": {
+      "level": "n/a"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "with_conditions",
+        "needs": [
+          "Vf is 3.3V typ / 4.0V max, the same as a 3.3V GPIO: it may barely light. Drive from 5V through a PN2222, or use 68-100Ω and accept dim."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": [
+          "330Ω from 5V."
+        ]
+      }
+    },
+    "interface": {
+      "type": "digital / PWM"
+    },
+    "current_ma": {
+      "max": 30
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "220Ω (3.3V) / 330Ω (5V)",
+        "between": [
+          "GPIO",
+          "A"
+        ]
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [],
+    "approx_fields": [
+      "height"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.kingbrightusa.com/images/catalog/SPEC/WP7113QBC-D.pdf"
+    ],
+    "revision": "Kingbright WP7113QBC/D",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Kit LEDs are usually unbranded; Kingbright figures are representative."
+  },
+  "safe_gpio": [],
+  "features": []
+}

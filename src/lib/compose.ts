@@ -8,6 +8,7 @@ import {
   preferredSafeGpio,
   snapRailRow,
 } from "./geometry";
+import { compatFixes } from "./compat";
 import {
   boardHoles,
   boardSeat,
@@ -94,7 +95,9 @@ export function assignPins(
         if (need.capability === "pwm" && pinHasFunction(pin, "PWM")) score += 4;
         if (need.capability.startsWith("i2c") && pinHasFunction(pin, "I2C"))
           score += 6;
-        if (need.capability === "input" && pinHasFunction(pin, "ADC")) score += 1;
+        if (need.capability === "input" && pinHasFunction(pin, "ADC")) {
+          score += need.role === "vrx" || need.role === "vry" ? 8 : 1;
+        }
         score -= preferred.indexOf(gpio) * 0.01;
         return { gpio, score };
       })
@@ -126,16 +129,36 @@ function detectRoles(partIds: string[]) {
   return {
     pir: partIds.includes("hc-sr501-pir"),
     servo: partIds.includes("sg90-servo"),
-    led: partIds.includes("led-5mm-red"),
-    resistor: partIds.includes("resistor-220"),
+    led:
+      partIds.includes("led-5mm-red") ||
+      partIds.includes("led-5mm-blue") ||
+      partIds.includes("led-5mm-green") ||
+      partIds.includes("led-5mm-yellow"),
+    ledId:
+      ["led-5mm-red", "led-5mm-blue", "led-5mm-green", "led-5mm-yellow"].find(
+        (id) => partIds.includes(id),
+      ) ?? "led-5mm-red",
+    resistor: partIds.includes("resistor-220") || partIds.includes("resistor-330"),
     button: partIds.includes("tactile-button-6mm"),
     oled: partIds.includes("ssd1306-oled-128x64-i2c"),
+    sonar: partIds.includes("hc-sr04") || partIds.includes("hc-sr04p"),
+    sonarId: partIds.includes("hc-sr04p") ? "hc-sr04p" : "hc-sr04",
+    neo: partIds.includes("ws2812b-strip") || partIds.includes("ws2812b-ring-12"),
+    neoId: partIds.includes("ws2812b-ring-12") ? "ws2812b-ring-12" : "ws2812b-strip",
+    lcd: partIds.includes("lcd1602-i2c-pcf8574"),
+    tm1637: partIds.includes("tm1637-4digit"),
+    joystick: partIds.includes("joystick-ky023"),
+    relay: partIds.includes("relay-module-5v-1ch"),
+    buzzer: partIds.includes("buzzer-active-ky012"),
+    keypad: partIds.includes("keypad-4x4-membrane"),
+    rc522: partIds.includes("rfid-rc522"),
+    bme: partIds.includes("bme280-i2c-breakout"),
   };
 }
 
 function needsFor(roles: ReturnType<typeof detectRoles>): SignalNeed[] {
   const needs: SignalNeed[] = [];
-  if (roles.oled) {
+  if (roles.oled || roles.lcd || roles.bme) {
     needs.push({ role: "oled_sda", capability: "i2c_sda" });
     needs.push({ role: "oled_scl", capability: "i2c_scl" });
   }
@@ -143,6 +166,34 @@ function needsFor(roles: ReturnType<typeof detectRoles>): SignalNeed[] {
   if (roles.button) needs.push({ role: "button", capability: "input" });
   if (roles.servo) needs.push({ role: "servo", capability: "pwm" });
   if (roles.led) needs.push({ role: "led", capability: "output" });
+  if (roles.sonar) {
+    needs.push({ role: "trig", capability: "output" });
+    needs.push({ role: "echo", capability: "input" });
+  }
+  if (roles.neo) needs.push({ role: "neo", capability: "output" });
+  if (roles.tm1637) {
+    needs.push({ role: "clk", capability: "output" });
+    needs.push({ role: "dio", capability: "output" });
+  }
+  if (roles.joystick) {
+    needs.push({ role: "vrx", capability: "input" });
+    needs.push({ role: "vry", capability: "input" });
+    needs.push({ role: "sw", capability: "input" });
+  }
+  if (roles.relay) needs.push({ role: "relay", capability: "output" });
+  if (roles.buzzer) needs.push({ role: "buzzer", capability: "output" });
+  if (roles.keypad) {
+    for (let i = 1; i <= 8; i++) {
+      needs.push({ role: `kp${i}`, capability: "input" });
+    }
+  }
+  if (roles.rc522) {
+    needs.push({ role: "spi_sck", capability: "output" });
+    needs.push({ role: "spi_mosi", capability: "output" });
+    needs.push({ role: "spi_miso", capability: "input" });
+    needs.push({ role: "spi_cs", capability: "output" });
+    needs.push({ role: "spi_rst", capability: "output" });
+  }
   return needs;
 }
 
@@ -199,6 +250,29 @@ export function composeBuild(
     parts.push({ id: "btn", component: "tactile-button-6mm", qty: 1 });
   if (roles.oled)
     parts.push({ id: "oled", component: "ssd1306-oled-128x64-i2c", qty: 1 });
+  if (roles.sonar)
+    parts.push({ id: "sonar", component: roles.sonarId, qty: 1 });
+  if (roles.neo) parts.push({ id: "neo", component: roles.neoId, qty: 1 });
+  if (roles.lcd)
+    parts.push({ id: "lcd", component: "lcd1602-i2c-pcf8574", qty: 1 });
+  if (roles.tm1637)
+    parts.push({ id: "tm", component: "tm1637-4digit", qty: 1 });
+  if (roles.joystick)
+    parts.push({ id: "joy", component: "joystick-ky023", qty: 1 });
+  if (roles.relay)
+    parts.push({ id: "relay", component: "relay-module-5v-1ch", qty: 1 });
+  if (roles.buzzer)
+    parts.push({ id: "buzz", component: "buzzer-active-ky012", qty: 1 });
+  if (roles.keypad)
+    parts.push({ id: "keys", component: "keypad-4x4-membrane", qty: 1 });
+  if (roles.rc522)
+    parts.push({ id: "rfid", component: "rfid-rc522", qty: 1 });
+  if (roles.bme)
+    parts.push({ id: "bme", component: "bme280-i2c-breakout", qty: 1 });
+  if (roles.led && roles.ledId !== "led-5mm-red") {
+    const ledPart = parts.find((p) => p.id === "led1");
+    if (ledPart) ledPart.component = roles.ledId;
+  }
   parts.push(...GENERIC_JUMPERS);
 
   const endRow = seat.startRow + seat.pinCount - 1;
@@ -272,11 +346,58 @@ export function composeBuild(
       position_hint: "left of the breadboard, screen facing up",
     });
   }
+  const off = (part: string, hint: string) =>
+    placements.push({
+      part,
+      anchor_hole: null,
+      off_board: true,
+      position_hint: hint,
+    });
+  if (roles.sonar) off("sonar", "left of the breadboard, transducers out");
+  if (roles.neo) off("neo", "right of the breadboard, pixels facing up");
+  if (roles.lcd) off("lcd", "above the breadboard, text facing you");
+  if (roles.tm1637) off("tm", "above the breadboard, digits facing you");
+  if (roles.relay) off("relay", "right of the breadboard — low-voltage DC only");
+  if (roles.keypad) off("keys", "in front of the breadboard");
+  if (roles.rc522) off("rfid", "left of the breadboard");
+  if (roles.joystick) {
+    placements.push({
+      part: "joy",
+      anchor_hole: `e${Math.min(breadboard.grid.rows - 2, seat.startRow + seat.pinCount + 8)}`,
+      rotation_deg: 0,
+      pin_holes: {},
+      note: "Seat the KY-023 so GND/VCC/VRx/VRy/SW each get their own row. Pin order is approximate — read the silk.",
+    });
+  }
+  if (roles.buzzer) {
+    placements.push({
+      part: "buzz",
+      anchor_hole: `j${Math.min(breadboard.grid.rows, seat.startRow + seat.pinCount + 4)}`,
+      rotation_deg: 0,
+      pin_holes: {},
+    });
+  }
+  if (roles.bme) {
+    placements.push({
+      part: "bme",
+      anchor_hole: null,
+      off_board: true,
+      position_hint: "left of the breadboard",
+    });
+  }
 
   const connections: Build["connections"] = [];
   const add = (c: Build["connections"][number]) => connections.push(c);
 
-  if (roles.servo || roles.pir) {
+  const needsFiveRail =
+    roles.servo ||
+    roles.pir ||
+    roles.sonar ||
+    roles.neo ||
+    roles.lcd ||
+    roles.relay ||
+    (roles.tm1637 && isFiveVoltLogic(board));
+  if (needsFiveRail) {
     add({
       id: "w_5v",
       from: power.five,
@@ -424,6 +545,351 @@ export function composeBuild(
     });
   }
 
+  if (roles.sonar && byRole.trig && byRole.echo) {
+    add({
+      id: "w_son_vcc",
+      from: "sonar:VCC",
+      to: railOf("L+", far - 10, breadboard),
+      color: "red",
+      length_mm: 80,
+      net: "5V",
+    });
+    add({
+      id: "w_son_gnd",
+      from: "sonar:GND",
+      to: railOf("L-", far - 9, breadboard),
+      color: "black",
+      length_mm: 80,
+      net: "GND",
+    });
+    add({
+      id: "w_son_trig",
+      from: "sonar:TRIG",
+      to: byRole.trig.freeHole,
+      color: "yellow",
+      length_mm: 80,
+      net: "TRIG",
+    });
+    add({
+      id: "w_son_echo",
+      from: "sonar:ECHO",
+      to: byRole.echo.freeHole,
+      color: "green",
+      length_mm: 80,
+      net: "ECHO",
+    });
+  }
+
+  if (roles.neo && byRole.neo) {
+    add({
+      id: "w_neo_vcc",
+      from: "neo:VDD",
+      to: railOf("L+", far - 12, breadboard),
+      color: "red",
+      length_mm: 80,
+      net: "5V",
+    });
+    add({
+      id: "w_neo_gnd",
+      from: "neo:GND",
+      to: railOf("L-", far - 11, breadboard),
+      color: "black",
+      length_mm: 80,
+      net: "GND",
+    });
+    add({
+      id: "w_neo_din",
+      from: "neo:DIN",
+      to: byRole.neo.freeHole,
+      color: "green",
+      length_mm: 80,
+      net: "NEO",
+    });
+  }
+
+  if (roles.lcd && byRole.oled_sda && byRole.oled_scl) {
+    add({
+      id: "w_lcd_vcc",
+      from: "lcd:VCC",
+      to: railOf("L+", Math.min(16, far), breadboard),
+      color: "red",
+      length_mm: 80,
+      net: "5V",
+    });
+    add({
+      id: "w_lcd_gnd",
+      from: "lcd:GND",
+      to: railOf("L-", Math.min(15, far), breadboard),
+      color: "black",
+      length_mm: 80,
+      net: "GND",
+    });
+    add({
+      id: "w_lcd_sda",
+      from: "lcd:SDA",
+      to: byRole.oled_sda.freeHole,
+      color: "blue",
+      length_mm: 80,
+      net: "I2C_SDA",
+    });
+    add({
+      id: "w_lcd_scl",
+      from: "lcd:SCL",
+      to: byRole.oled_scl.freeHole,
+      color: "yellow",
+      length_mm: 80,
+      net: "I2C_SCL",
+    });
+  }
+
+  if (roles.tm1637 && byRole.clk && byRole.dio) {
+    add({
+      id: "w_tm_vcc",
+      from: "tm:VCC",
+      to: isFiveVoltLogic(board) ? railOf("L+", 12, breadboard) : power.three,
+      color: isFiveVoltLogic(board) ? "red" : "orange",
+      length_mm: 80,
+      net: isFiveVoltLogic(board) ? "5V" : "3V3",
+    });
+    add({
+      id: "w_tm_gnd",
+      from: "tm:GND",
+      to: railOf("L-", 11, breadboard),
+      color: "black",
+      length_mm: 80,
+      net: "GND",
+    });
+    add({
+      id: "w_tm_clk",
+      from: "tm:CLK",
+      to: byRole.clk.freeHole,
+      color: "yellow",
+      length_mm: 80,
+      net: "CLK",
+    });
+    add({
+      id: "w_tm_dio",
+      from: "tm:DIO",
+      to: byRole.dio.freeHole,
+      color: "blue",
+      length_mm: 80,
+      net: "DIO",
+    });
+  }
+
+  if (roles.relay && byRole.relay) {
+    add({
+      id: "w_rel_vcc",
+      from: "relay:VCC",
+      to: isFiveVoltLogic(board) ? railOf("L+", 14, breadboard) : power.three,
+      color: isFiveVoltLogic(board) ? "red" : "orange",
+      length_mm: 80,
+      net: isFiveVoltLogic(board) ? "5V" : "3V3",
+    });
+    add({
+      id: "w_rel_gnd",
+      from: "relay:GND",
+      to: railOf("L-", 13, breadboard),
+      color: "black",
+      length_mm: 80,
+      net: "GND",
+    });
+    add({
+      id: "w_rel_in",
+      from: "relay:IN",
+      to: byRole.relay.freeHole,
+      color: "green",
+      length_mm: 80,
+      net: "RELAY",
+    });
+  }
+
+  if (roles.joystick && byRole.vrx && byRole.vry && byRole.sw) {
+    add({
+      id: "w_joy_vcc",
+      from: "joy:VCC",
+      to: power.three,
+      color: "orange",
+      length_mm: 40,
+      net: "3V3",
+    });
+    add({
+      id: "w_joy_gnd",
+      from: "joy:GND",
+      to: railOf("L-", 20, breadboard),
+      color: "black",
+      length_mm: 40,
+      net: "GND",
+    });
+    add({
+      id: "w_joy_x",
+      from: "joy:VRX",
+      to: byRole.vrx.freeHole,
+      color: "blue",
+      length_mm: 40,
+      net: "VRX",
+    });
+    add({
+      id: "w_joy_y",
+      from: "joy:VRY",
+      to: byRole.vry.freeHole,
+      color: "yellow",
+      length_mm: 40,
+      net: "VRY",
+    });
+    add({
+      id: "w_joy_sw",
+      from: "joy:SW",
+      to: byRole.sw.freeHole,
+      color: "green",
+      length_mm: 40,
+      net: "SW",
+    });
+  }
+
+  if (roles.buzzer && byRole.buzzer) {
+    add({
+      id: "w_buzz",
+      from: "buzz:S",
+      to: byRole.buzzer.freeHole,
+      color: "purple",
+      length_mm: 40,
+      net: "BUZZ",
+    });
+    add({
+      id: "w_buzz_gnd",
+      from: "buzz:GND",
+      to: railOf("L-", 22, breadboard),
+      color: "black",
+      length_mm: 40,
+      net: "GND",
+    });
+  }
+
+  if (roles.keypad) {
+    const kpPins = ["R1", "R2", "R3", "R4", "C1", "C2", "C3", "C4"];
+    kpPins.forEach((pin, i) => {
+      const role = byRole[`kp${i + 1}`];
+      if (!role) return;
+      add({
+        id: `w_kp_${pin.toLowerCase()}`,
+        from: `keys:${pin}`,
+        to: role.freeHole,
+        color: i < 4 ? "green" : "blue",
+        length_mm: 80,
+        net: `KP_${pin}`,
+      });
+    });
+  }
+
+  if (roles.rc522 && byRole.spi_sck && byRole.spi_mosi && byRole.spi_miso && byRole.spi_cs) {
+    add({
+      id: "w_rfid_vcc",
+      from: "rfid:VCC",
+      to: power.three,
+      color: "orange",
+      length_mm: 80,
+      net: "3V3",
+    });
+    add({
+      id: "w_rfid_gnd",
+      from: "rfid:GND",
+      to: railOf("L-", 19, breadboard),
+      color: "black",
+      length_mm: 80,
+      net: "GND",
+    });
+    add({
+      id: "w_rfid_sck",
+      from: "rfid:SCK",
+      to: byRole.spi_sck.freeHole,
+      color: "yellow",
+      length_mm: 80,
+      net: "SCK",
+    });
+    add({
+      id: "w_rfid_mosi",
+      from: "rfid:MOSI",
+      to: byRole.spi_mosi.freeHole,
+      color: "blue",
+      length_mm: 80,
+      net: "MOSI",
+    });
+    add({
+      id: "w_rfid_miso",
+      from: "rfid:MISO",
+      to: byRole.spi_miso.freeHole,
+      color: "green",
+      length_mm: 80,
+      net: "MISO",
+    });
+    add({
+      id: "w_rfid_sda",
+      from: "rfid:SDA",
+      to: byRole.spi_cs.freeHole,
+      color: "purple",
+      length_mm: 80,
+      net: "CS",
+    });
+    if (byRole.spi_rst) {
+      add({
+        id: "w_rfid_rst",
+        from: "rfid:RST",
+        to: byRole.spi_rst.freeHole,
+        color: "white",
+        length_mm: 80,
+        net: "RST",
+      });
+    }
+  }
+
+  if (roles.bme && byRole.oled_sda && byRole.oled_scl) {
+    add({
+      id: "w_bme_vcc",
+      from: "bme:VIN",
+      to: power.three,
+      color: "orange",
+      length_mm: 60,
+      net: "3V3",
+    });
+    add({
+      id: "w_bme_gnd",
+      from: "bme:GND",
+      to: railOf("L-", 17, breadboard),
+      color: "black",
+      length_mm: 60,
+      net: "GND",
+    });
+    add({
+      id: "w_bme_sda",
+      from: "bme:SDA",
+      to: byRole.oled_sda.freeHole,
+      color: "blue",
+      length_mm: 60,
+      net: "I2C_SDA",
+    });
+    add({
+      id: "w_bme_scl",
+      from: "bme:SCL",
+      to: byRole.oled_scl.freeHole,
+      color: "yellow",
+      length_mm: 60,
+      net: "I2C_SCL",
+    });
+  }
+
+  const fixes = compatFixes(board, partIds, components);
+  for (const extra of fixes.extras) {
+    if (!parts.some((p) => p.component === extra.component || p.id === extra.id)) {
+      parts.push({
+        id: extra.id,
+        component: extra.component,
+        qty: extra.qty,
+        note: extra.note,
+      });
+    }
+  }
+
   const steps = buildSteps({
     board,
     roles,
@@ -433,6 +899,14 @@ export function composeBuild(
     seat,
     idea: request.idea,
   });
+  if (fixes.steps.length) {
+    const flash = steps.pop();
+    let n = steps.length + 1;
+    for (const extraStep of fixes.steps) {
+      steps.push({ ...extraStep, n: n++ });
+    }
+    if (flash) steps.push({ ...flash, n: n++ });
+  }
 
   const build: Build = {
     id: slugify(request.title ?? request.idea).slice(0, 40) || "composed-build",
@@ -486,6 +960,13 @@ function slugify(value: string): string {
 function titleFor(roles: ReturnType<typeof detectRoles>, idea: string): string {
   if (roles.button && roles.oled) return "Button, LED and OLED status";
   if (roles.pir && roles.servo) return "Motion-triggered servo sweep";
+  if (roles.sonar) return "Ultrasonic ranger";
+  if (roles.neo) return "Addressable LED strip";
+  if (roles.lcd) return "I2C LCD message";
+  if (roles.tm1637) return "Four-digit display";
+  if (roles.joystick) return "Joystick and LED";
+  if (roles.relay) return "Low-voltage relay click";
+  if (roles.keypad) return "Keypad and LED";
   return idea.replace(/\.$/, "").slice(0, 48) || "Breadboard build";
 }
 
@@ -763,19 +1244,26 @@ function buildSteps(args: {
     });
   }
 
-  const powerConns = [
-    roles.servo || roles.pir ? "w_5v" : null,
-    "w_gnd",
-  ].filter(Boolean) as string[];
+  const needsFiveRail =
+    roles.servo ||
+    roles.pir ||
+    roles.sonar ||
+    roles.neo ||
+    roles.lcd ||
+    roles.relay ||
+    (roles.tm1637 && fiveLogic);
+  const powerConns = [needsFiveRail ? "w_5v" : null, "w_gnd"].filter(
+    Boolean,
+  ) as string[];
 
   const fiveLabel = power.fivePin?.label ?? "5V";
   const gndLabel = power.gndPin?.label ?? "G";
   steps.push({
     n: n++,
-    heading: roles.servo || roles.pir
+    heading: needsFiveRail
       ? "Run 5V and ground to the rails"
       : "Run ground to the rail",
-    body: roles.servo || roles.pir
+    body: needsFiveRail
       ? `Red jumper from ${power.five} (${fiveLabel}) to the red + rail. Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. Rails are fed only from this board's own power pins.`
       : `Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. Rails are fed only from this board's own power pins.`,
     parts_needed: ["jumpers_mm"],
@@ -871,6 +1359,171 @@ function buildSteps(args: {
       callout: layout.ledAnode,
       safety: ["The resistor must sit in series with the LED."],
       check: `${layout.ledSignal}: purple + resistor. ${layout.ledAnode}: resistor + long leg. ${layout.ledCathode}: short leg + black.`,
+    });
+  }
+
+  if (roles.sonar && byRole.trig && byRole.echo) {
+    steps.push({
+      n: n++,
+      heading: "Wire the ultrasonic sensor",
+      body: `VCC to the + rail, GND to the − rail, TRIG to ${byRole.trig.freeHole} (GPIO${byRole.trig.gpio}), ECHO to ${byRole.echo.freeHole} (GPIO${byRole.echo.gpio}). Pin order is VCC–TRIG–ECHO–GND.`,
+      parts_needed: ["sonar", "jumpers_fm"],
+      highlight: ["sonar", byRole.trig.pin.id, byRole.echo.pin.id],
+      connections_added: ["w_son_vcc", "w_son_gnd", "w_son_trig", "w_son_echo"],
+      camera: "left",
+      callout: byRole.echo.freeHole,
+      safety: ["Echo is 5V on the HC-SR04. Do not treat it as a 3.3V-safe pin."],
+      check: `TRIG in ${byRole.trig.freeHole}, ECHO in ${byRole.echo.freeHole}.`,
+    });
+  }
+
+  if (roles.neo && byRole.neo) {
+    steps.push({
+      n: n++,
+      heading: "Wire the addressable pixels",
+      body: `VDD to the + rail (or an external 5V supply with shared ground), GND to the − rail, DIN to ${byRole.neo.freeHole} (GPIO${byRole.neo.gpio}).`,
+      parts_needed: ["neo", "jumpers_fm"],
+      highlight: ["neo", byRole.neo.pin.id],
+      connections_added: ["w_neo_vcc", "w_neo_gnd", "w_neo_din"],
+      camera: "right",
+      callout: byRole.neo.freeHole,
+      safety: ["Size the 5V supply at 60 mA per LED. Do not feed a long strip from the MCU pin."],
+      check: `DIN in ${byRole.neo.freeHole}.`,
+    });
+  }
+
+  if (roles.lcd && byRole.oled_sda && byRole.oled_scl) {
+    steps.push({
+      n: n++,
+      heading: "Wire the I2C LCD",
+      body: `VCC to the + rail (5V), GND to the − rail, SDA to ${byRole.oled_sda.freeHole} (GPIO${byRole.oled_sda.gpio}), SCL to ${byRole.oled_scl.freeHole} (GPIO${byRole.oled_scl.gpio}).`,
+      parts_needed: ["lcd", "jumpers_fm"],
+      highlight: ["lcd", byRole.oled_sda.pin.id, byRole.oled_scl.pin.id],
+      connections_added: ["w_lcd_vcc", "w_lcd_gnd", "w_lcd_sda", "w_lcd_scl"],
+      camera: "left",
+      callout: byRole.oled_sda.freeHole,
+      safety: ["The backpack pulls SDA/SCL to 5V."],
+      check: "Four wires: red 5V, black −, blue SDA, yellow SCL.",
+    });
+  }
+
+  if (roles.tm1637 && byRole.clk && byRole.dio) {
+    steps.push({
+      n: n++,
+      heading: "Wire the four-digit display",
+      body: `VCC to ${fiveLogic ? "the + rail (5V)" : "3V3"}, GND to the − rail, CLK to ${byRole.clk.freeHole} (GPIO${byRole.clk.gpio}), DIO to ${byRole.dio.freeHole} (GPIO${byRole.dio.gpio}).`,
+      parts_needed: ["tm", "jumpers_fm"],
+      highlight: ["tm", byRole.clk.pin.id, byRole.dio.pin.id],
+      connections_added: ["w_tm_vcc", "w_tm_gnd", "w_tm_clk", "w_tm_dio"],
+      camera: "left",
+      callout: byRole.clk.freeHole,
+      safety: fiveLogic
+        ? []
+        : ["Do not label the TM1637 safe on a 3.3V board."],
+      check: `CLK in ${byRole.clk.freeHole}, DIO in ${byRole.dio.freeHole}.`,
+    });
+  }
+
+  if (roles.joystick && byRole.vrx && byRole.vry && byRole.sw) {
+    steps.push({
+      n: n++,
+      heading: "Seat the joystick",
+      body: `Power VCC from 3V3 (${power.three}), GND to the − rail. VRx to ${byRole.vrx.freeHole} (GPIO${byRole.vrx.gpio}), VRy to ${byRole.vry.freeHole} (GPIO${byRole.vry.gpio}), SW to ${byRole.sw.freeHole} (GPIO${byRole.sw.gpio}). Pin order is approximate — read the silk.`,
+      parts_needed: ["joy", "jumpers_mm"],
+      highlight: ["joy", byRole.vrx.pin.id],
+      connections_added: ["w_joy_vcc", "w_joy_gnd", "w_joy_x", "w_joy_y", "w_joy_sw"],
+      camera: "top",
+      callout: byRole.vrx.freeHole,
+      safety: ["A 5V-powered wiper can swing to 5V and damage a 3.3V ADC."],
+      check: "VCC is on 3V3, not 5V.",
+    });
+  }
+
+  if (roles.relay && byRole.relay) {
+    steps.push({
+      n: n++,
+      heading: "Wire the relay module",
+      body: `VCC to ${fiveLogic ? "the + rail" : "3V3"}, GND to the − rail, IN to ${byRole.relay.freeHole} (GPIO${byRole.relay.gpio}). The coil is active LOW. Only switch low-voltage DC.`,
+      parts_needed: ["relay", "jumpers_fm"],
+      highlight: ["relay", byRole.relay.pin.id],
+      connections_added: ["w_rel_vcc", "w_rel_gnd", "w_rel_in"],
+      camera: "right",
+      callout: byRole.relay.freeHole,
+      safety: [
+        "Pinout guides only switch low-voltage DC loads. Never wire wall power on a breadboard.",
+      ],
+      check: `IN in ${byRole.relay.freeHole}. No mains.`,
+    });
+  }
+
+  if (roles.buzzer && byRole.buzzer) {
+    steps.push({
+      n: n++,
+      heading: "Wire the active buzzer",
+      body: `S to ${byRole.buzzer.freeHole} (GPIO${byRole.buzzer.gpio}), GND to the − rail.`,
+      parts_needed: ["buzz", "jumpers_mm"],
+      highlight: ["buzz", byRole.buzzer.pin.id],
+      connections_added: ["w_buzz", "w_buzz_gnd"],
+      camera: "right",
+      callout: byRole.buzzer.freeHole,
+      safety: [],
+      check: `S in ${byRole.buzzer.freeHole}.`,
+    });
+  }
+
+  if (roles.keypad) {
+    const kpAdded = ["R1", "R2", "R3", "R4", "C1", "C2", "C3", "C4"]
+      .map((pin, i) => (byRole[`kp${i + 1}`] ? `w_kp_${pin.toLowerCase()}` : null))
+      .filter((id): id is string => Boolean(id));
+    steps.push({
+      n: n++,
+      heading: "Wire the 4×4 keypad",
+      body: "Eight jumpers, one per pin. Pin order varies by clone — read the silkscreen on YOUR pad before you trust the labels.",
+      parts_needed: ["keys", "jumpers_fm"],
+      highlight: ["keys"],
+      connections_added: kpAdded,
+      camera: "top",
+      callout: byRole.kp1?.freeHole ?? "a1",
+      safety: ["Pin order in the spec is approximate."],
+      check: "Every keypad pin has a jumper, and you read the silk.",
+    });
+  }
+
+  if (roles.rc522 && byRole.spi_sck) {
+    steps.push({
+      n: n++,
+      heading: "Wire the RC522",
+      body: `VCC to 3V3 only. GND to the − rail. SCK ${byRole.spi_sck.freeHole}, MOSI ${byRole.spi_mosi?.freeHole}, MISO ${byRole.spi_miso?.freeHole}, SDA/SS ${byRole.spi_cs?.freeHole}, RST ${byRole.spi_rst?.freeHole}.`,
+      parts_needed: ["rfid", "jumpers_fm"],
+      highlight: ["rfid"],
+      connections_added: [
+        "w_rfid_vcc",
+        "w_rfid_gnd",
+        "w_rfid_sck",
+        "w_rfid_mosi",
+        "w_rfid_miso",
+        "w_rfid_sda",
+        ...(byRole.spi_rst ? ["w_rfid_rst"] : []),
+      ],
+      camera: "left",
+      callout: byRole.spi_sck.freeHole,
+      safety: ["The RC522 is 3.3V only."],
+      check: "VCC is on 3V3, not 5V.",
+    });
+  }
+
+  if (roles.bme && byRole.oled_sda && byRole.oled_scl) {
+    steps.push({
+      n: n++,
+      heading: "Wire the BME280",
+      body: `VIN to 3V3, GND to the − rail, SDA to ${byRole.oled_sda.freeHole} (GPIO${byRole.oled_sda.gpio}), SCL to ${byRole.oled_scl.freeHole} (GPIO${byRole.oled_scl.gpio}). Bare modules are 3.3V only.`,
+      parts_needed: ["bme", "jumpers_fm"],
+      highlight: ["bme"],
+      connections_added: ["w_bme_vcc", "w_bme_gnd", "w_bme_sda", "w_bme_scl"],
+      camera: "left",
+      callout: byRole.oled_sda.freeHole,
+      safety: ["Only a VIN-regulated breakout can run at 5V."],
+      check: "VIN is on 3V3.",
     });
   }
 
@@ -1018,6 +1671,12 @@ function sketchFor(
       : "",
     roles.oled ? "adafruit/Adafruit SSD1306" : "",
     roles.oled ? "adafruit/Adafruit GFX Library" : "",
+    roles.sonar ? "teckel12/NewPing" : "",
+    roles.neo ? "adafruit/Adafruit NeoPixel" : "",
+    roles.lcd ? "marcoschwartz/LiquidCrystal_I2C" : "",
+    roles.tm1637 ? "smougenot/TM1637" : "",
+    roles.rc522 ? "miguelbalboa/MFRC522" : "",
+    roles.bme ? "adafruit/Adafruit BME280 Library" : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -1047,6 +1706,16 @@ ${libs ? `lib_deps =\n  ${libs.split("\n").join("\n  ")}` : ""}
   if (byRole.led) lines.push(`const int LED_PIN = ${byRole.led.gpio};`);
   if (byRole.oled_sda) lines.push(`const int SDA_PIN = ${byRole.oled_sda.gpio};`);
   if (byRole.oled_scl) lines.push(`const int SCL_PIN = ${byRole.oled_scl.gpio};`);
+  if (byRole.trig) lines.push(`const int TRIG_PIN = ${byRole.trig.gpio};`);
+  if (byRole.echo) lines.push(`const int ECHO_PIN = ${byRole.echo.gpio};`);
+  if (byRole.neo) lines.push(`const int NEO_PIN = ${byRole.neo.gpio};`);
+  if (byRole.clk) lines.push(`const int CLK_PIN = ${byRole.clk.gpio};`);
+  if (byRole.dio) lines.push(`const int DIO_PIN = ${byRole.dio.gpio};`);
+  if (byRole.vrx) lines.push(`const int VRX_PIN = ${byRole.vrx.gpio};`);
+  if (byRole.vry) lines.push(`const int VRY_PIN = ${byRole.vry.gpio};`);
+  if (byRole.sw) lines.push(`const int SW_PIN = ${byRole.sw.gpio};`);
+  if (byRole.relay) lines.push(`const int RELAY_PIN = ${byRole.relay.gpio};`);
+  if (byRole.buzzer) lines.push(`const int BUZZ_PIN = ${byRole.buzzer.gpio};`);
   lines.push("");
   if (roles.servo) lines.push("Servo servo;");
   if (roles.oled) {
@@ -1062,6 +1731,17 @@ ${libs ? `lib_deps =\n  ${libs.split("\n").join("\n  ")}` : ""}
   if (byRole.pir) lines.push("  pinMode(PIR_PIN, INPUT);");
   if (byRole.button) lines.push("  pinMode(BTN_PIN, INPUT_PULLUP);");
   if (byRole.led) lines.push("  pinMode(LED_PIN, OUTPUT);");
+  if (byRole.trig) lines.push("  pinMode(TRIG_PIN, OUTPUT);");
+  if (byRole.echo) lines.push("  pinMode(ECHO_PIN, INPUT);");
+  if (byRole.neo) lines.push("  pinMode(NEO_PIN, OUTPUT);");
+  if (byRole.clk) lines.push("  pinMode(CLK_PIN, OUTPUT);");
+  if (byRole.dio) lines.push("  pinMode(DIO_PIN, OUTPUT);");
+  if (byRole.sw) lines.push("  pinMode(SW_PIN, INPUT_PULLUP);");
+  if (byRole.relay) {
+    lines.push("  pinMode(RELAY_PIN, OUTPUT);");
+    lines.push("  digitalWrite(RELAY_PIN, HIGH);");
+  }
+  if (byRole.buzzer) lines.push("  pinMode(BUZZ_PIN, OUTPUT);");
   if (roles.servo) {
     if (family === "esp32") {
       lines.push("  servo.setPeriodHertz(50);");
@@ -1116,6 +1796,19 @@ ${libs ? `lib_deps =\n  ${libs.split("\n").join("\n  ")}` : ""}
     lines.push("    delay(40);");
     lines.push("  }");
     lines.push("  lastBtn = btn;");
+  } else if (roles.sonar && byRole.trig && byRole.echo) {
+    lines.push("  digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);");
+    lines.push("  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);");
+    lines.push("  digitalWrite(TRIG_PIN, LOW);");
+    lines.push("  long us = pulseIn(ECHO_PIN, HIGH, 30000);");
+    lines.push("  Serial.println(us / 58);");
+    if (byRole.led) {
+      lines.push("  digitalWrite(LED_PIN, us > 0 && us / 58 < 20 ? HIGH : LOW);");
+    }
+  } else if (byRole.relay && byRole.button) {
+    lines.push("  digitalWrite(RELAY_PIN, digitalRead(BTN_PIN));");
+  } else if (byRole.buzzer && byRole.button) {
+    lines.push("  digitalWrite(BUZZ_PIN, digitalRead(BTN_PIN) == LOW ? HIGH : LOW);");
   } else if (byRole.led) {
     lines.push("  digitalWrite(LED_PIN, HIGH); delay(400);");
     lines.push("  digitalWrite(LED_PIN, LOW); delay(400);");
@@ -1135,12 +1828,45 @@ export function inferPartsFromIdea(idea: string): string[] {
   const parts: string[] = [];
   if (/pir|motion|walk|wave|proximity/.test(text)) parts.push("hc-sr501-pir");
   if (/servo|sweep|wave/.test(text)) parts.push("sg90-servo");
-  if (/oled|display|screen|ssd1306/.test(text))
+  if (/lcd|1602/.test(text)) parts.push("lcd1602-i2c-pcf8574");
+  if (/tm1637|four-digit|4-digit|clock display/.test(text))
+    parts.push("tm1637-4digit");
+  if (
+    /ssd1306|oled/.test(text) ||
+    (/display|screen/.test(text) &&
+      !parts.includes("lcd1602-i2c-pcf8574") &&
+      !parts.includes("tm1637-4digit"))
+  ) {
     parts.push("ssd1306-oled-128x64-i2c");
+  }
   if (/button|tactile|toggle|press/.test(text))
     parts.push("tactile-button-6mm");
-  if (/led|light|status/.test(text) || parts.length) parts.push("led-5mm-red");
-  if (parts.includes("led-5mm-red")) parts.push("resistor-220");
+  if (/hc-sr04p|sonar p/.test(text)) parts.push("hc-sr04p");
+  else if (/hc-sr04|ultrasonic|distance|ranger/.test(text)) parts.push("hc-sr04");
+  if (/ws2812|neopixel|pixel strip|addressable/.test(text))
+    parts.push("ws2812b-strip");
+  if (/joystick/.test(text)) parts.push("joystick-ky023");
+  if (/relay/.test(text)) parts.push("relay-module-5v-1ch");
+  if (/buzzer/.test(text)) parts.push("buzzer-active-ky012");
+  if (/keypad/.test(text)) parts.push("keypad-4x4-membrane");
+  if (/rc522|rfid/.test(text)) parts.push("rfid-rc522");
+  if (/bme280/.test(text)) parts.push("bme280-i2c-breakout");
+  if (/blue led/.test(text)) parts.push("led-5mm-blue");
+  else if (/green led/.test(text)) parts.push("led-5mm-green");
+  const skipRedLed =
+    parts.includes("led-5mm-blue") ||
+    parts.includes("led-5mm-green") ||
+    parts.includes("ws2812b-strip") ||
+    parts.includes("lcd1602-i2c-pcf8574") ||
+    parts.includes("tm1637-4digit");
+  if (
+    !skipRedLed &&
+    (/led|light|status/.test(text) || /pir|servo|motion/.test(text))
+  ) {
+    parts.push("led-5mm-red");
+  }
+  if (parts.includes("led-5mm-red") || parts.includes("led-5mm-blue") || parts.includes("led-5mm-green"))
+    parts.push("resistor-220");
   return unique(parts);
 }
 

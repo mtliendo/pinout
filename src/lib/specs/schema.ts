@@ -68,10 +68,11 @@ export const HeaderSchema = z
   .object({
     id: z.string(),
     origin_mm: z.tuple([z.number(), z.number()]),
-    pitch: z.number(),
+    pitch: DimValueSchema,
     count: z.number(),
     orientation: z.string().optional(),
     pin1: z.string().optional(),
+    pin_order_approx: z.boolean().optional(),
     kind: z.string().optional(),
     side: z.string().optional(),
     note: z.string().optional(),
@@ -150,7 +151,63 @@ export const ComponentSchema = z
     electrical: z.unknown().optional(),
     power: z.unknown().optional(),
     controls: z.unknown().optional(),
-    wire_length_mm: z.number().optional(),
+    wire_length_mm: DimValueSchema.optional(),
+    safety: z.array(z.string()).optional(),
+    part: z
+      .object({
+        category: z.enum([
+          "sensor",
+          "display",
+          "actuator",
+          "input",
+          "passive",
+          "wire",
+          "power",
+          "breadboard",
+        ]),
+        supply_v: z
+          .object({
+            min: z.number().nullable().optional(),
+            max: z.number().nullable().optional(),
+            note: z.string().optional(),
+          })
+          .passthrough(),
+        logic: z
+          .object({
+            level: z.string().optional(),
+          })
+          .passthrough(),
+        compat: z
+          .object({
+            mcu_3v3: z
+              .object({
+                status: z.enum(["yes", "with_conditions", "no"]),
+                needs: z.array(z.string()).default([]),
+              })
+              .passthrough(),
+            mcu_5v: z
+              .object({
+                status: z.enum(["yes", "with_conditions", "no"]),
+                needs: z.array(z.string()).default([]),
+              })
+              .passthrough(),
+          })
+          .passthrough(),
+        interface: z
+          .object({
+            type: z.string(),
+            i2c_addresses: z.array(z.string()).optional(),
+          })
+          .passthrough(),
+        current_ma: z.unknown().optional(),
+        required_passives: z.array(z.unknown()).default([]),
+        mounting: z.string(),
+        lib_deps: z.array(z.string()).default([]),
+        approx_fields: z.array(z.string()).default([]),
+        no_gnd_pin: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
     /** Incoming: 3.3V vs 5V logic (Uno/Nano). Warn when a 3.3V-only part hits 5V. */
     logic_voltage: z.enum(["3.3V", "5V"]).optional(),
     /** Incoming: `chips/<chip>.json` — pin safety is never inferred. */

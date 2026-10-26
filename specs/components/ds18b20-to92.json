@@ -1,0 +1,165 @@
+{
+  "id": "ds18b20-to92",
+  "name": "DS18B20 digital temperature sensor (TO-92)",
+  "kind": "sensor",
+  "body": {
+    "length_mm": {
+      "value": 4.8,
+      "approx": true,
+      "note": "TO-92 typical; drawing not text-extracted."
+    },
+    "width_mm": {
+      "value": 3.8,
+      "approx": true,
+      "note": "TO-92"
+    },
+    "height_mm": {
+      "value": 4.8,
+      "approx": true,
+      "note": "TO-92 body"
+    }
+  },
+  "colors": {
+    "body": "#1a1a1a"
+  },
+  "headers": [
+    {
+      "id": "P1",
+      "kind": "leads",
+      "origin_mm": [
+        0,
+        0
+      ],
+      "pitch": 2.54,
+      "count": 3,
+      "orientation": "+X",
+      "pin1": "GND (flat face toward you, leads down, left)",
+      "note": "Datasheet TO-92 pins 1-2-3 = GND-DQ-VDD. Waterproof probes: usually red=VDD, black=GND, yellow/white=DQ; verify."
+    }
+  ],
+  "pins": [
+    {
+      "id": "GND",
+      "label": "GND",
+      "header": 0,
+      "position": {
+        "index": 1,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "functions": [
+        "GND"
+      ],
+      "voltage": "0V",
+      "flags": {},
+      "warnings": []
+    },
+    {
+      "id": "DQ",
+      "label": "DQ",
+      "header": 0,
+      "position": {
+        "index": 2,
+        "x": 2.54,
+        "y": 0.0
+      },
+      "functions": [
+        "one-wire (Dallas 1-Wire)"
+      ],
+      "voltage": "open drain",
+      "flags": {},
+      "warnings": [
+        "Needs a 4.7k pull-up from DQ to VDD."
+      ]
+    },
+    {
+      "id": "VDD",
+      "label": "VDD",
+      "header": 0,
+      "position": {
+        "index": 3,
+        "x": 5.08,
+        "y": 0.0
+      },
+      "functions": [
+        "power"
+      ],
+      "voltage": "3.0-5.5V (ground it only for parasite mode)",
+      "flags": {},
+      "warnings": []
+    }
+  ],
+  "electrical": {
+    "supply_v": "3.0-5.5",
+    "accuracy": "±0.5°C from -10 to +85°C",
+    "conversion_ms_max": 750,
+    "active_current_ma_max": 1.5
+  },
+  "part": {
+    "category": "sensor",
+    "supply_v": {
+      "min": 3.0,
+      "max": 5.5
+    },
+    "logic": {
+      "level": "open drain = pull-up voltage"
+    },
+    "compat": {
+      "mcu_3v3": {
+        "status": "yes",
+        "needs": [
+          "Pull-up to 3V3."
+        ]
+      },
+      "mcu_5v": {
+        "status": "yes",
+        "needs": []
+      }
+    },
+    "interface": {
+      "type": "one-wire (Dallas/Maxim 1-Wire)",
+      "multi_drop": true
+    },
+    "current_ma": {
+      "max": 1.5,
+      "note": "Active current up to 1.5 mA (datasheet)"
+    },
+    "required_passives": [
+      {
+        "kind": "resistor",
+        "value": "4.7k",
+        "between": [
+          "DQ",
+          "VDD"
+        ],
+        "source": "DS18B20 datasheet figures"
+      }
+    ],
+    "mounting": "breadboard",
+    "lib_deps": [
+      "paulstoffregen/OneWire",
+      "milesburton/DallasTemperature"
+    ],
+    "approx_fields": [
+      "body"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://cdn.sparkfun.com/datasheets/Sensors/Temp/DS18B20.pdf"
+    ],
+    "revision": "Maxim DS18B20",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Guides use normal VDD power, not parasite mode."
+  },
+  "coordinate_frame": {
+    "units": "mm",
+    "origin": "pin 1 of the part (see headers[0].pin1)",
+    "x": "+X along the header, from pin 1 toward higher pin numbers",
+    "y": "+Y across the part (right-handed)",
+    "z": "+Z up, out of the top face"
+  },
+  "safe_gpio": [],
+  "features": []
+}

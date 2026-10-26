@@ -14,6 +14,7 @@ type Guide = {
     steps: Array<{
       n: number;
       heading: string;
+      body?: string;
       callout?: string;
       connections_added?: string[];
     }>;
@@ -356,6 +357,42 @@ test.describe("Pinout preview", () => {
     expect(flush()).toEqual([]);
   });
 
+  test("parts picker is catalog-only, grouped, and searchable", async ({ page }) => {
+    await unlock(page);
+    await page.goto(shareUrl("/ask?idea=catalog"));
+    await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
+    await pickBoard(page);
+    await confirmBoard(page);
+    await expect(page.getByTestId("breadboard-picker")).toBeVisible();
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByTestId("path-picker")).toBeVisible();
+    await page.getByRole("button", { name: /Choose parts/i }).click();
+    await expect(page.getByTestId("parts-picker")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sensors" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Displays" })).toBeVisible();
+    await page.getByPlaceholder("Search the catalog").fill("HC-SR04");
+    await expect(page.getByRole("button", { name: /HC-SR04/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /SG90|servo/i })).toHaveCount(0);
+  });
+
+  test("idea list shows curated ideas first", async ({ page }) => {
+    await unlock(page);
+    await page.goto(
+      shareUrl(
+        `/ask?idea=${encodeURIComponent("motion-triggered servo that waves when someone walks by")}`,
+      ),
+    );
+    await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
+    await pickBoard(page);
+    await confirmBoard(page);
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("button", { name: /tested idea/i }).click();
+    const lists = page.getByTestId("idea-list");
+    await expect(lists.first()).toBeVisible();
+    await expect(lists.first()).toContainText(/Motion servo|Ultrasonic ranger|I2C LCD/);
+    await expect(page.getByText(/fresh ideas from the catalog/i)).toBeVisible();
+  });
+
   test("every catalog board composes the reference idea set", async ({ request }) => {
     if (SHARE) await request.get(shareUrl("/"));
     const catalogRes = await request.get(shareUrl("/api/catalog"));
@@ -390,7 +427,62 @@ test.describe("Pinout preview", () => {
           expect(cpp).toMatch(/SCL_PIN = 7/);
         }
       }
+      const curated = [
+        {
+          idea: "An HC-SR04 measures distance and lights an LED when something is close.",
+          parts: ["hc-sr04", "led-5mm-red", "resistor-220"],
+        },
+        { idea: "A short WS2812B strip on one safe GPIO.", parts: ["ws2812b-strip"] },
+        { idea: "A 1602 LCD on the default I2C pins.", parts: ["lcd1602-i2c-pcf8574"] },
+        {
+          idea: "A TM1637 display and a button.",
+          parts: ["tm1637-4digit", "tactile-button-6mm"],
+        },
+        {
+          idea: "A KY-023 joystick steers an LED.",
+          parts: ["joystick-ky023", "led-5mm-red", "resistor-220"],
+        },
+        {
+          idea: "A button clicks a 5V relay. Low-voltage DC only — never mains.",
+          parts: ["tactile-button-6mm", "relay-module-5v-1ch"],
+        },
+      ];
+      for (const idea of curated) {
+        const res = await request.post(shareUrl("/api/compose"), {
+          data: {
+            idea: idea.idea,
+            answers: {
+              board: [board.id],
+              breadboard: ["full-830"],
+              parts: idea.parts,
+            },
+          },
+        });
+        expect(res.ok(), `${board.id} × ${idea.idea}: ${await res.text()}`).toBeTruthy();
+        const guide = (await res.json()) as Guide;
+        expect(guide.build.board).toBe(board.id);
+        assertSafePins(guide, new Set(board.safe_gpio));
+      }
     }
+  });
+
+  test("compat-fix steps appear in the guide", async ({ request }) => {
+    if (SHARE) await request.get(shareUrl("/"));
+    const sonar = await request.post(shareUrl("/api/compose"), {
+      data: {
+        idea: "An HC-SR04 measures distance and lights an LED when something is close.",
+        answers: {
+          board: ["esp32-s3-devkitc-1-n16r8"],
+          breadboard: ["full-830"],
+          parts: ["hc-sr04", "led-5mm-red", "resistor-220"],
+        },
+      },
+    });
+    expect(sonar.ok(), await sonar.text()).toBeTruthy();
+    const guide = (await sonar.json()) as Guide;
+    const text = guide.build.steps.map((s) => `${s.heading} ${s.body}`).join("\n");
+    expect(text).toMatch(/divider on Echo|1 kΩ \/ 2 kΩ|HC-SR04P/);
+    expect(guide.build.parts.some((p) => /you'll also need/i.test((p as { note?: string }).note ?? "") || p.component === "resistor-1k")).toBeTruthy();
   });
 
   test("iPhone 390 shows the breadboard picker, reset view, and a C3 compose", async ({
