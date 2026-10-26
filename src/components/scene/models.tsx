@@ -137,25 +137,32 @@ export function BoardModel({
 }) {
   const length = dim(component.body?.length_mm, 62);
   const width = dim(component.body?.width_mm, 25.4);
+  const thick = dim(component.body?.pcb_thickness_mm, 1.6);
   const ox = component.body?.outline_offset_from_pin1?.x ?? 0;
   const oy = component.body?.outline_offset_from_pin1?.y ?? 0;
   const xiao = component.id.startsWith("xiao-");
+  const pico = component.id.startsWith("raspberry-pi-pico");
+  const uno = component.id === "arduino-uno-r3";
+  const pcb =
+    typeof component.colors?.pcb === "string"
+      ? component.colors.pcb
+      : FILLS.pcb;
   const cx = ox + length / 2;
   const cz = oy + width / 2;
   return (
     <group>
       <group position={[cx, 0.9, cz]}>
-        <CelBox args={[length, 1.6, width]} color={FILLS.pcb} faded={faded} />
+        <CelBox args={[length, thick, width]} color={pcb} faded={faded} />
         <CelBox
           args={[xiao ? 12.5 : 25.2, 3.6, xiao ? 10.5 : 17.6]}
           color={FILLS.module}
           faded={faded}
           position={[xiao ? -1 : -8.4, 2.7, 0]}
         />
-        {!xiao && (
+        {!xiao && !uno && (
           <>
             <CelBox
-              args={[7.2, 0.45, width - 6]}
+              args={[pico ? 5.2 : 7.2, 0.45, width - 6]}
               color={FILLS.antenna}
               faded={faded}
               position={[-length / 2 + 4.8, 1.05, 0]}
@@ -248,6 +255,24 @@ function UsbC({
         faded={faded}
         position={[3.8, 0, 0]}
       />
+    </group>
+  );
+}
+
+export function QuarterModel({
+  position = [0, 0.9, 0],
+}: {
+  position?: [number, number, number];
+}) {
+  const radius = 24.26 / 2;
+  const thick = 1.75;
+  return (
+    <group position={position}>
+      <mesh>
+        <cylinderGeometry args={[radius, radius, thick, 48]} />
+        <meshBasicMaterial color="#c5c1b4" toneMapped={false} />
+        <Edges color={INK} threshold={15} scale={1.01} />
+      </mesh>
     </group>
   );
 }

@@ -38,7 +38,7 @@ export const CURATED_IDEAS: CuratedIdea[] = [
 ];
 
 export function ideasFor(
-  board: Component,
+  board: Pick<Component, "id"> & Partial<Component>,
   breadboardRows: number,
 ): CuratedIdea[] {
   return CURATED_IDEAS.filter((idea) => {
@@ -48,7 +48,7 @@ export function ideasFor(
       led: idea.partIds.includes("led-5mm-red"),
       button: idea.partIds.includes("tactile-button-6mm"),
     };
-    return rowsNeeded(board, roles) <= breadboardRows;
+    return rowsNeeded(board as Component, roles) <= breadboardRows;
   });
 }
 

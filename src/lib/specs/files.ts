@@ -42,12 +42,15 @@ function readJsonDir(dir: string): unknown[] {
 
 const scannedComponents = readJsonDir(join(process.cwd(), "specs/components"));
 const scannedBuilds = readJsonDir(join(process.cwd(), "specs/builds"));
+const scannedChips = readJsonDir(join(process.cwd(), "specs/chips"));
 
 /** Live catalog: every JSON under specs/components and specs/builds. New spec files light up without a code change. */
 export const RAW_COMPONENTS =
   scannedComponents.length > 0 ? scannedComponents : FALLBACK_COMPONENTS;
 
 export const RAW_BUILDS = scannedBuilds.length > 0 ? scannedBuilds : FALLBACK_BUILDS;
+
+export const RAW_CHIPS = scannedChips;
 
 export const RAW_WIRE_COLORS = wireColorsJson as unknown;
 

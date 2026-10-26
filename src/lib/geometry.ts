@@ -90,18 +90,46 @@ export function findPinByGpio(
   return board.pins?.find((p) => p.gpio === gpio);
 }
 
+const FIVE_LABELS = new Set(["5V", "+5V", "VBUS"]);
+const THREE_LABELS = new Set(["3V3", "3.3V", "3V3(OUT)"]);
+const GND_LABELS = new Set(["G", "GND", "AGND"]);
+
+export function normalizePinLabel(label: string): string {
+  return label.trim().toUpperCase();
+}
+
+export function isFiveVoltLabel(label: string): boolean {
+  return FIVE_LABELS.has(normalizePinLabel(label));
+}
+
+export function isThreeVoltLabel(label: string): boolean {
+  return THREE_LABELS.has(normalizePinLabel(label));
+}
+
+export function isGndLabel(label: string): boolean {
+  return GND_LABELS.has(normalizePinLabel(label));
+}
+
 export function findPinByLabel(
   board: Component,
   label: string,
 ): Pin | undefined {
-  return board.pins?.find((p) => p.label === label);
+  const want = normalizePinLabel(label);
+  const aliases =
+    want === "5V"
+      ? FIVE_LABELS
+      : want === "3V3" || want === "3.3V"
+        ? THREE_LABELS
+        : want === "G" || want === "GND"
+          ? GND_LABELS
+          : new Set([want]);
+  return board.pins?.find((p) => aliases.has(normalizePinLabel(p.label)));
 }
 
 export function findGndPin(board: Component): Pin | undefined {
   return board.pins?.find(
     (p) =>
-      p.label === "G" ||
-      p.label === "GND" ||
+      isGndLabel(p.label) ||
       p.functions.includes("GND") ||
       p.id.endsWith(".GND"),
   );
@@ -113,15 +141,21 @@ export function headerSide(
 ): "left" | "right" {
   const header = board.headers?.[pin.header ?? 0];
   const y = pin.position.y;
-  if (header?.id === "J3" || header?.id === "R") return "right";
-  if (header?.id === "J1" || header?.id === "L") return "left";
+  const id = header?.id ?? "";
+  if (/^(J3|R|JP2|JDIGITAL)$/i.test(id)) return "right";
+  if (/^(J1|J2|L|JP1|JANALOG)$/i.test(id)) return "left";
   return y > 8 ? "right" : "left";
 }
 
 export function preferredSafeGpio(board: Component): number[] {
   const jtag = new Set([39, 40, 41, 42]);
+  const caution = new Set(
+    Object.keys(board.caution_gpio ?? {}).map((k) => Number(k)),
+  );
+  const noGo = new Set(Object.keys(board.no_go_gpio ?? {}).map((k) => Number(k)));
   const listed = new Set(board.safe_gpio ?? []);
   const safe = [...listed].filter((gpio) => {
+    if (caution.has(gpio) || noGo.has(gpio)) return false;
     const pin = findPinByGpio(board, gpio);
     if (!pin) return false;
     const flags = pin.flags ?? {};

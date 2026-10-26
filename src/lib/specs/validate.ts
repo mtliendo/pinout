@@ -1,11 +1,13 @@
 import {
   BreadboardSchema,
   BuildSchema,
+  ChipSchema,
   ComponentSchema,
   PinFlagsSchema,
   WireColorsSchema,
   type Breadboard,
   type Build,
+  type Chip,
   type Component,
   type Pin,
   type WireColors,
@@ -15,6 +17,7 @@ export type ValidationIssue = { path: string; message: string };
 
 export type Catalog = {
   components: Record<string, Component>;
+  chips: Record<string, Chip>;
   breadboard: Breadboard;
   builds: Record<string, Build>;
   wireColors: WireColors;
@@ -74,9 +77,186 @@ function riskyFlags(flags: Pin["flags"]): boolean {
 }
 
 function isFiveVoltPin(component: Component, pin: Pin): boolean {
-  if (pin.label === "5V") return true;
+  const label = (pin.label ?? "").toUpperCase();
+  if (label === "5V" || label === "+5V" || label === "VBUS") return true;
   if (pin.id === "VCC" && FIVE_V_MODULES.has(component.id)) return true;
   return false;
+}
+
+const CHIP_REQUIRED = [
+  "id",
+  "name",
+  "logic_voltage_v",
+  "five_v_tolerant",
+  "safe_gpio",
+  "caution_gpio",
+  "no_go_gpio",
+  "strapping_gpio",
+  "input_only_gpio",
+  "uart0",
+  "platformio",
+  "label_aliases",
+  "provenance",
+] as const;
+
+function usbGpios(chip: Chip): number[] {
+  const usb = chip.usb_gpio;
+  if (!usb || typeof usb !== "object") return [];
+  return Object.values(usb).filter((n): n is number => typeof n === "number");
+}
+
+export function validateChips(rawChips: unknown[]): {
+  chips: Record<string, Chip>;
+  issues: ValidationIssue[];
+} {
+  const chips: Record<string, Chip> = {};
+  const issues: ValidationIssue[] = [];
+  for (const raw of rawChips) {
+    const parsed = ChipSchema.safeParse(raw);
+    const id = (raw as { id?: string })?.id ?? "?";
+    const path = `chips/${id}`;
+    if (!parsed.success) {
+      issues.push({
+        path,
+        message: parsed.error.issues.map((i) => i.message).join("; "),
+      });
+      continue;
+    }
+    const chip = parsed.data;
+    for (const key of CHIP_REQUIRED) {
+      if (chip[key] == null) {
+        issues.push({ path, message: `missing ${key}` });
+      }
+    }
+    const provenance = chip.provenance;
+    if (!provenance?.sources?.length || provenance.verified_by !== "Maker") {
+      issues.push({ path, message: "provenance incomplete" });
+    }
+    const safe = new Set(chip.safe_gpio);
+    const caution = new Set(
+      Object.keys(chip.caution_gpio ?? {}).map((k) => Number(k)),
+    );
+    const noGo = new Set(Object.keys(chip.no_go_gpio ?? {}).map((k) => Number(k)));
+    const overlap = [...safe]
+      .filter((g) => caution.has(g) || noGo.has(g))
+      .concat([...caution].filter((g) => noGo.has(g)));
+    if (overlap.length) {
+      issues.push({
+        path,
+        message: `safe/caution/no_go overlap ${[...new Set(overlap)].sort((a, b) => a - b).join(",")}`,
+      });
+    }
+    const risky = new Set([
+      ...(chip.strapping_gpio ?? []),
+      ...(chip.input_only_gpio ?? []),
+      ...usbGpios(chip),
+    ]);
+    const riskySafe = [...safe].filter((g) => risky.has(g));
+    if (riskySafe.length) {
+      issues.push({
+        path,
+        message: `safe_gpio contains strapping/input-only/USB pins ${riskySafe.sort((a, b) => a - b).join(",")}`,
+      });
+    }
+    const uart = [chip.uart0?.tx, chip.uart0?.rx].filter(
+      (n): n is number => typeof n === "number",
+    );
+    if (chip.id !== "rp2040" && uart.some((g) => safe.has(g))) {
+      issues.push({ path, message: "UART0 pin in safe_gpio" });
+    }
+    for (const [gpio, reason] of [
+      ...Object.entries(chip.caution_gpio ?? {}),
+      ...Object.entries(chip.no_go_gpio ?? {}),
+    ]) {
+      if (!String(reason).trim()) {
+        issues.push({ path, message: `GPIO${gpio} has no reason` });
+      }
+    }
+    chips[chip.id] = chip;
+  }
+  return { chips, issues };
+}
+
+export function validateBoardChip(
+  board: Component,
+  chips: Record<string, Chip>,
+): string[] {
+  const err: string[] = [];
+  if (board.kind !== "board") return err;
+  const chip = chips[board.chip ?? ""];
+  if (!chip) {
+    err.push(`missing/unknown chip ${JSON.stringify(board.chip)}`);
+    return err;
+  }
+  const boardSafe = new Set(board.safe_gpio ?? []);
+  const extra = [...boardSafe].filter((g) => !chip.safe_gpio.includes(g));
+  if (extra.length) {
+    err.push(
+      `safe_gpio ${extra.sort((a, b) => a - b).join(",")} not safe on chip ${chip.id} (boards may only remove pins)`,
+    );
+  }
+  const boardNoGo = new Set(
+    Object.keys(board.no_go_gpio ?? {}).map((k) => Number(k)),
+  );
+  if ([...boardSafe].some((g) => boardNoGo.has(g))) {
+    err.push("safe_gpio overlaps no_go_gpio");
+  }
+  const headerGpio = new Set(
+    (board.pins ?? [])
+      .map((p) => p.gpio)
+      .filter((g): g is number => typeof g === "number"),
+  );
+  for (const pin of board.pins ?? []) {
+    const gpio = pin.gpio;
+    if (gpio == null) continue;
+    if (chip.gpio_numbers && !chip.gpio_numbers.includes(gpio)) {
+      err.push(`${pin.id} GPIO${gpio} does not exist on ${chip.id}`);
+    }
+    if (
+      String(gpio) in chip.no_go_gpio &&
+      !pin.flags?.psram_flash_reserved &&
+      !(String(gpio) in (board.no_go_gpio ?? {}))
+    ) {
+      err.push(
+        `${pin.id} GPIO${gpio} is chip no-go but not flagged on the board`,
+      );
+    }
+    if (
+      chip.input_only_gpio?.includes(gpio) &&
+      !pin.flags?.input_only
+    ) {
+      err.push(`${pin.id} GPIO${gpio} input-only not flagged`);
+    }
+  }
+  if (board.logic && typeof board.logic.five_v_logic !== "boolean") {
+    err.push("logic.five_v_logic must be bool");
+  }
+  if (
+    board.logic &&
+    board.logic.five_v_logic !== chip.logic_voltage_v >= 5
+  ) {
+    err.push("logic.five_v_logic disagrees with chip");
+  }
+  if (board.platformio) {
+    for (const key of ["board", "platform", "framework"] as const) {
+      if (!board.platformio[key]) err.push(`platformio.${key} missing`);
+    }
+  }
+  for (const bus of ["i2c", "spi"] as const) {
+    const roles = (board.defaults?.[bus] ?? {}) as Record<string, unknown>;
+    for (const [role, gpio] of Object.entries(roles)) {
+      if (typeof gpio === "number" && !headerGpio.has(gpio)) {
+        err.push(`default ${bus}.${role}=GPIO${gpio} not on a header pin`);
+      }
+    }
+  }
+  if (
+    board.breadboard_fit != null &&
+    typeof board.breadboard_fit.fits_830 !== "boolean"
+  ) {
+    err.push("breadboard_fit.fits_830 must be bool");
+  }
+  return err;
 }
 
 /** Port of specs/tools/validate.py: catalog integrity plus per-build electrical rules. */
@@ -84,9 +264,12 @@ export function validateCatalog(raw: {
   components: unknown[];
   builds: unknown[];
   wireColors: unknown;
+  chips?: unknown[];
 }): { catalog: Catalog | null; issues: ValidationIssue[] } {
   const issues: ValidationIssue[] = [];
   const components: Record<string, Component> = {};
+  const { chips, issues: chipIssues } = validateChips(raw.chips ?? []);
+  issues.push(...chipIssues);
 
   for (const rawComp of raw.components) {
     const parsed = ComponentSchema.safeParse(rawComp);
@@ -145,6 +328,11 @@ export function validateCatalog(raw: {
       }
     }
     components[comp.id] = comp;
+    if (comp.kind === "board") {
+      for (const message of validateBoardChip(comp, chips)) {
+        issues.push({ path: `components/${comp.id}`, message });
+      }
+    }
   }
 
   const wireParsed = WireColorsSchema.safeParse(raw.wireColors);
@@ -194,6 +382,7 @@ export function validateCatalog(raw: {
   return {
     catalog: {
       components,
+      chips,
       breadboard: breadParsed.data,
       builds,
       wireColors: wireParsed.data,
@@ -319,12 +508,18 @@ export function validateBuild(
     return (
       label === "G" ||
       label === "GND" ||
+      label === "AGND" ||
       label === "5V" ||
+      label === "+5V" ||
+      label === "VBUS" ||
       label === "3V3" ||
       label === "3.3V" ||
+      label === "3V3(OUT)" ||
       id === "GND" ||
       id === "5V" ||
+      id === "+5V" ||
       id === "3V3" ||
+      id === "VBUS" ||
       id === "G"
     );
   };

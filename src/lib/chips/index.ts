@@ -1,19 +1,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Pin } from "@/lib/specs/schema";
+import type { Chip, Pin } from "@/lib/specs/schema";
 
 /**
  * Pin safety is only ever read from verified `specs/chips/<chip>.json`.
  * Never infer GPIO safety from a photo or an LLM.
+ * Boards may only remove pins from the chip's safe set — never add.
  */
-export type ChipSpec = {
-  id: string;
-  family?: string;
-  logic_voltage?: "3.3V" | "5V";
-  safe_gpio: number[];
-  caution_gpio?: Record<string, string>;
-  no_go_gpio?: Record<string, string>;
-};
+export type ChipSpec = Chip;
 
 export function chipIdForBoard(board: {
   chip?: string;
@@ -23,14 +17,15 @@ export function chipIdForBoard(board: {
   return board.chip ?? board.defaults?.chip;
 }
 
-export function mergeChipSafety<T extends { safe_gpio?: number[]; pins?: Pin[] }>(
-  board: T,
-  chip: ChipSpec | null,
-): T {
+export function mergeChipSafety<
+  T extends { safe_gpio?: number[]; pins?: Pin[] },
+>(board: T, chip: ChipSpec | null): T {
   if (!chip) return board;
+  const chipSafe = new Set(chip.safe_gpio);
+  const listed = board.safe_gpio ?? [];
   return {
     ...board,
-    safe_gpio: chip.safe_gpio,
+    safe_gpio: listed.filter((gpio) => chipSafe.has(gpio)),
   };
 }
 

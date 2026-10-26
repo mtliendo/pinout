@@ -1,0 +1,132 @@
+{
+  "id": "rp2040",
+  "name": "Raspberry Pi RP2040",
+  "logic_voltage_v": 3.3,
+  "five_v_tolerant": false,
+  "five_v_note": "RP2040 datasheet: 'Fault Tolerant' pins only means little current flows below 3.63V when IOVDD is 0V. Not 5V tolerant.",
+  "gpio_numbers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "strapping_gpio": [],
+  "flash_psram_gpio": {
+    "notes": "Flash is on dedicated QSPI pins (not GPIO). BOOTSEL is on QSPI_SS, not a GPIO."
+  },
+  "usb_gpio": null,
+  "usb_note": "USB D+/D- are dedicated pins, not GPIO.",
+  "uart0": {
+    "tx": 0,
+    "rx": 1,
+    "note": "Pico SDK default UART0 (PICO_DEFAULT_UART_TX/RX_PIN)"
+  },
+  "input_only_gpio": [],
+  "adc_gpio": [
+    26,
+    27,
+    28,
+    29
+  ],
+  "adc2_wifi_conflict": null,
+  "safe_gpio": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "caution_gpio": {},
+  "no_go_gpio": {},
+  "notes": "Every chip GPIO is safe at chip level; boards remove the ones they use internally (Pico: 23/24/25/29; Pico W: 23/24/25/29 radio).",
+  "platformio": {
+    "platform": "raspberrypi (official, Arduino-Mbed core) or https://github.com/maxgerhardt/platform-raspberrypi.git (community, Earle Philhower arduino-pico core)",
+    "frameworks": [
+      "arduino"
+    ],
+    "example_boards": [
+      "pico",
+      "rpipicow (community platform only)"
+    ]
+  },
+  "label_aliases": {
+    "chip_level": {
+      "GP{n}": "GPIOn (Pico silkscreen)",
+      "GPIO{n}": "GPIOn",
+      "ADC{k}": "GPIO26+k (k=0..3)"
+    },
+    "board_level": {
+      "physical pin 1-40": "Pico header number, NOT a GPIO",
+      "D{n}": "some RP2040 boards (e.g. Arduino Nano RP2040 Connect) use Arduino numbers; look up the board"
+    },
+    "never_map": [
+      "RUN",
+      "3V3_EN",
+      "VSYS",
+      "VBUS",
+      "ADC_VREF",
+      "AGND"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf",
+      "https://github.com/raspberrypi/pico-sdk/blob/master/src/boards/include/boards/pico.h"
+    ],
+    "revision": "datasheets fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Fault-tolerant definition quoted from datasheet pad table."
+  }
+}

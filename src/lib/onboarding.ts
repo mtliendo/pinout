@@ -13,4 +13,11 @@ export const ONBOARDING_STEPS = [
 
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
-export const ONBOARDING_SHIPPED: OnboardingStep[] = ["board", "breadboard", "guide"];
+export const ONBOARDING_SHIPPED: OnboardingStep[] = [
+  "board",
+  "board-confirm",
+  "breadboard",
+  "path",
+  "parts",
+  "guide",
+];

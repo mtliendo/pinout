@@ -55,7 +55,7 @@ export function HomeScreen() {
         <Link className="wordmark" href="/">
           Pinout
         </Link>
-        <p className="top-meta">ESP32 wiring, from a sentence</p>
+        <p className="top-meta">Wiring for ten boards, from a sentence</p>
       </header>
       <div className="home-grid">
         <section className="home-copy">

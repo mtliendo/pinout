@@ -51,7 +51,7 @@ def s3pins(hdr,arr,hi,yv):
             out.append({"id":f"{hdr}.{i+1}","label":n,"gpio":None,"header":hi,"position":pos,"functions":fn,"voltage":v,"flags":{"input_only":False,"strapping":False,"usb":False,"psram_flash_reserved":False,"boot_sensitive":False},"warnings":w})
     return out
 PIN1_X=1.40
-s3={"id":"esp32-s3-devkitc-1-n16r8","name":"ESP32-S3-DevKitC-1 (N16R8: WROOM-1, 16 MB flash, 8 MB octal PSRAM)","kind":"board",
+s3={"id":"esp32-s3-devkitc-1-n16r8","name":"ESP32-S3-DevKitC-1 (N16R8: WROOM-1, 16 MB flash, 8 MB octal PSRAM)","kind":"board","chip":"esp32-s3",
 "coordinate_frame":dict(FRAME,origin="J1 pin 1 center is at (1.40, 1.27) from the board corner nearest it; all pin positions below are relative to the J1 pin 1 center",note="Board outline spans x=-1.40..61.34, y=-1.27..24.13 relative to J1 pin 1."),
 "body":{"length_mm":62.74,"width_mm":25.40,"pcb_thickness_mm":{"value":1.6,"approx":True,"note":"Not dimensioned in the Espressif DXF; typical PCB thickness."},"height_mm":{"value":10,"approx":True,"note":"Module + headers height not dimensioned in sources; visual estimate."},
  "outline_offset_from_pin1":{"x":-1.40,"y":-1.27},"pin1_from_top_edge":{"value":1.40,"approx":True,"note":"Derived: 62.74 total − 8.00 (last pin to USB edge, DXF) − 21×2.54."}},
@@ -84,7 +84,7 @@ def xiao(id_,name,url,left,right,safe,caut,feat,extra):
             pins.append({"id":f"{'L' if side==0 else 'R'}.{i+1}","label":lab,"gpio":g,"header":side,"position":{"index":i+1,"x":round(i*P,2),"y":y},"functions":fn,
               "voltage":"3.3V logic" if g is not None else {"5V":"5V (USB VBUS)","GND":"0V","3V3":"3.3V out (regulator, up to 700 mA per Seeed)"}[lab],
               "flags":dict({"input_only":False,"strapping":False,"usb":False,"psram_flash_reserved":False,"boot_sensitive":False},**fl),"warnings":w})
-    return {"id":id_,"name":name,"kind":"board","coordinate_frame":dict(FRAME,origin="L.1 (D0) pin center; USB-C end is -X"),
+    return {"id":id_,"name":name,"kind":"board","chip":"esp32-c3" if "c3" in id_ else "esp32-s3","coordinate_frame":dict(FRAME,origin="L.1 (D0) pin center; USB-C end is -X"),
       "body":{"length_mm":21.0,"width_mm":17.8,"height_mm":{"value":3.5,"approx":True,"note":"Not given in wiki text; shield + USB-C estimate."}},
       "colors":{"pcb":"#1d1d1d","shield":"#c0c0c0","silkscreen":"#ffffff"},
       "headers":[{"id":"L","origin_mm":[0,0],"pitch":P,"count":7,"orientation":"+X","pin1":"D0, next to USB-C"},

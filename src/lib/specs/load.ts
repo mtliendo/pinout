@@ -1,5 +1,5 @@
 import { chipIdForBoard, loadChipSpecs, mergeChipSafety } from "@/lib/chips";
-import { RAW_BUILDS, RAW_COMPONENTS, RAW_WIRE_COLORS } from "./files";
+import { RAW_BUILDS, RAW_CHIPS, RAW_COMPONENTS, RAW_WIRE_COLORS } from "./files";
 import { validateCatalog, type Catalog } from "./validate";
 
 let cached: Catalog | null = null;
@@ -10,6 +10,7 @@ export function loadCatalog(): Catalog {
     components: RAW_COMPONENTS,
     builds: RAW_BUILDS,
     wireColors: RAW_WIRE_COLORS,
+    chips: RAW_CHIPS,
   });
   if (!catalog) {
     throw new Error(
@@ -39,9 +40,22 @@ export function catalogSummary() {
       .map((c) => ({
         id: c.id,
         name: c.name,
+        chip: c.chip,
         safe_gpio: c.safe_gpio ?? [],
         caution_gpio: c.caution_gpio ?? {},
         no_go_gpio: c.no_go_gpio ?? {},
+        five_v_logic: Boolean(c.logic?.five_v_logic),
+        fits_830: c.breadboard_fit?.fits_830 ?? true,
+        off_board: Boolean(c.breadboard_fit?.off_board),
+        breadboard_fit: c.breadboard_fit,
+        logic: c.logic,
+        defaults: c.defaults,
+        body: c.body,
+        colors: c.colors,
+        headers: c.headers,
+        pins: c.pins,
+        features: c.features,
+        kind: c.kind,
       })),
     parts: Object.values(catalog.components)
       .filter((c) => c.kind !== "board" && c.kind !== "breadboard")

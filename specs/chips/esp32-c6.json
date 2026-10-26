@@ -1,0 +1,161 @@
+{
+  "id": "esp32-c6",
+  "name": "Espressif ESP32-C6 (RISC-V, Wi-Fi 6, 802.15.4)",
+  "logic_voltage_v": 3.3,
+  "five_v_tolerant": false,
+  "gpio_numbers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "strapping_gpio": [
+    4,
+    5,
+    8,
+    9,
+    15
+  ],
+  "flash_psram_gpio": {
+    "spi_flash": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "notes": "GPIO24-30 are the SPI flash bus on modules/in-package flash; not broken out on DevKitC-1."
+  },
+  "usb_gpio": {
+    "dm": 12,
+    "dp": 13
+  },
+  "uart0": {
+    "tx": 16,
+    "rx": 17
+  },
+  "input_only_gpio": [],
+  "adc2_wifi_conflict": {
+    "gpio": [],
+    "note": "C6 has only ADC1 (GPIO0-6), so no ADC2/Wi-Fi conflict.",
+    "approx": true,
+    "approx_note": "From the datasheet analog table summary; verify."
+  },
+  "safe_gpio": [
+    0,
+    1,
+    2,
+    3,
+    6,
+    7,
+    10,
+    11,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+  ],
+  "caution_gpio": {
+    "4": "strapping (MTMS)",
+    "5": "strapping (MTDI)",
+    "8": "strapping; RGB LED on DevKitC-1",
+    "9": "strapping, BOOT button",
+    "15": "strapping",
+    "12": "native USB D-",
+    "13": "native USB D+",
+    "16": "UART0 TX",
+    "17": "UART0 RX",
+    "14": "not bonded on every package (approx); avoid"
+  },
+  "no_go_gpio": {
+    "24": "SPI flash bus",
+    "25": "SPI flash bus",
+    "26": "SPI flash bus",
+    "27": "SPI flash bus",
+    "28": "SPI flash bus",
+    "29": "SPI flash bus",
+    "30": "SPI flash bus"
+  },
+  "notes": "GPIO0/1 are XTAL_32K if a crystal is fitted; 4-7 are JTAG.",
+  "platformio": {
+    "platform": "espressif32 (official: ESP-IDF only for this board) or pioarduino for Arduino",
+    "frameworks": [
+      "espidf",
+      "arduino (pioarduino)"
+    ],
+    "example_boards": [
+      "esp32-c6-devkitc-1"
+    ]
+  },
+  "label_aliases": {
+    "chip_level": {
+      "IO{n}": "GPIOn (Espressif silkscreen)",
+      "GPIO{n}": "GPIOn",
+      "G{n}": "GPIOn on many clones (but a bare 'G' is GND)",
+      "{n}": "bare number next to a header = GPIOn on Espressif DevKits",
+      "TX / TXD / TX0": "UART0 TX (see uart0)",
+      "RX / RXD / RX0": "UART0 RX (see uart0)",
+      "EN / RST / CHIP_PU": "reset, not a GPIO",
+      "BOOT": "button on the boot strapping GPIO"
+    },
+    "board_level": {
+      "D{n}": "Arduino/XIAO-style digital number. NOT GPIOn on XIAO or Arduino Nano ESP32; look up the board's own map",
+      "A{n}": "analog alias, board-specific",
+      "SDA / SCL": "board/framework default I2C, board-specific (ESP32 can route I2C to almost any GPIO)",
+      "MOSI/MISO/SCK/SS, COPI/CIPO/CS": "board/framework default SPI",
+      "LED / LED_BUILTIN": "board-specific",
+      "VP / VN": "classic ESP32 only: GPIO36 / GPIO39 (SENSOR_VP/VN)"
+    },
+    "never_map": [
+      "CLK",
+      "CMD",
+      "SD0",
+      "SD1",
+      "SD2",
+      "SD3",
+      "D0..D3 printed next to CLK/CMD on classic ESP32 DevKitC = flash pins, NOT Arduino D0-D3"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf",
+      "https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/user_guide.html",
+      "https://docs.platformio.org/en/latest/boards/espressif32/esp32-c6-devkitc-1.html"
+    ],
+    "revision": "datasheets fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Strapping GPIO4/5/8/9/15 and USB GPIO12/13 quoted from the datasheet."
+  }
+}

@@ -2,6 +2,7 @@
   "id": "xiao-esp32s3",
   "name": "Seeed Studio XIAO ESP32S3 (also Sense)",
   "kind": "board",
+  "chip": "esp32-s3",
   "coordinate_frame": {
     "units": "mm",
     "origin": "L.1 (D0) pin center; USB-C end is -X",

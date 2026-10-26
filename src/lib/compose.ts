@@ -1,5 +1,5 @@
+import { EXPECTED_BOARDS } from "./boards/expected";
 import {
-  adjacentFreeHole,
   defaultBusGpio,
   findGndPin,
   findPinByGpio,
@@ -14,6 +14,8 @@ import {
   FitError,
   packDiscrete,
   powerHoles,
+  signalEnd,
+  type BoardSeat,
   type PackedLayout,
 } from "./seat";
 import type { Breadboard, Build, Component, Pin } from "./specs/schema";
@@ -60,15 +62,6 @@ function railOf(
   return `${rail}@${snapRailRow(clamped, breadboard.grid.rows)}`;
 }
 
-function freeHoleForBoardPin(
-  pin: Pin,
-  holes: Record<string, string>,
-): string {
-  const seated = holes[pin.id];
-  if (!seated) return "a4";
-  return adjacentFreeHole(seated);
-}
-
 export function assignPins(
   board: Component,
   needs: SignalNeed[],
@@ -77,6 +70,7 @@ export function assignPins(
   const preferred = preferredSafeGpio(board);
   const used = new Set<number>();
   const holes = boardHoles(board, breadboard);
+  const seat = boardSeat(board, breadboard);
   const assigned: AssignedPin[] = [];
 
   const pick = (need: SignalNeed): number => {
@@ -121,8 +115,8 @@ export function assignPins(
       role: need.role,
       gpio,
       pin,
-      hole: holes[pin.id],
-      freeHole: freeHoleForBoardPin(pin, holes),
+      hole: holes[pin.id] ?? `mcu:${pin.id}`,
+      freeHole: signalEnd(pin, holes, seat),
     });
   }
   return assigned;
@@ -186,7 +180,7 @@ export function composeBuild(
   const holes = boardHoles(board, breadboard);
   const assigned = assignPins(board, needsFor(roles), breadboard);
   const byRole = Object.fromEntries(assigned.map((a) => [a.role, a]));
-  const power = powerHoles(board, holes, findPinByLabel, findGndPin);
+  const power = powerHoles(board, holes, findPinByLabel, findGndPin, seat);
   const layout = packDiscrete(seat, breadboard, {
     led: roles.led,
     button: roles.button,
@@ -209,13 +203,23 @@ export function composeBuild(
 
   const endRow = seat.startRow + seat.pinCount - 1;
   const placements: Build["placements"] = [
-    {
-      part: "mcu",
-      anchor_hole: `${seat.leftCol}${seat.startRow}`,
-      rotation_deg: 0,
-      pin_holes: holes,
-      note: `${board.name.split("(")[0].trim()} straddles the gap: left header in column ${seat.leftCol}, right in column ${seat.rightCol}, rows ${seat.startRow}–${endRow}.`,
-    },
+    seat.offBoard
+      ? {
+          part: "mcu",
+          anchor_hole: null,
+          off_board: true,
+          rotation_deg: 0,
+          pin_holes: {},
+          position_hint: "beside the breadboard, female headers facing the rails",
+          note: `${board.name.split("(")[0].trim()} stays off the breadboard. Wire from its ${seat.connector ?? "female headers"} with jumpers only.`,
+        }
+      : {
+          part: "mcu",
+          anchor_hole: `${seat.leftCol}${seat.startRow}`,
+          rotation_deg: 0,
+          pin_holes: holes,
+          note: seatNote(board, seat, endRow),
+        },
   ];
 
   if (roles.led) {
@@ -454,6 +458,23 @@ function rowOfHole(hole: string): number {
   const match = hole.match(/(\d+)$/);
   return match ? Number(match[1]) : 1;
 }
+
+function seatNote(board: Component, seat: BoardSeat, endRow: number): string {
+  const name = board.name.split("(")[0].trim();
+  if (seat.freeLeft === 0) {
+    return `${name} straddles columns ${seat.leftCol} and ${seat.rightCol}, rows ${seat.startRow}–${endRow}. The ${seat.leftCol} side has no free hole — wire those pins from the far side or with female jumpers.`;
+  }
+  return `${name} straddles the gap: left header in column ${seat.leftCol}, right in column ${seat.rightCol}, rows ${seat.startRow}–${endRow}.`;
+}
+
+export function isFiveVoltLogic(board: Component): boolean {
+  return Boolean(board.logic?.five_v_logic);
+}
+
+const THREE_V_ONLY: Record<string, string> = {
+  "ssd1306-oled-128x64-i2c":
+    "This OLED is 3.3V-only. On a 5V-logic board, power VCC from 3V3 and treat SDA/SCL as caution — I2C pull-ups sit at 5V unless you add a level shifter.",
+};
 
 function slugify(value: string): string {
   return value
@@ -698,43 +719,76 @@ function buildSteps(args: {
   let n = 1;
   const endRow = seat.startRow + seat.pinCount - 1;
   const xiao = /xiao/i.test(board.id);
+  const fiveLogic = isFiveVoltLogic(board);
 
-  steps.push({
-    n: n++,
-    heading: xiao
-      ? "Seat the XIAO across the gap"
-      : "Seat the board across the gap",
-    body: xiao
-      ? `Unplug USB. Press the XIAO so the left header sits in column ${seat.leftCol} and the right header in column ${seat.rightCol}, rows ${seat.startRow} to ${endRow}. USB points toward the near end.`
-      : `Unplug USB. Press the board into the breadboard so the left header goes in column ${seat.leftCol} and the right header in column ${seat.rightCol}, rows ${seat.startRow} to ${endRow}.`,
-    parts_needed: ["bb", "mcu"],
-    highlight: ["mcu"],
-    connections_added: [],
-    camera: "top",
-    callout: `${seat.leftCol}${seat.startRow}`,
-    safety: ["Push both headers evenly so pins do not bend."],
-    check: "The board sits flat and every pin is in a hole.",
-  });
+  if (seat.offBoard) {
+    steps.push({
+      n: n++,
+      heading: "Park the board beside the breadboard",
+      body: `Unplug USB. ${board.name.split("(")[0].trim()} does not fit an 830 breadboard. Set it next to the board and run male-male jumpers from its ${seat.connector ?? "female headers"} into the holes named in the next steps.`,
+      parts_needed: ["bb", "mcu"],
+      highlight: ["mcu"],
+      connections_added: [],
+      camera: "top",
+      callout: "a1",
+      safety: ["Do not force the board onto the breadboard. Jumpers only."],
+      check: "The MCU sits off-board and every later wire starts at a header pin.",
+    });
+  } else {
+    const noFree = seat.freeLeft === 0;
+    steps.push({
+      n: n++,
+      heading: xiao
+        ? "Seat the XIAO across the gap"
+        : "Seat the board across the gap",
+      body: xiao
+        ? `Unplug USB. Press the XIAO so the left header sits in column ${seat.leftCol} and the right header in column ${seat.rightCol}, rows ${seat.startRow} to ${endRow}. USB points toward the near end.`
+        : noFree
+          ? `Unplug USB. Press the board so the left header sits in column ${seat.leftCol} and the right in column ${seat.rightCol}, rows ${seat.startRow} to ${endRow}. The rows are 25.40 mm apart, so column ${seat.leftCol} has no free hole. Wire those pins from the far side or with female jumpers on the header.`
+          : `Unplug USB. Press the board into the breadboard so the left header goes in column ${seat.leftCol} and the right header in column ${seat.rightCol}, rows ${seat.startRow} to ${endRow}.`,
+      parts_needed: ["bb", "mcu"],
+      highlight: ["mcu"],
+      connections_added: [],
+      camera: "top",
+      callout: `${seat.leftCol}${seat.startRow}`,
+      safety: [
+        "Push both headers evenly so pins do not bend.",
+        ...(noFree
+          ? ["The left header occupies the last hole in that row. Use a female jumper on the pin, not a second plug in the same hole."]
+          : []),
+      ],
+      check: seat.offBoard
+        ? "Jumpers reach from the headers to the breadboard."
+        : "The board sits flat and every pin is in a hole.",
+    });
+  }
 
   const powerConns = [
     roles.servo || roles.pir ? "w_5v" : null,
     "w_gnd",
   ].filter(Boolean) as string[];
 
+  const fiveLabel = power.fivePin?.label ?? "5V";
+  const gndLabel = power.gndPin?.label ?? "G";
   steps.push({
     n: n++,
     heading: roles.servo || roles.pir
       ? "Run 5V and ground to the rails"
       : "Run ground to the rail",
     body: roles.servo || roles.pir
-      ? `Red jumper from ${power.five} (5V) to the red + rail. Black jumper from ${power.gnd} (G) to the blue − rail.`
-      : `Black jumper from ${power.gnd} (G) to the blue − rail.`,
+      ? `Red jumper from ${power.five} (${fiveLabel}) to the red + rail. Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. Rails are fed only from this board's own power pins.`
+      : `Black jumper from ${power.gnd} (${gndLabel}) to the blue − rail. Rails are fed only from this board's own power pins.`,
     parts_needed: ["jumpers_mm"],
     highlight: [power.fivePin?.id, power.gndPin?.id].filter(Boolean) as string[],
     connections_added: powerConns,
     camera: "left-low",
     callout: powerConns.includes("w_5v") ? power.five : power.gnd,
-    safety: ["5V must never touch a GPIO row."],
+    safety: [
+      "5V must never touch a GPIO row.",
+      ...(power.five.startsWith("mcu:")
+        ? ["That 5V pin has no free hole. Use a female jumper on the header pin."]
+        : []),
+    ],
     check: "Power wires match the printed + and − markings.",
   });
 
@@ -799,6 +853,7 @@ function buildSteps(args: {
       safety: [
         "Power the OLED from 3V3 so its pull-ups do not lift SDA/SCL to 5V.",
         "Swapping VCC and GND can kill the module. Read the silk.",
+        ...(fiveLogic ? [THREE_V_ONLY["ssd1306-oled-128x64-i2c"]] : []),
       ],
       check: "Four wires: orange to 3V3, black to −, blue SDA, yellow SCL.",
     });
@@ -816,6 +871,36 @@ function buildSteps(args: {
       callout: layout.ledAnode,
       safety: ["The resistor must sit in series with the LED."],
       check: `${layout.ledSignal}: purple + resistor. ${layout.ledAnode}: resistor + long leg. ${layout.ledCathode}: short leg + black.`,
+    });
+  }
+
+  if (fiveLogic && roles.oled) {
+    steps.push({
+      n: n++,
+      heading: "5V logic — treat the OLED as caution",
+      body: THREE_V_ONLY["ssd1306-oled-128x64-i2c"],
+      parts_needed: [],
+      highlight: ["oled"],
+      connections_added: [],
+      camera: "left",
+      callout: byRole.oled_sda?.freeHole ?? "a1",
+      safety: [board.logic?.warning ?? "Outputs swing to 5V."],
+      check: "OLED VCC is on 3V3, not the 5V rail.",
+    });
+  }
+
+  if (byRole.led && board.caution_gpio?.[String(byRole.led.gpio)]) {
+    steps.push({
+      n: n++,
+      heading: "Caution pin",
+      body: `GPIO${byRole.led.gpio} is a caution pin on this board: ${board.caution_gpio[String(byRole.led.gpio)]}. Prefer another safe GPIO if you can.`,
+      parts_needed: [],
+      highlight: [byRole.led.pin.id],
+      connections_added: [],
+      camera: "top",
+      callout: byRole.led.freeHole,
+      safety: [board.caution_gpio[String(byRole.led.gpio)]],
+      check: "You know this pin shares a function (often the onboard LED).",
     });
   }
 
@@ -837,12 +922,85 @@ function buildSteps(args: {
   return steps;
 }
 
-function pioBoardId(board: Component): string {
-  if (board.defaults?.pio?.board) return board.defaults.pio.board;
-  if (board.id.startsWith("xiao-esp32c3")) return "seeed_xiao_esp32c3";
-  if (board.id.startsWith("xiao-")) return "seeed_xiao_esp32s3";
-  if (board.id.startsWith("esp32-s3-devkitc")) return "esp32-s3-devkitc-1";
-  return board.id;
+function chipFamily(board: Component): "esp32" | "rp2040" | "avr" {
+  if (board.chip === "atmega328p") return "avr";
+  if (board.chip === "rp2040") return "rp2040";
+  return "esp32";
+}
+
+export function pioEnv(board: Component): {
+  env: string;
+  platform: string;
+  board: string;
+  framework: string;
+  extra: string[];
+} {
+  const pio = board.platformio;
+  if (board.id === "raspberry-pi-pico-w") {
+    return {
+      env: "rpipicow",
+      platform:
+        "https://github.com/maxgerhardt/platform-raspberrypi.git",
+      board: "rpipicow",
+      framework: "arduino",
+      extra: ["board_build.core = earlephilhower"],
+    };
+  }
+  if (board.id === "raspberry-pi-pico") {
+    return {
+      env: "pico",
+      platform:
+        "https://github.com/maxgerhardt/platform-raspberrypi.git",
+      board: "pico",
+      framework: "arduino",
+      extra: ["board_build.core = earlephilhower"],
+    };
+  }
+  if (board.id === "esp32-c6-devkitc-1") {
+    return {
+      env: "esp32-c6-devkitc-1",
+      platform:
+        pio?.arduino?.platform ??
+        "https://github.com/pioarduino/platform-espressif32/releases/download/stable/platform-espressif32.zip",
+      board: "esp32-c6-devkitc-1",
+      framework: "arduino",
+      extra: [],
+    };
+  }
+  if (pio?.board && pio.platform) {
+    return {
+      env: pio.board,
+      platform: pio.platform,
+      board: pio.board,
+      framework: pio.framework ?? "arduino",
+      extra: [],
+    };
+  }
+  if (board.id.startsWith("xiao-esp32c3")) {
+    return {
+      env: "seeed_xiao_esp32c3",
+      platform: "espressif32",
+      board: "seeed_xiao_esp32c3",
+      framework: "arduino",
+      extra: [],
+    };
+  }
+  if (board.id.startsWith("xiao-")) {
+    return {
+      env: "seeed_xiao_esp32s3",
+      platform: "espressif32",
+      board: "seeed_xiao_esp32s3",
+      framework: "arduino",
+      extra: [],
+    };
+  }
+  return {
+    env: "esp32-s3-devkitc-1",
+    platform: "espressif32",
+    board: "esp32-s3-devkitc-1",
+    framework: "arduino",
+    extra: [],
+  };
 }
 
 function sketchFor(
@@ -850,28 +1008,33 @@ function sketchFor(
   roles: ReturnType<typeof detectRoles>,
   byRole: Record<string, AssignedPin>,
 ): Record<string, string> {
-  const pioBoard = pioBoardId(board);
-  const pioPlatform = board.defaults?.pio?.platform ?? "espressif32";
-  const pioFramework = board.defaults?.pio?.framework ?? "arduino";
-
+  const pio = pioEnv(board);
+  const family = chipFamily(board);
   const libs = [
-    roles.servo ? "madhephaestus/ESP32Servo" : "",
+    roles.servo
+      ? family === "esp32"
+        ? "madhephaestus/ESP32Servo"
+        : ""
+      : "",
     roles.oled ? "adafruit/Adafruit SSD1306" : "",
     roles.oled ? "adafruit/Adafruit GFX Library" : "",
   ]
     .filter(Boolean)
     .join("\n");
 
-  const ini = `[env:${pioBoard}]
-platform = ${pioPlatform}
-board = ${pioBoard}
-framework = ${pioFramework}
+  const ini = `[env:${pio.env}]
+platform = ${pio.platform}
+board = ${pio.board}
+framework = ${pio.framework}
+${pio.extra.join("\n")}
 monitor_speed = 115200
 ${libs ? `lib_deps =\n  ${libs.split("\n").join("\n  ")}` : ""}
 `;
 
   const lines: string[] = ["#include <Arduino.h>"];
-  if (roles.servo) lines.push("#include <ESP32Servo.h>");
+  if (roles.servo) {
+    lines.push(family === "esp32" ? "#include <ESP32Servo.h>" : "#include <Servo.h>");
+  }
   if (roles.oled) {
     lines.push("#include <Wire.h>");
     lines.push("#include <Adafruit_GFX.h>");
@@ -900,12 +1063,24 @@ ${libs ? `lib_deps =\n  ${libs.split("\n").join("\n  ")}` : ""}
   if (byRole.button) lines.push("  pinMode(BTN_PIN, INPUT_PULLUP);");
   if (byRole.led) lines.push("  pinMode(LED_PIN, OUTPUT);");
   if (roles.servo) {
-    lines.push("  servo.setPeriodHertz(50);");
-    lines.push("  servo.attach(SERVO_PIN, 500, 2400);");
+    if (family === "esp32") {
+      lines.push("  servo.setPeriodHertz(50);");
+      lines.push("  servo.attach(SERVO_PIN, 500, 2400);");
+    } else {
+      lines.push("  servo.attach(SERVO_PIN);");
+    }
     lines.push("  servo.write(0);");
   }
   if (roles.oled && byRole.oled_sda && byRole.oled_scl) {
-    lines.push("  Wire.begin(SDA_PIN, SCL_PIN);");
+    if (family === "esp32") {
+      lines.push("  Wire.begin(SDA_PIN, SCL_PIN);");
+    } else if (family === "rp2040") {
+      lines.push("  Wire.setSDA(SDA_PIN);");
+      lines.push("  Wire.setSCL(SCL_PIN);");
+      lines.push("  Wire.begin();");
+    } else {
+      lines.push("  Wire.begin();");
+    }
     lines.push("  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);");
     lines.push("  display.clearDisplay();");
     lines.push("  display.setTextSize(2);");
@@ -978,15 +1153,19 @@ export function inferBoardFromAnswers(
   for (const value of values) {
     if (typeof value !== "string") continue;
     if (allowed.includes(value)) return value;
-    if (
-      value === "esp32-s3-devkitc-1-n16r8" ||
-      value === "xiao-esp32s3" ||
-      value === "xiao-esp32c3"
-    ) {
-      return value;
-    }
+    if ((EXPECTED_BOARDS as readonly string[]).includes(value)) return value;
     if (value.startsWith("xiao-esp32c3")) return "xiao-esp32c3";
     if (value.startsWith("xiao-esp32s3")) return "xiao-esp32s3";
+    if (value.includes("pico-w") || value.includes("picow"))
+      return "raspberry-pi-pico-w";
+    if (value.includes("pico")) return "raspberry-pi-pico";
+    if (value.includes("uno")) return "arduino-uno-r3";
+    if (value.includes("nano-esp32") || value.includes("nano_esp32"))
+      return "arduino-nano-esp32";
+    if (value.includes("nano")) return "arduino-nano";
+    if (value.includes("c6")) return "esp32-c6-devkitc-1";
+    if (value.includes("devkitc-v4") || value.includes("devkitc v4"))
+      return "esp32-devkitc-v4";
     if (value.includes("devkit") && value.includes("s3"))
       return "esp32-s3-devkitc-1-n16r8";
   }

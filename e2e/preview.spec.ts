@@ -51,48 +51,57 @@ function trackConsole(page: Page) {
     );
 }
 
-async function pickRelevantPills(page: Page) {
-  const pills = page.locator(".pill");
-  await expect(pills.first()).toBeVisible({ timeout: 60_000 });
-  const preferred =
-    /DevKitC|ESP32-S3|USB|capacitor|PIR|servo|OLED|button|LED|I already|red LED/i;
-  const count = await pills.count();
-  let clicked = 0;
+async function pickBoard(page: Page, name = /DevKitC-1|ESP32-S3-DevKitC/) {
+  await expect(page.getByTestId("board-picker")).toBeVisible({ timeout: 60_000 });
+  const cards = page.locator(".board-card");
+  const count = await cards.count();
+  expect(count).toBe(10);
+  let clicked = false;
   for (let i = 0; i < count; i++) {
-    const text = (await pills.nth(i).textContent()) ?? "";
-    if (preferred.test(text)) {
-      await pills.nth(i).click();
-      clicked += 1;
+    const text = (await cards.nth(i).textContent()) ?? "";
+    if (name.test(text)) {
+      await cards.nth(i).click();
+      clicked = true;
+      break;
     }
   }
-  if (clicked === 0) await pills.first().click();
+  if (!clicked) await cards.first().click();
+  await page.getByRole("button", { name: "This is the board" }).click();
+}
+
+async function confirmBoard(page: Page) {
+  await expect(page.getByTestId("board-confirm")).toBeVisible();
+  await expect(page.getByText(/US quarter/i)).toBeVisible();
+  await page.getByRole("button", { name: "Yes, this is mine" }).click();
+}
+
+async function pickPathIdea(page: Page, idea = /Motion servo|Button, LED/) {
+  await expect(page.getByTestId("breadboard-picker")).toBeVisible();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByTestId("path-picker")).toBeVisible();
+  await page.getByRole("button", { name: /tested idea/i }).click();
+  await expect(page.getByTestId("idea-list")).toBeVisible();
+  const cards = page.locator("[data-testid=idea-list] .path-card");
+  const count = await cards.count();
+  let clicked = false;
+  for (let i = 0; i < count; i++) {
+    const text = (await cards.nth(i).textContent()) ?? "";
+    if (idea.test(text)) {
+      await cards.nth(i).click();
+      clicked = true;
+      break;
+    }
+  }
+  if (!clicked) await cards.first().click();
+  await page.getByRole("button", { name: "Compose the guide" }).click();
 }
 
 async function answerQuestions(page: Page) {
   await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
-  const meta = (await page.locator(".top-meta").textContent()) ?? "";
-  const questions = Number(meta.match(/Question\s+\d+\s+of\s+(\d+)/)?.[1] ?? "0");
-  expect(questions).toBeGreaterThan(0);
-  expect(questions).toBeLessThanOrEqual(5);
-  const left = Number(
-    ((await page.locator(".ask-hint").textContent()) ?? "").match(/(\d+) left/)?.[1] ?? "-1",
-  );
-  expect(left).toBe(questions - 1);
-
-  for (let i = 0; i < 8; i++) {
-    const compose = page.getByRole("button", { name: "Compose the guide" });
-    if (await compose.isVisible()) {
-      await expect(page.getByTestId("breadboard-picker")).toBeVisible();
-      await compose.click();
-      return questions;
-    }
-    await pickRelevantPills(page);
-    const next = page.getByRole("button", { name: "Next" });
-    await expect(next).toBeVisible();
-    await next.click();
-    await expect(page.locator(".ask-card h1")).toBeVisible();
-  }
-  throw new Error("Did not reach compose after questions + breadboard");
+  await pickBoard(page);
+  await confirmBoard(page);
+  await pickPathIdea(page);
+  return 4;
 }
 
 function targetHoleForStep(guide: Guide, n: number) {
@@ -354,7 +363,7 @@ test.describe("Pinout preview", () => {
     const catalog = (await catalogRes.json()) as {
       boards: Array<{ id: string; safe_gpio: number[] }>;
     };
-    expect(catalog.boards.length).toBeGreaterThan(0);
+    expect(catalog.boards.length).toBe(10);
     const ideas = [
       "motion-triggered servo that waves when someone walks by",
       "button that toggles an LED and shows status on an OLED",
@@ -410,12 +419,8 @@ test.describe("Pinout preview", () => {
       ),
     );
     await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
-    for (let i = 0; i < 8; i++) {
-      if (await page.getByTestId("breadboard-picker").isVisible()) break;
-      await pickRelevantPills(page);
-      const next = page.getByRole("button", { name: "Next" });
-      if (await next.isVisible()) await next.click();
-    }
+    await pickBoard(page, /XIAO ESP32C3|Seeed Studio XIAO ESP32C3/);
+    await confirmBoard(page);
     await expect(page.getByTestId("breadboard-picker")).toBeVisible();
     await expect(page.getByText("Mini 170")).toBeVisible();
 

@@ -1,0 +1,145 @@
+{
+  "id": "esp32-c3",
+  "name": "Espressif ESP32-C3 (RISC-V single core)",
+  "logic_voltage_v": 3.3,
+  "five_v_tolerant": false,
+  "gpio_numbers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "strapping_gpio": [
+    2,
+    8,
+    9
+  ],
+  "flash_psram_gpio": {
+    "spi_flash": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "vdd_spi": [
+      11
+    ],
+    "notes": "GPIO12-17 are the SPI flash bus (in-package flash on C3FN4/FH4 uses them internally). GPIO11 is VDD_SPI by default (usable as GPIO only after an eFuse change)."
+  },
+  "usb_gpio": {
+    "dm": 18,
+    "dp": 19
+  },
+  "uart0": {
+    "tx": 21,
+    "rx": 20
+  },
+  "input_only_gpio": [],
+  "adc2_wifi_conflict": {
+    "gpio": [
+      5
+    ],
+    "note": "GPIO5 is ADC2_CH0; Espressif/Seeed say ADC2 is unreliable, use ADC1 (GPIO0-4) for analog.",
+    "approx": true,
+    "approx_note": "From Seeed wiki + ESP-IDF docs, not datasheet text."
+  },
+  "safe_gpio": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+  ],
+  "caution_gpio": {
+    "2": "strapping: boot mode",
+    "8": "strapping: boot mode/ROM log (must be high for download)",
+    "9": "strapping: boot mode, BOOT button",
+    "18": "native USB D-",
+    "19": "native USB D+",
+    "20": "UART0 RX",
+    "21": "UART0 TX",
+    "11": "VDD_SPI by default"
+  },
+  "no_go_gpio": {
+    "12": "SPI flash bus",
+    "13": "SPI flash bus",
+    "14": "SPI flash bus",
+    "15": "SPI flash bus",
+    "16": "SPI flash bus",
+    "17": "SPI flash bus"
+  },
+  "notes": "GPIO0/1 are the 32 kHz crystal pins if one is fitted; GPIO4-7 are JTAG (fine as GPIO).",
+  "platformio": {
+    "platform": "espressif32",
+    "frameworks": [
+      "arduino",
+      "espidf"
+    ],
+    "example_boards": [
+      "esp32-c3-devkitm-1",
+      "seeed_xiao_esp32c3"
+    ]
+  },
+  "label_aliases": {
+    "chip_level": {
+      "IO{n}": "GPIOn (Espressif silkscreen)",
+      "GPIO{n}": "GPIOn",
+      "G{n}": "GPIOn on many clones (but a bare 'G' is GND)",
+      "{n}": "bare number next to a header = GPIOn on Espressif DevKits",
+      "TX / TXD / TX0": "UART0 TX (see uart0)",
+      "RX / RXD / RX0": "UART0 RX (see uart0)",
+      "EN / RST / CHIP_PU": "reset, not a GPIO",
+      "BOOT": "button on the boot strapping GPIO"
+    },
+    "board_level": {
+      "D{n}": "Arduino/XIAO-style digital number. NOT GPIOn on XIAO or Arduino Nano ESP32; look up the board's own map",
+      "A{n}": "analog alias, board-specific",
+      "SDA / SCL": "board/framework default I2C, board-specific (ESP32 can route I2C to almost any GPIO)",
+      "MOSI/MISO/SCK/SS, COPI/CIPO/CS": "board/framework default SPI",
+      "LED / LED_BUILTIN": "board-specific",
+      "VP / VN": "classic ESP32 only: GPIO36 / GPIO39 (SENSOR_VP/VN)"
+    },
+    "never_map": [
+      "CLK",
+      "CMD",
+      "SD0",
+      "SD1",
+      "SD2",
+      "SD3",
+      "D0..D3 printed next to CLK/CMD on classic ESP32 DevKitC = flash pins, NOT Arduino D0-D3"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.espressif.com/sites/default/files/documentation/esp32-c3_datasheet_en.pdf",
+      "https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/"
+    ],
+    "revision": "datasheets fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Strapping GPIO2/8/9 and USB GPIO18/19 quoted from the datasheet. GPIO11 VDD_SPI and flash 12-17: datasheet pin table (approx for your exact package)."
+  }
+}

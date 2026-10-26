@@ -1,0 +1,206 @@
+{
+  "id": "esp32-s3",
+  "name": "Espressif ESP32-S3 (Xtensa LX7, dual core)",
+  "logic_voltage_v": 3.3,
+  "five_v_tolerant": false,
+  "gpio_numbers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48
+  ],
+  "strapping_gpio": [
+    0,
+    3,
+    45,
+    46
+  ],
+  "flash_psram_gpio": {
+    "spi_flash": [
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32
+    ],
+    "octal_psram_or_flash": [
+      33,
+      34,
+      35,
+      36,
+      37
+    ],
+    "notes": "GPIO26-32 carry SPI flash/PSRAM on every module. On octal (OPI) flash/PSRAM modules (WROOM-1 N16R8/N8R8, WROOM-2) GPIO33-37 are also used and are 'not available for external use'. Quad modules leave 33-37 free; we keep them caution at chip level, and an octal board must list 35-37 (and any broken-out 33/34) as never."
+  },
+  "usb_gpio": {
+    "dm": 19,
+    "dp": 20
+  },
+  "uart0": {
+    "tx": 43,
+    "rx": 44
+  },
+  "input_only_gpio": [],
+  "adc2_wifi_conflict": {
+    "gpio": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "note": "Datasheet: 'ADC2_CH\u2026 analog functions cannot be used with Wi-Fi simultaneously'. Digital use is fine.",
+    "approx": false
+  },
+  "safe_gpio": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    21,
+    38,
+    39,
+    40,
+    41,
+    42,
+    47,
+    48
+  ],
+  "caution_gpio": {
+    "0": "strapping: boot mode, BOOT button",
+    "3": "strapping: JTAG signal source",
+    "45": "strapping: VDD_SPI voltage",
+    "46": "strapping: boot mode/ROM log",
+    "19": "native USB D-",
+    "20": "native USB D+",
+    "43": "UART0 TX console",
+    "44": "UART0 RX console",
+    "33": "octal flash/PSRAM on OPI modules",
+    "34": "octal flash/PSRAM on OPI modules",
+    "35": "octal flash/PSRAM on OPI modules",
+    "36": "octal flash/PSRAM on OPI modules",
+    "37": "octal flash/PSRAM on OPI modules"
+  },
+  "no_go_gpio": {
+    "26": "SPI flash/PSRAM bus",
+    "27": "SPI flash/PSRAM bus",
+    "28": "SPI flash/PSRAM bus",
+    "29": "SPI flash/PSRAM bus",
+    "30": "SPI flash/PSRAM bus",
+    "31": "SPI flash/PSRAM bus",
+    "32": "SPI flash/PSRAM bus"
+  },
+  "notes": "GPIO38/48 often drive an onboard RGB LED and 39-42 are JTAG; boards remove them as needed.",
+  "platformio": {
+    "platform": "espressif32",
+    "frameworks": [
+      "arduino",
+      "espidf"
+    ],
+    "example_boards": [
+      "esp32-s3-devkitc-1",
+      "arduino_nano_esp32",
+      "seeed_xiao_esp32s3"
+    ]
+  },
+  "label_aliases": {
+    "chip_level": {
+      "IO{n}": "GPIOn (Espressif silkscreen)",
+      "GPIO{n}": "GPIOn",
+      "G{n}": "GPIOn on many clones (but a bare 'G' is GND)",
+      "{n}": "bare number next to a header = GPIOn on Espressif DevKits",
+      "TX / TXD / TX0": "UART0 TX (see uart0)",
+      "RX / RXD / RX0": "UART0 RX (see uart0)",
+      "EN / RST / CHIP_PU": "reset, not a GPIO",
+      "BOOT": "button on the boot strapping GPIO"
+    },
+    "board_level": {
+      "D{n}": "Arduino/XIAO-style digital number. NOT GPIOn on XIAO or Arduino Nano ESP32; look up the board's own map",
+      "A{n}": "analog alias, board-specific",
+      "SDA / SCL": "board/framework default I2C, board-specific (ESP32 can route I2C to almost any GPIO)",
+      "MOSI/MISO/SCK/SS, COPI/CIPO/CS": "board/framework default SPI",
+      "LED / LED_BUILTIN": "board-specific",
+      "VP / VN": "classic ESP32 only: GPIO36 / GPIO39 (SENSOR_VP/VN)"
+    },
+    "never_map": [
+      "CLK",
+      "CMD",
+      "SD0",
+      "SD1",
+      "SD2",
+      "SD3",
+      "D0..D3 printed next to CLK/CMD on classic ESP32 DevKitC = flash pins, NOT Arduino D0-D3"
+    ]
+  },
+  "provenance": {
+    "sources": [
+      "https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf",
+      "https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/user_guide_v1.1.html"
+    ],
+    "revision": "datasheets fetched 2026-10-26",
+    "verified_by": "Maker",
+    "verified_on": "2026-10-26",
+    "notes": "Strapping GPIO0/3/45/46, USB 19/20 and ADC2/Wi-Fi sentence quoted from the datasheet."
+  }
+}

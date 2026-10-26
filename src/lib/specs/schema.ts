@@ -58,6 +58,7 @@ export const PinSchema = z
     voltage: z.string().optional(),
     flags: PinFlagsSchema.optional(),
     warnings: z.array(z.string()).optional(),
+    physical_pin: z.number().optional(),
   })
   .passthrough();
 
@@ -103,7 +104,7 @@ export const FeatureSchema = z
     approx: z.boolean().optional(),
     note: z.string().optional(),
     label: z.string().optional(),
-    gpio: z.number().optional(),
+    gpio: z.unknown().optional(),
     connector: z.string().optional(),
   })
   .passthrough();
@@ -156,6 +157,54 @@ export const ComponentSchema = z
     chip: z.string().optional(),
     /** Incoming: breadboard vs off-board female-header boards (Uno R3). */
     placement: z.enum(["breadboard", "off_board_headers"]).optional(),
+    logic: z
+      .object({
+        logic_voltage_v: z.number().optional(),
+        five_v_logic: z.boolean().optional(),
+        pin_voltage: z.string().optional(),
+        warning: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    breadboard_fit: z
+      .object({
+        fits_830: z.boolean(),
+        off_board: z.boolean().optional(),
+        connector: z.string().optional(),
+        straddle: z.record(z.string(), z.string()).optional(),
+        free_holes_per_row: z
+          .object({
+            left: z.number().optional(),
+            right: z.number().optional(),
+          })
+          .passthrough()
+          .optional(),
+        rows: z.string().optional(),
+        note: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    platformio: z
+      .object({
+        board: z.string().optional(),
+        platform: z.string().optional(),
+        framework: z.string().optional(),
+        core: z.string().optional(),
+        arduino: z
+          .object({
+            platform: z.string().optional(),
+            framework: z.string().optional(),
+            note: z.string().optional(),
+          })
+          .passthrough()
+          .optional(),
+        alt: z.unknown().optional(),
+        alt_frameworks: z.array(z.string()).optional(),
+        note: z.string().optional(),
+        source: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
     defaults: z
       .object({
         i2c: z
@@ -171,6 +220,8 @@ export const ComponentSchema = z
           })
           .passthrough()
           .optional(),
+        uart0: z.unknown().optional(),
+        led_builtin: z.number().nullable().optional(),
         pio: z
           .object({
             platform: z.string(),
@@ -311,3 +362,33 @@ export const WireColorsSchema = z
   .passthrough();
 
 export type WireColors = z.infer<typeof WireColorsSchema>;
+
+export const ChipSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    logic_voltage_v: z.number(),
+    five_v_tolerant: z.boolean(),
+    gpio_numbers: z.array(z.number()).optional(),
+    safe_gpio: z.array(z.number()),
+    caution_gpio: z.record(z.string(), z.string()),
+    no_go_gpio: z.record(z.string(), z.string()),
+    strapping_gpio: z.array(z.number()).optional(),
+    input_only_gpio: z.array(z.number()).optional(),
+    usb_gpio: z
+      .union([z.record(z.string(), z.number()), z.null()])
+      .optional(),
+    uart0: z
+      .object({
+        tx: z.number().optional(),
+        rx: z.number().optional(),
+      })
+      .passthrough()
+      .optional(),
+    platformio: z.unknown().optional(),
+    label_aliases: z.unknown().optional(),
+    provenance: ProvenanceSchema,
+  })
+  .passthrough();
+
+export type Chip = z.infer<typeof ChipSchema>;
