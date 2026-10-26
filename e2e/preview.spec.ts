@@ -65,13 +65,14 @@ async function pickRelevantPills(page: Page) {
 
 async function answerQuestions(page: Page) {
   await expect(page.locator(".ask-card h1")).toBeVisible({ timeout: 90_000 });
-  const questions = Number(
-    ((await page.locator(".top-meta").textContent()) ?? "").match(
-      /Question\s+\d+\s+of\s+(\d+)/,
-    )?.[1] ?? "0",
-  );
+  const meta = (await page.locator(".top-meta").textContent()) ?? "";
+  const questions = Number(meta.match(/Question\s+\d+\s+of\s+(\d+)/)?.[1] ?? "0");
   expect(questions).toBeGreaterThan(0);
   expect(questions).toBeLessThanOrEqual(5);
+  const left = Number(
+    ((await page.locator(".ask-hint").textContent()) ?? "").match(/(\d+) left/)?.[1] ?? "-1",
+  );
+  expect(left).toBe(questions - 1);
 
   for (let i = 0; i < 5; i++) {
     await pickRelevantPills(page);
@@ -88,17 +89,29 @@ async function answerQuestions(page: Page) {
   throw new Error("Did not reach compose after 5 questions");
 }
 
-async function walkGuide(page: Page) {
+async function walkGuide(page: Page, dwell = 950) {
   await expect(page.locator(".bench")).toBeVisible({ timeout: 90_000 });
   await expect(page.locator(".progress-nav")).toContainText(/Build 1\/\d/);
   await expect(page.getByRole("button", { name: "Back" })).toBeDisabled();
+  await page.waitForTimeout(dwell);
 
   const next = page.getByRole("button", { name: /Done, next step/ });
   await expect(next).toBeVisible();
   await next.click();
+  await page.waitForTimeout(280);
+  const mid = Number(await page.getByTestId("motion").getAttribute("data-progress"));
+  expect(mid, `expected in-flight progress, got ${mid}`).toBeGreaterThan(0.1);
+  expect(mid).toBeLessThan(0.92);
   await expect(page.getByText(/Step 2 of/)).toBeVisible();
+  await expect(page.locator(".you-need strong").first()).toHaveText(/^\d+x$/);
+  const step2Qty = Number(
+    ((await page.locator(".you-need strong").first().textContent()) ?? "0").replace("x", ""),
+  );
+  expect(step2Qty).toBeLessThanOrEqual(3);
+  await page.waitForTimeout(dwell);
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByText(/Step 1 of/)).toBeVisible();
+  await page.waitForTimeout(dwell);
 
   for (let i = 0; i < 12; i++) {
     const finish = page.getByRole("button", { name: "Finish the build" });
@@ -109,6 +122,7 @@ async function walkGuide(page: Page) {
     const stepNext = page.getByRole("button", { name: "Done, next step" });
     await expect(stepNext).toBeVisible();
     await stepNext.click();
+    await page.waitForTimeout(dwell);
   }
 
   await expect(page.getByText(/You built/)).toBeVisible();

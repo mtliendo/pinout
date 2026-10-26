@@ -51,7 +51,7 @@ export function QuestionFlow() {
   const question = questions[index];
   const selected = answers[question?.id] ?? [];
   const remaining = useMemo(
-    () => Math.max(0, questions.length - index),
+    () => Math.max(0, questions.length - index - 1),
     [questions.length, index],
   );
 

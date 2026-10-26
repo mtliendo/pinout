@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { PartGlyph } from "@/components/icons/PartGlyph";
 import { Magnifier } from "@/components/scene/Magnifier";
 import { readGuide } from "@/lib/guide-store";
@@ -27,7 +27,7 @@ export function BuildViewer() {
   const [fetched, setFetched] = useState<GuidePayload | null>(null);
   const [fetchError, setFetchError] = useState("");
   const [stepIndex, setStepIndex] = useState(0);
-  const [progress, setProgress] = useState(1);
+  const [progress, setProgress] = useState(0);
   const [voice, setVoice] = useState(false);
   const [copied, setCopied] = useState("");
   const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
@@ -51,11 +51,12 @@ export function BuildViewer() {
   const done = Boolean(payload && stepIndex >= total);
   const last = payload?.build.steps[total - 1];
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let frame = 0;
     const start = performance.now();
+    const duration = 850;
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / 900);
+      const t = Math.min(1, (now - start) / duration);
       setProgress(1 - Math.pow(1 - t, 3));
       if (t < 1) frame = requestAnimationFrame(tick);
     };
@@ -76,9 +77,13 @@ export function BuildViewer() {
     if (!payload || !step) return [];
     return (step.parts_needed ?? []).map((id) => {
       const part = payload.build.parts.find((p) => p.id === id);
+      const jumper = /jumper/i.test(id) || /jumper/i.test(part?.component ?? "");
+      const qty = jumper
+        ? Math.max(1, step.connections_added?.length ?? 1)
+        : 1;
       return {
         id,
-        qty: part?.qty ?? 1,
+        qty,
         name: part
           ? (payload.components[part.component]?.name ?? part.component)
           : id,
@@ -106,10 +111,12 @@ export function BuildViewer() {
   }
 
   const next = () => {
+    setProgress(0);
     if (stepIndex + 1 < total) setStepIndex((i) => i + 1);
     else setStepIndex(total);
   };
   const back = () => {
+    setProgress(0);
     if (done) setStepIndex(total - 1);
     else setStepIndex((i) => Math.max(0, i - 1));
   };
@@ -167,6 +174,12 @@ export function BuildViewer() {
           if (w !== stageBox.w || h !== stageBox.h) setStageBox({ w, h });
         }}
       >
+        <span
+          className="sr-only"
+          data-testid="motion"
+          data-progress={progress.toFixed(3)}
+          data-step={stepIndex}
+        />
         <BuildCanvas
           payload={payload}
           stepIndex={Math.min(stepIndex, total - 1)}

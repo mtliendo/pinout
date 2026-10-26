@@ -400,10 +400,10 @@ export function CatalogPart({
   return <CelBox args={[8, 4, 8]} color="#c4b8a4" faded={faded} />;
 }
 
-function muteWire(color: string, faded?: boolean) {
-  if (faded) return mute(color, true);
+function wireFill(color: string, faded?: boolean) {
+  if (!faded) return color;
   const c = new THREE.Color(color);
-  c.lerp(new THREE.Color("#c4b8a4"), 0.36);
+  c.lerp(new THREE.Color("#f4efe6"), 0.38);
   return `#${c.getHexString()}`;
 }
 
@@ -428,17 +428,20 @@ export function GrowingWire({
       ),
     [points],
   );
-  const t = Math.max(0.04, Math.min(1, progress));
+  const t = Math.max(0, Math.min(1, progress));
+  const growing = t > 0.02;
   const geometry = useMemo(() => {
+    if (!growing) return null;
     const slice = curve.getPoints(Math.max(8, Math.floor(56 * t)));
     const sub = new THREE.CatmullRomCurve3(slice);
     return new THREE.TubeGeometry(sub, slice.length, faded ? 0.36 : 0.48, 8, false);
-  }, [curve, t, faded]);
+  }, [curve, t, faded, growing]);
   const hull = useMemo(() => {
+    if (!growing) return null;
     const slice = curve.getPoints(Math.max(8, Math.floor(56 * t)));
     const sub = new THREE.CatmullRomCurve3(slice);
     return new THREE.TubeGeometry(sub, slice.length, faded ? 0.52 : 0.72, 8, false);
-  }, [curve, t, faded]);
+  }, [curve, t, faded, growing]);
 
   const start = curve.getPoint(0);
   const startT = curve.getTangent(0);
@@ -452,20 +455,26 @@ export function GrowingWire({
     new THREE.Vector3(0, 1, 0),
     endT.clone().normalize(),
   );
-  const body = muteWire(color, faded);
+  const body = wireFill(color, faded);
   const housing = faded ? mute(FILLS.jumper, true) : FILLS.jumper;
-  const line = faded ? PALE_LINE : INK;
+  const line = faded ? "#4a4640" : INK;
 
   return (
     <group>
-      <mesh geometry={hull}>
-        <meshBasicMaterial color={line} side={THREE.BackSide} toneMapped={false} />
-      </mesh>
-      <mesh geometry={geometry}>
-        <meshBasicMaterial color={body} toneMapped={false} />
-      </mesh>
+      {hull ? (
+        <mesh geometry={hull}>
+          <meshBasicMaterial color={line} side={THREE.BackSide} toneMapped={false} />
+        </mesh>
+      ) : null}
+      {geometry ? (
+        <mesh geometry={geometry}>
+          <meshBasicMaterial color={body} toneMapped={false} />
+        </mesh>
+      ) : null}
       <Dupont position={start.toArray() as Vec3} quaternion={startQ} color={housing} faded={faded} />
-      <Dupont position={end.toArray() as Vec3} quaternion={endQ} color={housing} faded={faded} />
+      {growing ? (
+        <Dupont position={end.toArray() as Vec3} quaternion={endQ} color={housing} faded={faded} />
+      ) : null}
     </group>
   );
 }

@@ -74,15 +74,25 @@ export function BuildScene({
     .map((c) => {
       const from = endpointWorld(c.from, payload);
       const to = endpointWorld(c.to, payload);
+      const allIndex = build.connections.findIndex((row) => row.id === c.id);
+      const long = Boolean(c.length_mm && c.length_mm > 80);
+      const lift = 16 + (allIndex % 6) * 5.5 + (long ? 12 : 0);
+      const lane = ((allIndex % 2) * 2 - 1) * (4 + allIndex * 2.4);
+      const born = step?.connections_added?.indexOf(c.id) ?? -1;
+      const stagger = born >= 0 ? born * 0.1 : 0;
+      const local = currentConnections.has(c.id)
+        ? Math.max(0, Math.min(1, (progress - stagger) / (1 - stagger || 1)))
+        : 1;
       return {
         id: c.id,
-        points: bezierWire(from, to, c.length_mm && c.length_mm > 80 ? 22 : 15),
+        points: bezierWire(from, to, lift, lane),
         color: wireColorHex(
           c.color,
           wireColors.signal_palette,
           wireColors.power,
         ),
         current: currentConnections.has(c.id),
+        local,
       };
     });
 
@@ -106,7 +116,7 @@ export function BuildScene({
           const fade = !preview && !active && stepIndex < build.steps.length - 1;
           const born = firstSeen.get(placement.part) ?? 0;
           const seating = !preview && born === stepIndex;
-          const lift = seating ? (1 - easeOutCubic(progress)) * 28 : 0;
+          const lift = seating ? (1 - easeOutCubic(progress)) * 38 : 0;
           return (
             <group
               key={placement.part}
@@ -130,7 +140,7 @@ export function BuildScene({
             key={wire.id}
             points={wire.points}
             color={wire.color}
-            progress={wire.current ? progress : 1}
+            progress={wire.current ? wire.local : 1}
             faded={!preview && !wire.current && stepIndex < build.steps.length - 1}
           />
         ))}
@@ -146,6 +156,13 @@ export function BuildScene({
   );
 }
 
+const camPose = {
+  pos: new THREE.Vector3(),
+  look: new THREE.Vector3(),
+  frustum: 300,
+  primed: false,
+};
+
 export function CameraRig({
   payload,
   stepIndex,
@@ -159,33 +176,54 @@ export function CameraRig({
     const step = payload.build.steps[Math.min(stepIndex, payload.build.steps.length - 1)];
     return cameraFor(step?.camera ?? "hero", payload.breadboard, step?.callout);
   }, [payload, stepIndex]);
-  const pos = useRef(new THREE.Vector3(...target.position));
-  const look = useRef(new THREE.Vector3(...target.lookAt));
-  const frustum = useRef(target.frustum);
 
   useFrame((state, delta) => {
     const cam = state.camera as THREE.OrthographicCamera;
-    const k = 1 - Math.exp(-2.2 * delta);
-    const want = preview
-      ? { ...target, frustum: 236 }
-      : target;
-    pos.current.lerp(new THREE.Vector3(...want.position), preview ? 1 : k);
-    look.current.lerp(new THREE.Vector3(...want.lookAt), preview ? 1 : k);
-    frustum.current += (want.frustum - frustum.current) * (preview ? 1 : k);
-    const aspect = state.size.width / Math.max(1, state.size.height);
-    const half = frustum.current / 2;
-    cam.left = -half * aspect;
-    cam.right = half * aspect;
-    cam.top = half;
-    cam.bottom = -half;
-    cam.near = -900;
-    cam.far = 900;
-    cam.zoom = 1;
-    cam.position.copy(pos.current);
-    cam.lookAt(look.current);
-    cam.updateProjectionMatrix();
+    if (preview) {
+      camPose.primed = false;
+      const want = { ...target, frustum: 236 };
+      applyOrtho(cam, state.size, new THREE.Vector3(...want.position), new THREE.Vector3(...want.lookAt), want.frustum);
+      return;
+    }
+    if (!camPose.primed) {
+      camPose.pos.copy(cam.position);
+      camPose.look.set(target.lookAt[0], target.lookAt[1], target.lookAt[2]);
+      camPose.frustum = 420;
+      camPose.primed = true;
+    }
+    const k = 1 - Math.exp(-3.1 * delta);
+    const want = target;
+    camPose.pos.lerp(new THREE.Vector3(...want.position), k);
+    camPose.look.lerp(new THREE.Vector3(...want.lookAt), k);
+    camPose.frustum += (want.frustum - camPose.frustum) * k;
+    applyOrtho(cam, state.size, camPose.pos, camPose.look, camPose.frustum);
+    if (typeof document !== "undefined") {
+      document.body.dataset.camx = camPose.pos.x.toFixed(1);
+      document.body.dataset.camz = camPose.pos.z.toFixed(1);
+    }
   });
   return null;
+}
+
+function applyOrtho(
+  cam: THREE.OrthographicCamera,
+  size: { width: number; height: number },
+  pos: THREE.Vector3,
+  look: THREE.Vector3,
+  frustum: number,
+) {
+  const aspect = size.width / Math.max(1, size.height);
+  const half = frustum / 2;
+  cam.left = -half * aspect;
+  cam.right = half * aspect;
+  cam.top = half;
+  cam.bottom = -half;
+  cam.near = -900;
+  cam.far = 900;
+  cam.zoom = 1;
+  cam.position.copy(pos);
+  cam.lookAt(look);
+  cam.updateProjectionMatrix();
 }
 
 export function CalloutProjector({

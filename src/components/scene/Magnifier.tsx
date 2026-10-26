@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { adjacentFreeHole, holeWorld, parseHole } from "@/lib/geometry";
+import { holeWorld, parseHole } from "@/lib/geometry";
 import { labelForCallout } from "@/lib/callout";
 import type { GuidePayload } from "@/lib/types";
 import { BuildScene, calloutWorld } from "./BuildScene";
@@ -11,11 +11,11 @@ function magnifierWorld(callout: string | undefined, payload: GuidePayload) {
   if (callout) {
     const parsed = parseHole(callout);
     if (parsed?.kind === "hole") {
-      return holeWorld(adjacentFreeHole(callout), payload.breadboard, 1.1);
+      return holeWorld(callout, payload.breadboard, 1.15);
     }
   }
   return (
-    calloutWorld(callout, payload) ?? holeWorld("a4", payload.breadboard, 1.1)
+    calloutWorld(callout, payload) ?? holeWorld("a4", payload.breadboard, 1.15)
   );
 }
 
@@ -29,14 +29,15 @@ export function Magnifier({
   progress: number;
 }) {
   const step = payload.build.steps[stepIndex];
-  const target = magnifierWorld(step?.callout, payload);
-  const label = labelForCallout(step?.callout, payload);
+  const callout = step?.callout;
+  const target = magnifierWorld(callout, payload);
+  const label = labelForCallout(callout, payload);
 
   return (
     <div className="magnifier" aria-hidden>
       <Canvas
         orthographic
-        camera={{ position: [12, 16, 12], zoom: 1, near: -200, far: 200 }}
+        camera={{ position: [8, 14, 8], zoom: 1, near: -200, far: 200 }}
         dpr={[1, 1.5]}
       >
         <color attach="background" args={["#f7f3ea"]} />
@@ -47,22 +48,32 @@ export function Magnifier({
             progress={progress}
           />
         </group>
-        <CloseupRig progress={progress} />
+        <CloseupRig callout={callout} />
       </Canvas>
       <span className="magnifier-arrow" />
-      {label ? <p className="magnifier-label">{label}</p> : null}
+      {label ? (
+        <p className="magnifier-label" key={label}>
+          {label}
+        </p>
+      ) : null}
     </div>
   );
 }
 
-function CloseupRig({ progress }: { progress: number }) {
+function CloseupRig({ callout }: { callout?: string }) {
   useFrame((state) => {
     const cam = state.camera as THREE.OrthographicCamera;
-    const zoomIn = 16 - progress * 2;
+    const pinSeat = callout === "b1" || callout === "usb_uart";
+    if (pinSeat) {
+      cam.position.set(-8, 9.5, -1.2);
+      cam.lookAt(0, 1.1, 0);
+    } else {
+      cam.position.set(-5, 15, -11);
+      cam.lookAt(0, 0.5, 0);
+    }
+    const zoomIn = pinSeat ? 11 : 14;
     const half = zoomIn / 2;
     const aspect = state.size.width / Math.max(1, state.size.height);
-    cam.position.set(-2, 22, -14);
-    cam.lookAt(0, 0.4, 0);
     cam.left = -half * aspect;
     cam.right = half * aspect;
     cam.top = half;

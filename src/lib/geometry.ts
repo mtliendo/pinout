@@ -145,15 +145,25 @@ export function wireColorHex(
   return found?.hex ?? "#9e9e9e";
 }
 
-export function bezierWire(from: Vec3, to: Vec3, lift = 10): Vec3[] {
-  const midX = (from[0] + to[0]) / 2;
-  const midZ = (from[2] + to[2]) / 2;
+export function bezierWire(
+  from: Vec3,
+  to: Vec3,
+  lift = 10,
+  lane = 0,
+): Vec3[] {
+  const dx = to[0] - from[0];
+  const dz = to[2] - from[2];
+  const len = Math.hypot(dx, dz) || 1;
+  const nx = -dz / len;
+  const nz = dx / len;
+  const midX = (from[0] + to[0]) / 2 + nx * lane;
+  const midZ = (from[2] + to[2]) / 2 + nz * lane;
   const peak = Math.max(from[1], to[1]) + lift;
   return [
     from,
-    [from[0], peak * 0.55, from[2]],
+    [from[0] + nx * lane * 0.3, from[1] + lift * 0.42, from[2] + nz * lane * 0.3],
     [midX, peak, midZ],
-    [to[0], peak * 0.55, to[2]],
+    [to[0] + nx * lane * 0.3, to[1] + lift * 0.42, to[2] + nz * lane * 0.3],
     to,
   ];
 }

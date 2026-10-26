@@ -460,6 +460,10 @@ input {
   font-size: 0.68rem;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  z-index: 4;
+  isolation: isolate;
+  pointer-events: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 .leader {
@@ -690,9 +694,9 @@ input {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *:not(.magnifier):not(.magnifier-label):not(.magnifier-arrow),
+  *:not(.magnifier):not(.magnifier-label):not(.magnifier-arrow)::before,
+  *:not(.magnifier):not(.magnifier-label):not(.magnifier-arrow)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
