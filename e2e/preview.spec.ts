@@ -240,6 +240,14 @@ test.describe("Pinout preview", () => {
     expect(flush()).toEqual([]);
   });
 
+  test("reference guide film", async ({ page }) => {
+    const flush = trackConsole(page);
+    await unlock(page);
+    await page.locator(".preview-meta").getByRole("button", { name: "Build this" }).click();
+    await walkGuide(page);
+    expect(flush()).toEqual([]);
+  });
+
   test("tablet width stacks the bench and still finishes the reference", async ({
     page,
   }) => {
